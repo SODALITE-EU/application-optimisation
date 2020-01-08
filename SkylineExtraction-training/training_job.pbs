@@ -1,0 +1,8 @@
+
+#PBS -S /bin/bash
+#PBS -m abe
+#PBS -M ksivalinga@cray.com
+#PBS -l nodes=1,walltime=24:00:00
+
+cd $PBS_O_WORKDIR 
+/usr/local/bin/singularity exec --nv tensorflow_1.11.0-gpu.sif python peaklens-original-training.py

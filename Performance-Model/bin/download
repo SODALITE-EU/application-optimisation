@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# OSx and linux realpath utilities are quite different. This is a bash-specific replacement:
+function get_realpath() {
+    [[ ! -f "$1" ]] && return 1 # failure : file does not exist.
+    [[ -n "$no_symlinks" ]] && local pwdp='pwd -P' || local pwdp='pwd' # do symlinks.
+    echo "$( cd "$( echo "${1%/*}" )" 2>/dev/null; $pwdp )"/"${1##*/}" # echo result.
+    return 0 # success
+}
+# we want symlink resolution
+no_symlinks='on'
+
+_script="$(get_realpath ${BASH_SOURCE[0]})"
+
+## Delete last component from $_script ##
+_mydir="$(dirname $_script)"
+
+export SODALITEROOT=${SODALITEROOT:-${_mydir}/..}
+
+# Source config
+. ${SODALITEROOT}/config/sodalite.conf
+
+if test ! -f ${SODALITEROOT}/config/${GITLAB_SECRETS}; then
+    echo "Gitlab secret file in ${SODALITEROOT}/config/${GITLAB_SECRETS} it not accesible."
+    echo "Please add it and specify your Gitlab PRIVATE-TOKEN (GITLAB_PRIVATE_TOKEN=<private-token>)."
+    echo "Exiting!"
+    exit -1
+fi
+
+. ${SODALITEROOT}/config/${GITLAB_SECRETS}
+
+# Delete previous archive image
+rm -f ${SODALITE_IMAGE_NAME}
+
+# Download the image in the current directory
+curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -o ${SODALITE_IMAGE_NAME} ${SODALITE_IMAGE_URL}
+
+# Check archive and take name
+dir_name=`tar tf ${SODALITE_IMAGE_NAME}`
+if test $? -ne 0; then
+    echo
+    echo "Check that your Gitlab PRIVATE-TOKEN reported in the file"
+    echo "${SODALITEROOT}/config/${GITLAB_SECRETS} is correct"
+    echo "(syntax: GITLAB_PRIVATE_TOKEN=<private-token>)."
+    echo "Exiting!"
+    exit -1
+fi
+
+dir_name=`echo $dir_name | head -1 | cut -f1 -d"/"`
+
+# Delete previous image
+rm -rf ${dir_name}
+
+# Unpack
+tar -xvf ${SODALITE_IMAGE_NAME} 2>&1 |
+    while read line; do
+        x=$((x+1))
+        echo -en "$x extracted"'\r'
+    done
+
+# Remove archive image
+rm -rf ${SODALITE_IMAGE_NAME}

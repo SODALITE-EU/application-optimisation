@@ -1,0 +1,11 @@
+*~
+*.simg
+*.tic
+*.img*
+*.tar.bz2
+hpccoutf*.txt
+*_hpccoutf.txt
+*.res
+*.prot
+*.sum
+*.o*
