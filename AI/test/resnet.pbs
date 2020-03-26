@@ -1,0 +1,16 @@
+
+#PBS -S /bin/bash
+#PBS -m abe
+#PBS -M ksivalinga@cray.com
+#PBS -l nodes=1:ppn=40,walltime=24:00:00
+
+cd $PBS_O_WORKDIR
+export PYTHONPATH=$PYTHONPATH:/mnt/nfs/home/karthee/AI/models
+cd /mnt/nfs/home/karthee/AI/models/official/vision/image_classification 
+
+/usr/local/bin/singularity exec /mnt/nfs/home/karthee/sodalite/AI/containers/tensorflow_2.1_opt_source_xla python3 resnet/resnet_imagenet_main.py --data_dir=~/AI/data/ --batch_size=128 --train_epochs=1 --train_steps=1000 --use_synthetic_data=true --num_gpus=0 --noenable_xla
+
+export TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit"
+export XLA_FLAGS="--xla_dump_to=/mnt/nfs/home/karthee/tmp/generated"
+/usr/local/bin/singularity exec /mnt/nfs/home/karthee/sodalite/AI/containers/tensorflow_2.1_opt_source_xla python3 resnet/resnet_imagenet_main.py --data_dir=~/AI/data/ --batch_size=128 --train_epochs=1 --train_steps=1000 --use_synthetic_data=true --num_gpus=0 --enable_xla
+

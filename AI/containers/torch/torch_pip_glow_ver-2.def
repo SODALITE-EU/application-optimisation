@@ -1,0 +1,38 @@
+# Singularity container building pytorch from source, followed by glow from source. Built versions are newest available github releases. NOTE: this version 2 container installs additional packages required for the newest glow version available on github (status March 2020).  
+
+BootStrap: localimage
+From: ./ubuntu_base/
+
+%post
+
+	# install additional required packages for glow source build
+	apt-get install -y llvm-8 llvm-8-dev libboost-all-dev \
+    libdouble-conversion-dev libevent-dev libssl-dev libgflags-dev \
+    libjemalloc-dev libpthread-stubs0-dev
+
+	# install pytorch and numpy
+    pip3 install torch numpy
+
+	# clone glow github repository
+	cd home
+	git clone https://github.com/pytorch/glow.git
+	cd glow
+	git submodule update --init --recursive
+
+	# clone fmt repository, required by newest glow (March 2020)
+	git clone https://github.com/fmtlib/fmt
+	mkdir fmt/build
+	cd fmt/build
+	cmake ..
+	make
+	make install
+	cd ../../
+	
+	# build glow from source, release version
+	mkdir build_Debug
+	cd build_Debug
+	CC=/usr/bin/clang-8 CXX=/usr/bin/clang++-8 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ../../glow
+	ninja all
+
+%labels
+    Author nina

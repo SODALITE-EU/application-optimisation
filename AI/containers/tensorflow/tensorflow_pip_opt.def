@@ -1,0 +1,25 @@
+# tensorflow 2.1.0 install using optimized pip package. 
+# package available here: https://github.com/inoryy/tensorflow-optimized-wheels
+BootStrap: localimage
+From: ./ubuntu_base/
+
+%post
+
+	# TF pip package requires python3.7
+	apt-get install -y python3.7 
+	python3 --version
+
+	# set to use updated python
+	update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+	update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+
+	update-alternatives --config python3
+	python3 --version
+
+	# Install keras  
+	pip3 install -U keras --no-deps
+	# Install optimized TF pip package
+	pip3 install https://github.com/inoryy/tensorflow-optimized-wheels/releases/download/v2.1.0/tensorflow-2.1.0-cp37-cp37m-linux_x86_64.whl
+
+
+%labels

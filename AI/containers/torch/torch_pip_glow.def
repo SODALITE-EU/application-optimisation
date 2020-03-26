@@ -1,0 +1,25 @@
+# Builds container using newest available pytorch pip container. GLOW is built from source on top of the installed pytorch, as there are no pip containers.
+# DEPRECATED - newest glow source build requires additional packages, see torch_pip_glow version2.
+
+BootStrap: localimage
+From: ./ubuntu_base/
+
+%post
+	# install pytorch
+    pip3 install torch
+
+	# clone into glow github tree
+	cd home
+	git clone https://github.com/pytorch/glow.git
+	cd glow
+	# retrieve all glow dependencies
+	git submodule update --init --recursive
+	
+	# build glow release 
+	mkdir build_Debug
+	cd build_Debug
+	CC=/usr/bin/clang-8 CXX=/usr/bin/clang++-8 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ../../glow
+	ninja all
+
+%labels
+    Author nina

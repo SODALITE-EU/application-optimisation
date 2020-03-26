@@ -1,0 +1,42 @@
+# tensorflow 2.1 source build with architecture specific optimizations for avx avx2 sse4.1 sse4.2 fma 
+# disabled additional builds of aws gcp hdfs nccl
+BootStrap: localimage
+From: ./ubuntu_base/
+
+%post
+
+	# TF 2.1 requires gcc-8, will fail with gcc 7.3
+	apt-get install -y gcc-8 g++-8
+	update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+	update-alternatives --config gcc
+
+	# source install prerequisites
+	apt-get -y install pkg-config zip unzip
+
+	# install python packages
+	pip3 install -U pip six numpy wheel setuptools mock 'future>=0.17.1'
+	pip3 install -U keras_applications --no-deps
+	pip3 install -U keras_preprocessing --no-deps
+
+	# get bazel 2.0.0 for TF 2.1
+	cd home
+	wget -O bazel https://github.com/bazelbuild/bazel/releases/download/2.0.0/bazel-2.0.0-linux-x86_64
+	chmod +x bazel
+	./bazel
+	export PATH=$PATH:$(pwd)
+
+	# get newest tensorflow
+	git clone https://github.com/tensorflow/tensorflow.git
+	cd tensorflow
+
+	# pass python3 to interactive package
+	# built with XLA support
+	echo "/usr/bin/python3" |./configure  
+	# set to optimized build - manually chosen optimizations
+	bazel build --config=opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --config=noaws --config=nogcp --config=nohdfs --config=nonccl //tensorflow/tools/pip_package:build_pip_package
+	./bazel-bin/tensorflow/tools/pip_package/build_pip_package tensorflow_pkg
+
+	# EXECUTE THIS STEP MANUALLY BY FINDING THE APPROPRIATE PACKAGE NAME!
+	pip3 install tensorflow_pkg/tensorflow-2.1.0-cp36-cp36m-linux_x86_64.whl  
+
+%labels

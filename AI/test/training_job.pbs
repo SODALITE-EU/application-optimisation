@@ -1,0 +1,50 @@
+
+#PBS -S /bin/bash
+#PBS -m abe
+#PBS -M ksivalinga@cray.com
+#PBS -l nodes=1:ppn=40,walltime=24:00:00
+
+cd $PBS_O_WORKDIR
+#/usr/local/bin/singularity exec ../containers/tensorflow_pip_xla python3 mnist_cnn_keras.py
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0_source_xla python3 mnist_cnn_keras.py
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0_opt_source_xla python3 mnist_cnn_keras.py
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.1_opt_source_xla python3 mnist_cnn_keras.py
+#export TF_XLA_FLAGS=--tf_xla_auto_jit=2
+#export TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit"
+#export XLA_FLAGS="--xla_dump_to=/mnt/nfs/home/karthee/tmp/generated"
+echo "container tensorflow_2.0.1-py3.sif"
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0.1-py3.sif python3 tf_mnist_cnn.py
+echo "container tensorflow_pip_xla"
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0_pip_xla python3 tf_mnist_cnn.py
+echo "container tensorflow_2.0_source_xla"
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0_source_xla python3 tf_mnist_cnn.py
+echo "container tensorflow_2.0_opt_source_xla"
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0_opt_source_xla python3 tf_mnist_cnn.py
+echo "container tensorflow_2.1_opt_source_xla"
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.1_opt_source_xla python3 tf_mnist_cnn.py
+echo "container tensorflow_manually_opt_source"
+#/usr/local/bin/singularity exec ../containers/tensorflow_manually_opt_source  python3 tf_mnist_cnn.py
+#
+#
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.2.0rc0-py3.sif python3 tf_mnist_cnn.py
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0.1-py3.sif python3 tf_mnist_cnn.py
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.1.0-py3.sif python3 tf_mnist_cnn.py
+#/usr/local/bin/singularity exec ../containers/tensorflow_1.4.1-py3 python3 mnist_cnn_keras.py
+
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.1.0-py3 python3 mnist_cnn_keras.py
+
+#/usr/local/bin/singularity exec ../containers/pytorch_latest.sif python3 torch_mnist_cnn.py  
+#/usr/local/bin/singularity exec ../containers/torch_pip_glow_ver-2 python3 torch_mnist_cnn.py  
+#/usr/local/bin/singularity exec ../containers/torch_source_glow_ver-2 bash -C torch_run_mnist.sh
+#
+export OMP_NUM_THREADS=40 KMP_AFFINITY=granularity=fine,compact,1,0
+/usr/local/bin/singularity exec ../containers/tensorflow_pip_ngraph python3 ngraph_mnist_deep_simplified.py
+/usr/local/bin/singularity exec ../containers/tensorflow_pip_ngraph python3 ngraph_keras_mnist_cnn.py  
+#/usr/local/bin/singularity exec ../containers/torch_source bash -C torch_run_mnist.sh
+#
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.2.0rc0-py3.sif python3 mnist_cnn_keras.py
+#/usr/local/bin/singularity exec ../containers/tensorflow_2.0.1-py3.sif python3 mnist_cnn_keras.py
+#
+#/usr/local/bin/singularity exec ../containers/python_latest_cpu_py3 python3 mnist_cnn_keras.py
+#
+#/usr/local/bin/singularity exec --writable ../containers/cntk_release_2.7-cpu-python3.5 bash -C keras_run_mnist.sh

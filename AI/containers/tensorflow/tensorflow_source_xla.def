@@ -1,0 +1,32 @@
+# builds newest tensorflow from source. DEPRECATED - build broke with February 2020 update of Tensorflow github repository
+BootStrap: localimage
+From: ./ubuntu_base/
+
+%post
+
+	# source install prerequisites
+	apt-get -y install pkg-config zip unzip
+	pip3 install -U pip six numpy wheel setuptools mock 'future>=0.17.1'
+	pip3 install -U keras_applications --no-deps
+	pip3 install -U keras_preprocessing --no-deps
+
+	# get bazel 1.2.1 for tensorflow 2.1
+	cd home
+	wget -O bazel https://github.com/bazelbuild/bazel/releases/download/1.2.1/bazel-1.2.1-linux-x86_64
+	chmod +x bazel
+	./bazel
+	export PATH=$PATH:$(pwd)
+
+	# get newest tensorflow
+	git clone https://github.com/tensorflow/tensorflow.git
+	cd tensorflow
+
+	# pass python3 to interactive package
+	# built with XLA support
+	echo "/usr/bin/python3" | ./configure 
+	# set to optimized build
+	bazel build --config=opt -c opt //tensorflow/tools/pip_package:build_pip_package
+	./bazel-bin/tensorflow/tools/pip_package/build_pip_package tensorflow_pkg
+	pip3 install tensorflow_pkg/tensorflow-2.1.0-cp36-cp36m-linux_x86_64.whl
+
+%labels
