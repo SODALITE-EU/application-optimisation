@@ -1,0 +1,25 @@
+! This example will save state information
+! to be used in a subsequent run
+begin configuration
+ begin tune
+  mode: tune
+  scope: NB
+  target: min
+  metric-source: runtime
+ end tune
+ state-file: tune.state
+end configuration
+begin parameters
+ begin typing
+  int NB
+ end typing
+ begin constraints
+  range NB 60:90:10
+ end constraints
+end parameters
+begin build
+ command: true
+end build
+begin run
+ command: ./solver NB=$NB
+end run

@@ -1,0 +1,244 @@
+CRESTA AUTOTUNE v0.481
+
+Started Tue Mar 11 05:48:58 -0500 2014 
+
+Overall control options:
+   
+      cfile         linpack3.tune
+      do_build      true 
+      do_run        true 
+      verbose       false 
+      save_state    false
+      continue      false 
+      continue_seq  
+      validating    false
+
+Tuning Configuration:
+
+Loaded from file linpack3.tune
+
+global config
+  
+  DSL Sources
+
+   No DSL source configured
+
+  Tune settings
+
+   mode           tune
+   scope          OPTFP
+   target         max 
+   metric-source  stdout
+
+Build config
+ command=ftn $OPT -O $FP -o lp.$build_tag lp1000d.f
+
+Run config
+ command=./lp.$build_tag
+
+Tuning mode is a single tune run
+
+There are 2 tuning parameters
+
+  name = OPT
+         type = label, range = -O0,-O1,-O2
+         default = -O0
+  name = FP
+         type = label, range = fp2,fp3
+         default = fp2
+
+Collections:
+
+Dependency groupings
+
+  OPT FP
+
+Starting Optimizer
+
+parameters OPT FP are dependent
+ Choose best values from following runs
+  [B] Run 0 params: OPT=-O0 FP=fp2
+  [B] Run 1 params: OPT=-O1 FP=fp2
+  [B] Run 2 params: OPT=-O2 FP=fp2
+  [B] Run 3 params: OPT=-O0 FP=fp3
+  [B] Run 4 params: OPT=-O1 FP=fp3
+  [B] Run 5 params: OPT=-O2 FP=fp3
+
+Starting executions for current parameter search
+Executing build command ftn -O0 -O fp2 -o lp.tag0 lp1000d.f
+
+Executing Run 0, command: ./lp.tag0
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  6.49150133E+00  7.20701276E-13  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  1.444E+00  8.000E-03  1.452E+00  4.605E+02  4.343E-03  2.593E+01
+  end of tests -- this version dated 10/12/92
+ STOP  
+Run 0 took 1.5629301071s, metric 4.605E+02
+Executing build command ftn -O1 -O fp2 -o lp.tag1 lp1000d.f
+
+Executing Run 1, command: ./lp.tag1
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  6.49150133E+00  7.20701276E-13  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  5.480E-01  0.000E+00  5.480E-01  1.220E+03  1.639E-03  9.786E+00
+  end of tests -- this version dated 10/12/92
+ STOP  
+Run 1 took 0.6293840408s, metric 1.220E+03
+Executing build command ftn -O2 -O fp2 -o lp.tag2 lp1000d.f
+
+Executing Run 2, command: ./lp.tag2
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  6.49150133E+00  7.20701276E-13  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  4.960E-01  0.000E+00  4.960E-01  1.348E+03  1.484E-03  8.858E+00
+  end of tests -- this version dated 10/12/92
+ STOP  
+Run 2 took 0.5683870316s, metric 1.348E+03
+Executing build command ftn -O0 -O fp3 -o lp.tag3 lp1000d.f
+
+Executing Run 3, command: ./lp.tag3
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  6.49150133E+00  7.20701276E-13  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  1.460E+00  8.001E-03  1.468E+00  4.555E+02  4.391E-03  2.622E+01
+  end of tests -- this version dated 10/12/92
+ STOP  
+Run 3 took 1.5787439346s, metric 4.555E+02
+Executing build command ftn -O1 -O fp3 -o lp.tag4 lp1000d.f
+
+Executing Run 4, command: ./lp.tag4
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  6.49150133E+00  7.20701276E-13  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  7.240E-01  4.000E-03  7.280E-01  9.184E+02  2.178E-03  1.300E+01
+  end of tests -- this version dated 10/12/92
+ STOP  
+Run 4 took 0.8047349453s, metric 9.184E+02
+Executing build command ftn -O2 -O fp3 -o lp.tag5 lp1000d.f
+
+Executing Run 5, command: ./lp.tag5
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  6.49150133E+00  7.20701276E-13  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  7.280E-01  0.000E+00  7.280E-01  9.184E+02  2.178E-03  1.300E+01
+  end of tests -- this version dated 10/12/92
+ STOP  
+Run 5 took 0.7981579304s, metric 9.184E+02
+
+Best run was 2 with metric 1.348E+03
+... new values chosen: OPT=-O2
+
+
+Final Optimized Parameters are:
+
+ OPT=-O2
+ FP=fp2
+
+Optimizer runs summary
+
+ Single tune: runs 0-5 
+
+ T Run M OPT  FP m/m_d metric
+ ------- ------- -------------------------
+     0 d -O0 fp2  1.00 4.605E+02
+     1   -O1 fp2  2.65 1.220E+03
+ O   2   -O2 fp2  2.93 1.348E+03
+     3   -O0 fp3  0.99 4.555E+02
+     4   -O1 fp3  1.99 9.184E+02
+     5   -O2 fp3  1.99 9.184E+02
+
+  Run 2 was the best with metric 1.348E+03
+
+
+Finished Tue Mar 11 05:49:46 -0500 2014 

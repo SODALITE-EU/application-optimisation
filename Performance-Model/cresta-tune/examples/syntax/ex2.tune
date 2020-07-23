@@ -1,0 +1,28 @@
+begin configuration
+ begin tune
+  mode: tune
+  scope: NB EXTRA_BUFFERING
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  int NB
+  label EXTRA_BUFFERING
+ end typing
+ begin collections
+  BUILD: EXTRA_BUFFERING
+ end collections
+ begin constraints
+  range NB 80,90,100,120,140
+  range EXTRA_BUFFERING "YES","NO"
+  depends NB EXTRA_BUFFERING
+ end constraints
+end parameters
+begin build
+ command: make EXTRA_BUFFERING=$EXTRA_BUFFERING
+end build
+begin run
+ command: ./solver NB=$NB
+end run

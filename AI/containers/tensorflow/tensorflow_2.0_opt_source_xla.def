@@ -37,6 +37,6 @@ From: ./ubuntu_base/
 	./bazel-bin/tensorflow/tools/pip_package/build_pip_package tensorflow_pkg
 
 	# EXECUTE THIS STEP MANUALLY BY FINDING THE APPROPRIATE PACKAGE NAME!
-	#pip3 install tensorflow_pkg/tensorflow-2.0.1-cp36-cp36m-linux_x86_64.whl  
+	pip3 install tensorflow_pkg/tensorflow-2.0.1-cp36-cp36m-linux_x86_64.whl  
 
 %labels

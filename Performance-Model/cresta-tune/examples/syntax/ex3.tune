@@ -1,0 +1,31 @@
+! Example for compiler options
+begin configuration
+ begin tune
+  mode: tune
+  scope: OPT1 DEBUG
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  label OPT1
+  label DEBUG
+  label OPTS
+ end typing
+ begin collections
+  BUILD: OPT1 DEBUG
+ end collections
+ begin constraints
+  range OPT1 unset,-O1,-O2
+  range DEBUG unset,-g
+  ! a product constraint is a generator 
+  product OPTS OPT1 DEBUG
+ end constraints
+end parameters
+begin build
+ command: make FLAGS='$OPTS'
+end build
+begin run
+ command: echo "run command"
+end run

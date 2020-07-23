@@ -20,6 +20,8 @@ singularity build --fakeroot --sandbox ubuntu_base/ ubuntu_base.def
 
 singularity build --fakeroot --sandbox torch_pip_glow/ torch_pip_glow.def
 ```
+Note that the container definition files expect the ubuntu base directory to be located in the working directory. Should this not be the case, change the relevant line in the definition file to reflect the change (see ``From:`` declaration).
+
 To interactively test the created sandbox, one of the following commands can be used:
 ```
 singularity shell <container_directory> # changes applied may influence all containers; e.g. installing a pip package will cause all other containers to use same package in this interactive mode
@@ -127,3 +129,67 @@ singularity build --fakeroot --sandbox tensorflow_pip_ngraph/ tensorflow_pip_ngr
 
 Note that at current nGraph is only available for Tensorflow 1.14.
 
+# GPU containers
+To use the GPU, two prerequisites exist:
+- the host must have the nvidia-drivers installed
+- the container must have complementary nvidia-drivers, as well as any additional requirements (cuda, cudnn, etc) installed.
+
+The second requirements is simplified by the singularity '--nv' flag. This option makes the containers more portable by bind mounting the hosts nvidia drivers into the container. Like this, a container can be moved to and used on a system that does not use the same nvidia-driver versions. 
+
+To run a GPU container, it *must* be invoked using the nvidia --nv flag. 
+
+```
+singularity shell --nv <container>
+```
+Currently, two images can be used as the GPU base container - the nvidia Docker image, as well as the manually built image `gpu_ubuntu_base' located under the '/gpu' folder. The tensorflow GPU image is set to use the nvidia Docker image for speed purposes, but this can be changed by uncommenting the 'Bootstrap' and 'From' lines in the 'gpu_tensorflow_source.def' file. 
+
+## Tensorflow GPU container
+
+To test the Tensorflow GPU build, execute the following command in the python console:
+```
+tf.test.gpu_device_name()
+```
+
+The expected result should include information regarding the number of GPUs and GPU names, as well as libraries used. An example of this output for the testbed would be as follows:
+```
+>>> tf.test.gpu_device_name()
+2020-05-18 12:37:53.329146: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2200000000 Hz
+2020-05-18 12:37:53.336004: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x51d4eb0 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2020-05-18 12:37:53.336066: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2020-05-18 12:37:53.338973: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcuda.so.1
+2020-05-18 12:37:53.491079: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x51d6c60 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2020-05-18 12:37:53.491125: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): GeForce GTX 1080 Ti, Compute Capability 6.1
+2020-05-18 12:37:53.492035: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1555] Found device 0 with properties: 
+pciBusID: 0000:03:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2020-05-18 12:37:53.494379: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2020-05-18 12:37:53.524638: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10
+2020-05-18 12:37:53.551095: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcufft.so.10
+2020-05-18 12:37:53.590217: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcurand.so.10
+2020-05-18 12:37:53.616705: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusolver.so.10
+2020-05-18 12:37:53.637184: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusparse.so.10
+2020-05-18 12:37:53.687702: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+2020-05-18 12:37:53.689311: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1697] Adding visible gpu devices: 0
+2020-05-18 12:37:53.689372: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2020-05-18 12:37:53.690541: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1096] Device interconnect StreamExecutor with strength 1 edge matrix:
+2020-05-18 12:37:53.690563: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1102]      0 
+2020-05-18 12:37:53.690574: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1115] 0:   N 
+2020-05-18 12:37:53.692073: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1241] Created TensorFlow device (/device:GPU:0 with 10479 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:03:00.0, compute capability: 6.1)
+'/device:GPU:0'
+```
+
+## PyTorch GPU container
+
+The PyTorch GPU container is built on top of the gpu_ubuntu_base image. Build it prior to this container, or set the bootstrap section to use the Docker nvidia container (note that the Docker container may not meet all dependencies and any missing package installs will have to be manually added to the gpu_torch_source.def file). 
+
+To test whether PyTorch can call on the GPUs, use following command:
+```
+>>> torch.cuda.device_count()
+1
+>>> torch.cuda.get_device_name(0)
+'GeForce GTX 1080 Ti'
+```
+
+## MXNet GPU container
+
+Source build of MXNet container. Set to GPU and MKL DNN build using flags US_CUDA=1 and MKL_DNN=1. 

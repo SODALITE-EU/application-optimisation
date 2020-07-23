@@ -1,0 +1,85 @@
+{
+  "optimisation": {
+    "enable_opt_build": true,
+    "enable_autotuning":true,
+    "app_type":"ai_training/hpc/big_data/ai_inference",
+    "opt_build": {
+      "cpu_type": "x86/arm/amd/power",
+      "acc_type": "nvidia/amd/fpga"
+    },
+    "autotuning": {
+      "tuner": "cresta",
+      "input": "dsl text"
+    },
+    "app_type-ai_training": {
+      "config": {
+        "ai_framework": "tensorflow/pytorch/keras/cntk/mxnet",
+        "type": "image_classification/object_detection/translation/recommendation/reinforncement_learning" ,
+        "distributed_training": true,
+        "layers": 6 ,
+        "parameters": 872684236
+      },
+      "data": {
+        "location": "/some/data" ,
+        "basedata": "Imagenet/CIFAR/MNIST" ,
+        "size": 67 ,
+        "count": 4389,
+        "etl": {
+          "prefetch": 100,
+          "cache": 100
+        }
+      },
+      "ai_framework-keras": {
+        "version": 1.1,
+        "backend": "tensorflow/pytorch/cntk/mxnet/keras"
+      },
+      "ai_framework-tensorflow": {
+        "version": "1.1",
+        "xla": true
+      },
+      "ai_framework-pytorch": {
+        "version": "1.1",
+        "glow": true
+      }
+    },
+    "app_type-hpc": {
+      "config":{
+          "parallelisation":"mpi/openmp/opencc/opencl"
+      },
+      "data":{
+       "location": "/some/data" ,
+        "basedata": "IMAGE/RESTART" ,
+        "size": 67 ,
+        "count": 4389,
+         "etl": {
+          "prefetch": true,
+          "cache": true
+        }
+      },
+      "parallelisation-mpi": {
+        "library": "mvapch/opnmpi",
+        "version": "1.1",
+        "scaling_efficiency": 0.75,
+        "core_subscription": 1,
+        "message_size": "small/medium/large"
+      },
+      "parallelisation-openmp": {
+        "number_of_threads": 2,
+        "scaling_efficiency": 0.75,
+        "affinity": "block/simpe"
+      },
+      "parallelisation-opencc": {
+        "compiler": "pgi/cray",
+        "version": "1.1",
+        "number_of_acc": 2
+      },
+      "parallelisation-opencl": {
+        "compiler": "pgi/cray",
+        "version": "1.1",
+        "number_of_acc": 2
+      }
+    },
+    "app_type-big_data": {},
+    "app_type-ai_inference": {}
+  }
+}

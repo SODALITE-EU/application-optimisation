@@ -1,0 +1,7 @@
+INFO:root:Production mode False selected
+INFO:root:Reading test section of ini file
+INFO:root:{'db_name': 'test_iac_model'}
+INFO:root:selected DB : test_iac_model
+INFO:root:Initialising IaC Model repo
+INFO:root:Available DBs : ['default', 'iac_model', 'test_iac_model']
+INFO:root:Executing : use test_iac_model

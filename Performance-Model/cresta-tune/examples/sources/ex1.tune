@@ -1,0 +1,27 @@
+begin configuration
+ begin tune
+  mode: tune
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin sources
+ dsl-filelist: a.f90.dsl b.c.dsl
+! dsl-filenames-file:
+ dsl-map-input: %.dsl
+ dsl-map-output: %
+end sources
+begin parameters
+ begin typing
+  int NB
+ end typing
+ begin constraints
+  range NB 80,90
+ end constraints
+end parameters
+begin build
+ command: true
+end build
+begin run
+ command: true
+end run

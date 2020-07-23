@@ -1,0 +1,35 @@
+! Get metric from file
+begin configuration
+ begin tune
+  mode: tune
+  scope: NB EXTRA_BUFFERING M
+  target: max
+  metric-source: file
+  postrun-metric-file: solver.out
+ end tune
+end configuration
+begin parameters
+ begin typing
+  int M
+  int unroll
+  int NB
+  label EXTRA_BUFFERING
+ end typing
+ begin collections
+  BUILD: EXTRA_BUFFERING
+ end collections
+ begin constraints
+  range NB 80:100:10
+  range M 20,40,80 default 40
+  range unroll 4,6,8
+  range EXTRA_BUFFERING "YES","NO"
+  depends NB,EXTRA_BUFFERING
+ end constraints
+end parameters
+begin build
+ command: make EXTRA_BUFFERING=$EXTRA_BUFFERING
+end build
+begin run
+ command: ./solver -nosleep NB=$NB >solver.out
+ param-file: run.params
+end run

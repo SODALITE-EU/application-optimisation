@@ -1,0 +1,26 @@
+begin configuration
+ begin tune
+  mode: tune
+  scope: NB P
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  int NB
+  int P
+  int Q
+ end typing
+ begin constraints
+  range NB 80,90,100,120,140
+  range P 1,2,8
+  constraint Q = 16 / P
+ end constraints
+end parameters
+begin build
+ command: true
+end build
+begin run
+ command: echo NB=$NB P=$P Q=$Q
+end run

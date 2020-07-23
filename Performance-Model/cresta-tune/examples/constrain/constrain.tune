@@ -1,0 +1,26 @@
+begin configuration
+ begin tune
+  mode: tune
+  scope: P Q
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  int P
+  int Q
+ end typing
+ begin constraints
+  range P 1,2,4,8,16,32,64
+  range Q 1,2,4,8,16,32,64
+  depends P Q
+  constraint Q * P == 64
+ end constraints
+end parameters
+begin build
+ command: true
+end build
+begin run
+ command: echo P=$P Q=$Q
+end run

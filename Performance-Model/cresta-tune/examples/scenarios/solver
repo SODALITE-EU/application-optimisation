@@ -1,0 +1,22 @@
+#!/usr/bin/sh
+
+time=`echo $* | sed -e 's/.*=//'`
+
+echo "Solver started..."
+echo
+
+delay=`expr $time / 10`
+
+if test $1 == "-nosleep"
+ then
+  echo metric $time
+ elif test $1 == "-regexp" 
+  then
+  echo Start of output
+  echo metric $delay quarts
+  echo imperial 999 wombats
+  echo Done
+ else
+  echo sleeping for $delay secs
+  sleep $delay
+ fi

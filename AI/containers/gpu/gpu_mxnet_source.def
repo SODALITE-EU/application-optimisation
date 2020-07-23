@@ -1,0 +1,58 @@
+# build MXNet from source. 
+
+#BootStrap: localimage
+#From: ./gpu_ubuntu_base/
+
+BootStrap: docker
+From: nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04
+
+%post
+
+	# add CUDA paths
+    CPATH="/usr/local/cuda-10.1/include:/usr/include/x86_64-linux-gnu:$CPATH"
+    PATH="/usr/local/cuda-10.1/bin:$PATH"
+    LD_LIBRARY_PATH="/usr/local/cuda-10.1/lib64:/usr/local/cuda-10.1/lib64/stubs:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
+    CUDA_HOME="/usr/local/cuda-10.1"
+    export CPATH PATH LD_LIBRARY_PATH CUDA_HOME
+
+	ln -s /usr/local/cuda-10.1/lib64/stubs/libcuda.so /usr/local/cuda-10.1/lib64/stubs/libcuda.so.1
+	ln -s /usr/local/cuda-10.1/lib64/stubs/libcuda.so /usr/local/cuda-10.1/lib64/libcuda.so.1
+
+	# need environment set to noninteractive otherwise definition file stalls
+	export DEBIAN_FRONTEND='noninteractive'
+
+	apt-get update
+	apt-get install -y git wget build-essential ninja-build ccache libopenblas-dev libopencv-dev cmake libblas-dev libatlas-base-dev python3 python3-pip 
+
+    # sanity check environment correctly exported
+    echo $CPATH
+
+	# clone MXNet project
+	git clone --recursive https://github.com/apache/incubator-mxnet mxnet 
+	cd mxnet 
+	# checkout version 1.6.0
+	git checkout tags/1.6.0
+	# retrieve MKL_DNN submodule
+	git submodule update --init --recursive
+
+	#MXNet supports multiple mathematical backends for CPU - ATLAS, MKL, MKL-DNN, OpenBLAS. Set as USE_<library> 
+	# See more options here: https://mxnet.apache.org/versions/1.4.1/install/ubuntu_setup.html#install-mxnet-for-python
+	#echo "USE_MKLDNN=1" >> make/config.mk
+	#enable GPU build
+	#echo "USE_GPU=1" >> make/config.mk
+	#cp make/config.mk .
+	#make -j"$(nproc)"
+
+	# this one liner should do same as above
+	make -j $(nproc) USE_CUDA=1 USE_CUDA_PATH=/usr/local/cuda-10.1 USE_CUDNN=1 USE_MKLDNN=1
+	echo 'LD_LIBRARY_PATH=/mxnet/lib:$LD_LIBRARY_PATH' >> $SINGULARITY_ENVIRONMENT
+
+	#install Python language pack - default C++ MXNet language pack
+	cd python
+	python3 setup.py install
+
+	# set correct path for mkldnn (required by mxnet) 
+	echo 'export LD_LIBRARY_PATH=/mxnet/3rdparty/mkldnn/build/install/lib/:$LD_LIBRARY_PATH' >> $SINGULARITY_ENVIRONMENT
+
+%labels
+    Author nina

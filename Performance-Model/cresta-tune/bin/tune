@@ -1,0 +1,143 @@
+#!/usr/bin/env ruby
+#
+# Autotuner Mockup Driver
+#
+# Harvey Richardson Cray UK 2013-2014, 2016, 2017
+#
+# Copyright (C) 2013-2017 Cray UK Ltd
+# License: Not licensed, CRESTA partner internal use only
+#
+#
+
+if ((RUBY_VERSION.to_i==1) and (RUBY_VERSION.split('.')[1].to_i<9))
+  puts "The script requires RUBY version 1.9.x later, "
+  puts "current version is #{RUBY_VERSION}."
+  puts "Exit!"
+  exit 1
+end
+
+require_relative "relatives/controls"
+require_relative "relatives/config"
+require_relative "relatives/commons"
+require_relative "relatives/scenarios"
+require_relative "relatives/optimizer"
+
+TUNE_VERSION = "0.51"
+$debug = false
+
+tstart = Time.now
+control = Control.new()
+parse_args control
+if (! control.instance_variable_defined?("@cfile"))
+ $stderr.puts "Configuration file has to be specified\n"
+ print_usage
+ exit
+end
+
+config = Configuration.new(control)
+$log=MyLogger.new(control.colour)
+$log.logfile(config.global.logfile)
+
+if (config.global.tune.metric_aggregation == "target")
+   config.global.tune.metric_aggregation = config.global.tune.target
+end
+
+# Set parameter scope as per scope: setting if set in config file
+if (config.collection.has_key?("SCOPE"))
+  config.collection["SCOPE"].each { |p| 
+     if !config.params.has_key?(p)
+       $log.message(MyLogger::STDOUT|MyLogger::FILE,"Warning: Can't add nonexistant parameter #{p} to scope")
+       abort "...aborting, too risky to continue"
+       config.collection["SCOPE"].delete(p)
+      end
+   }
+
+  config.params.each { |name,param| param.inscope=false }
+  config.collection["SCOPE"].each { |p| config.params[p].inscope=true }
+ end
+
+$log.message(MyLogger::STDOUT|MyLogger::FILE,"CRESTA AUTOTUNE v#{TUNE_VERSION}\n\n")
+$log.message(MyLogger::FILE,"Started #{tstart.localtime} \n\n")
+$log.message(MyLogger::FILE,control)
+$log.message(MyLogger::FILE,"\n")
+
+# Update derived Hashes so they are available to DSL parsing
+config.sparams.each do |name,param| 
+   param.createvalues 
+end
+config.tparams.each do |name,param| 
+   param.createvalues 
+end
+config.gparams.each do |name,param| 
+   param.createfactors
+end
+config.params.each do |name,param| 
+  config.param_types[name]=param.type
+end
+
+if (config.global.src.active?)
+  config.global.src.loadfnames
+  config.global.src.setconfig(config)
+  config.global.src.store_param_defaults(config.params)
+  # Want some state here because prescan can replace variables
+  # with defaults as a debugging measure 
+  config.global.src.prescan(control.strip_dsl)
+  config.global.src.store_param_defaults(config.params)
+  config.update_param_hashes
+  $log.message(MyLogger::STDOUT|MyLogger::FILE,"\n")
+end
+
+config.resolve_dependencies()
+
+config.sparams.each do |name,param| 
+   param.createvalues 
+end
+config.tparams.each do |name,param| 
+   param.createvalues 
+end
+config.gparams.each do |name,param| 
+   param.createfactors
+end
+config.params.each do |name,param| 
+  config.param_types[name]=param.type
+end
+
+$log.message(MyLogger::STDOUT|MyLogger::FILE,config)
+$log.message(MyLogger::STDOUT|MyLogger::FILE,"\n")
+
+if config.global.instance_variable_defined?("@state_file")
+  control.save_state = true
+  $state=State.new(config.global.state_file,control.continue)
+  $log.message(MyLogger::STDOUT|MyLogger::FILE,"\n")
+end
+
+opt=Optimizer.new(control,config)
+
+if config.global.tune.mode == "scenarios"
+ scenarios = Scenarios.new(control,config,opt)
+ scenarios.run(control.do_opt)
+else
+ opt.run(Hash.new) if control.do_opt
+end
+
+if control.do_opt
+ if !control.validating && control.show_validation
+   $log.message(MyLogger::FILE,"\nValidation output requested but not enabled so will not appear in table\n")
+   control.show_validation = false
+  end
+ pp=OPrettyPrint.new(scenarios,opt,config.param_types,config.global.tune.target,control.show_validation)
+ pp.output
+ file_header="CRESTA AUTOTUNE v#{TUNE_VERSION}\n"
+ file_header << "Started #{tstart.localtime}\n"
+ file_header << "Configuration from file #{control.cfile}\n"
+ pp.output_csv(control.csvfile,file_header) if control.csv
+else
+$log.message(MyLogger::STDOUT|MyLogger::FILE,"\nOptimizer disabled by command line argument\n")
+end
+
+time = Time.now
+$log.message(MyLogger::FILE,"\nFinished #{time.localtime} \n")
+$log.message(MyLogger::STDOUT,"\nFinished")
+
+
+

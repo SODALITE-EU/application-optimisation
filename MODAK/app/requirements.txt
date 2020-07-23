@@ -1,0 +1,4 @@
+dropbox==10.2.0
+numpy==1.17.4
+pandas==0.25.3
+mysql-connector-python==8.0.21

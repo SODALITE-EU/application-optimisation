@@ -1,0 +1,22 @@
+CREATE TABLE `test_iac_model`.`optimisation` (
+  `opt_dsl_code` VARCHAR(255) NOT NULL,
+  `app_name` VARCHAR(255) NULL,
+  `target` VARCHAR(5000) NULL,
+  `optimisation` VARCHAR(5000) NULL,
+  `version` VARCHAR(255) NULL,
+  PRIMARY KEY (`opt_dsl_code`));
+
+CREATE TABLE `test_iac_model`.`mapper` (
+  `map_id` INT NOT NULL AUTO_INCREMENT,
+  `opt_dsl_code` VARCHAR(255) NOT NULL,
+  `container_file` VARCHAR(255) NULL,
+  `image_type` VARCHAR(255) NULL,
+  `image_hub` VARCHAR(255) NULL,
+  `src` VARCHAR(255) NULL,
+  PRIMARY KEY (`map_id`),
+  INDEX `opt_dsl_code_idx` (`opt_dsl_code` ASC) VISIBLE,
+  CONSTRAINT `opt_dsl_code`
+    FOREIGN KEY (`opt_dsl_code`)
+    REFERENCES `test_iac_model`.`optimisation` (`opt_dsl_code`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);

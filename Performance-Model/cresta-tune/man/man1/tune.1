@@ -1,0 +1,112 @@
+.TH tune 1 "March 2014" Linux "Autotuning"
+.\"
+.SH NAME
+tune \- CRESTA autotuner driver
+.SH SYNOPSIS
+.B tune
+[
+.B \-help|-h
+]
+[
+.B \-nobuild
+]
+[
+.B \-norun
+]
+[
+.B \-noopt
+]
+[
+.B \-splitdsl
+]
+[
+.B \-continue 
+.I seq
+]
+.B cfile
+.\"
+.SH OPTIONS
+.\"
+.IP -help
+Print usage information
+.IP -nobuild
+Progress without executing the build command (for testing)
+.IP -norun
+Progress without executing the run command (for testing)
+.IP -noopt
+Do not run the optimizer
+.IP -stripdsl
+Parse DSL files removing DSL, do not run optimizer
+.IP "-continue seq" 
+Continue a previous run from the seq'th run
+.IP -colour
+Colorize standard output (at present just red for warnings)
+.IP "-csv file"
+Send summary output to file in csv format
+.IP cfile
+Name of the tuning configuration file
+.\"
+.SH DESCRIPTION
+.\"
+This tune script can build and run an application while varying a
+set of tuning parameters that affect the runtime performance.  It
+then determines the best set of tuning parameters.
+.P
+The supplied configuration file controls the tuning process.
+.P
+As the process progresses status is reported on standard output and
+to a log file (default name 
+.IR tune.log ).
+.P
+Optionally a record of the run can be kept and this can be used to
+continue a previous run by using the 
+.I -continue 
+option.
+.P
+Results are summarized in a table with the following headers
+.RS 2
+.IP T
+O indicates this run chose the best parameter values
+.br
+M indicates this run had the best metric
+.br
+These can be different for independent metric tuning based
+on run variations
+.IP Run    
+The id of each run
+.IP M      
+Indicates which metric was used for the metric ration column
+.br
+ d  indicates that a run with default parameters was used
+.br
+ m  indicates that the worst run was used
+.IP params
+The next columns show the parameter choices per run
+.IP ratio  
+This column proves a metric ratio for the run
+.IP metric 
+The metric for the run
+.RE
+.\"
+.SH NOTES
+.\"
+This is a mockup implementation for research purposes and is not
+production code and as such has limited error handling.
+.\"
+.SH FILES
+.\"
+.IP cfile
+Tuner configuration file
+.IP tune.log
+Tuner log file
+.IP run.params
+Runtime parameter definitions file
+.IP statefile
+State file (name set in configuration)
+.SH AUTHORS
+.\"
+Harvey Richardson, Cray UK Ltd, EU CRESTA Project
+.\" I lost all my templates for manpages from 20 yeards ago
+.\" This is done from scratch
+
+

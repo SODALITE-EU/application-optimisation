@@ -5,4 +5,7 @@ contains all components for Application Optimiser
 * HPC - High Performance Computing
 * Performance-Model - Infrastructure and Application Performance model
 * use-cases - Use case applications
+* MODAK - the application optimiser
+* iac-model-repo - Model repository
+
 

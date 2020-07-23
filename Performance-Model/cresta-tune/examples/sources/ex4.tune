@@ -1,0 +1,18 @@
+begin configuration
+ begin tune
+  mode: tune
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin sources
+ dsl-filelist: e.f90.dsl
+ dsl-map-input: %.dsl
+ dsl-map-output: %
+end sources
+begin build
+ command: true
+end build
+begin run
+ command: egrep 'P|Q' e.f90 ; cp e.f90 e.f90.$run_id
+end run

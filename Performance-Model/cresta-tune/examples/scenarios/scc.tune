@@ -1,0 +1,33 @@
+begin configuration
+
+ begin tune
+  mode: scenarios
+  scenario-params: LOOP
+  scenario-params-combiner: combinations
+  scope: NB block unroll
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  int NB
+  int block
+  int unroll
+  label LOOP
+ end typing
+ begin constraints
+  range NB 80,90,100
+  range block 2,4,8
+  range unroll 1,2,4
+  range LOOP blocking,unrolling
+  constraint unroll inscope forscenario LOOP=="unrolling"
+  constraint block inscope forscenario LOOP=="blocking"
+ end constraints
+end parameters
+begin build
+ command: make
+end build
+begin run
+ command: ./solver NB=$NB
+end run

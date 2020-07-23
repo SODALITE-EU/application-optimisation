@@ -1,0 +1,27 @@
+begin configuration
+
+ begin tune
+  mode: scenarios
+  scenario-params: SIZE
+  scenario-params-combiner: combinations
+  scope: NB
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  int NB
+  int SIZE
+ end typing
+ begin constraints
+  range NB 80,90,100,120,140
+  range SIZE 2,10,100
+ end constraints
+end parameters
+begin build
+ command: make
+end build
+begin run
+ command: ./solver NB=$NB SIZE=$SIZE
+end run

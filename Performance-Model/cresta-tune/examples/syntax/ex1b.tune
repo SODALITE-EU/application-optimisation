@@ -1,0 +1,22 @@
+begin configuration
+ begin tune
+  mode: tune
+  scope: NB
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  int NB
+ end typing
+ begin constraints
+  range NB 80:100:10
+ end constraints
+end parameters
+begin build
+ command: true
+end build
+begin run
+ command: ./solver NB=$NB > output.$run_id
+end run

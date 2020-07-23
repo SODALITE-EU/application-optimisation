@@ -1,0 +1,19 @@
+begin configuration
+ begin tune
+  mode: tune
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin sources
+ dsl-filelist: d.f90.dsl
+! dsl-filenames-file:
+ dsl-map-input: %.dsl
+ dsl-map-output: %
+end sources
+begin build
+ command: true
+end build
+begin run
+ command: grep "nb =" d.f90
+end run

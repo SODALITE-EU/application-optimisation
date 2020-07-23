@@ -1,0 +1,25 @@
+begin configuration
+ begin tune
+  mode: tune
+  scope: OPT FP
+  target: min
+  metric-source: runtime
+ end tune
+end configuration
+begin parameters
+ begin typing
+  label OPT
+  label FP
+ end typing
+ begin constraints
+  range OPT -O0,-O1,-O2
+  range FP fp2,fp3
+  depends OPT FP
+ end constraints
+end parameters
+begin build
+ command: ftn $OPT -O $FP -o lp.$build_tag lp1000d.f
+end build
+begin run
+ command: ./lp.$build_tag
+end run

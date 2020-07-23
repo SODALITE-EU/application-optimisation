@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -J solver
+#SBATCH --time=1:00:00 
+#SBATCH -N 2
+#SBATCH -n 40
+#SBATCH --ntasks-per-node=40
+#SBATCH --output=file.out
+#SBATCH -error=file.err
+#SBATCH --mail-type=abe
+#SBATCH --mail-user=kartshy@gmail.com
+
+export OMP_NUM_THREADS=1
+
+singularity exec ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof srun -n 40 ${ASTER_ROOT}/14.4/bin/aster  ${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \
+-commandes fort.1 --num_job=1432 --mode=interactif \
+--rep_outils=${ASTER_ROOT}/outils \
+--rep_mat=${ASTER_ROOT}/14.4/share/aster/materiau \
+--rep_dex=${ASTER_ROOT}/14.4/share/aster/datg \
+--numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=3600.0

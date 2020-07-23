@@ -1,0 +1,26 @@
+! Example of loading previous state
+! Use tune -continue 3 ex1-state_continue.tune
+! to continue from 3rd run
+begin configuration
+ begin tune
+  mode: tune
+  scope: NB
+  target: min
+  metric-source: runtime
+ end tune
+ state-file: tune.state
+end configuration
+begin parameters
+ begin typing
+  int NB
+ end typing
+ begin constraints
+  range NB 60:90:10
+ end constraints
+end parameters
+begin build
+ command: true
+end build
+begin run
+ command: ./solver NB=$NB
+end run
