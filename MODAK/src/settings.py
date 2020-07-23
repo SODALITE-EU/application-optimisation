@@ -28,7 +28,7 @@ class settings:
         cls.USER = config.get(section, "user")
         logging.info("user :" + cls.USER)
         cls.PASSWORD = config.get(section, "password")
-        logging.info("password : **** " )
+        logging.info("password : "+ cls.PASSWORD )
 
 
 

@@ -6,7 +6,7 @@ import time
 class TransferData:
     def __init__(self, access_token=''):
         if access_token == '':
-            self.access_token = access_token = 'uIdLbZ5c1OAAAAAAAAAAFTeAhHRPjKLG-NgBABo69r6_oNaKv7C2qdpdOahh9Ev3'
+            self.access_token = access_token = 'uIdLbZ5c1OAAAAAAAAAAbyk8y7dUYKwD4BlLXa7m7lOosadXk1GAZPyr760SCrr-'
         self.access_token = access_token
         self.dbx = dropbox.Dropbox(self.access_token)
 

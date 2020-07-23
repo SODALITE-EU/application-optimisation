@@ -10,8 +10,8 @@ import json
 
 class MODAK():
 
-    def __init__(self, conf_file:str = '../conf/iac-model.ini'):
-        self.__driver = MODAK_driver()
+    def __init__(self, conf_file:str = '../conf/prod-iac-model.ini'):
+        self.__driver = MODAK_driver(conf_file)
         self.__map = mapper(self.__driver)
         self.__enf = enforcer(self.__driver)
         self.__drop = TransferData()
@@ -52,8 +52,8 @@ class MODAK():
 def main():
     print('Test MODAK')
     m = MODAK()
-    # dsl_file = "../test/input/tf_snow.json"
-    dsl_file = "../test/input/mpi_solver.json"
+    dsl_file = "../test/input/tf_snow.json"
+    # dsl_file = "../test/input/mpi_solver.json"
     with open(dsl_file) as json_file:
         m.optimise(json.load(json_file))
 
