@@ -2,6 +2,9 @@ import dropbox
 from datetime import datetime
 import os
 import time
+from dropbox import DropboxOAuth2FlowNoRedirect
+
+
 
 class TransferData:
     def __init__(self, access_token=''):
@@ -9,6 +12,27 @@ class TransferData:
             self.access_token = access_token = 'uIdLbZ5c1OAAAAAAAAAAbyk8y7dUYKwD4BlLXa7m7lOosadXk1GAZPyr760SCrr-'
         self.access_token = access_token
         self.dbx = dropbox.Dropbox(self.access_token)
+
+    def login_dropbox(self):
+        """
+        Authorize dropbox using Oauth2
+        Follow instructions and authorise your dropbox account to app.
+        """
+        APP_KEY = '0ntzsx9e42ezvjp'
+        APP_SECRET = 'k9erv6t8zcx7jto'
+
+        auth_flow = DropboxOAuth2FlowNoRedirect(APP_KEY, APP_SECRET)
+
+        authorize_url = auth_flow.start()
+        print("1. Go to: " + authorize_url)
+        print("2. Click \"Allow\" (you might have to log in first).")
+        print("3. Copy the authorization code.")
+        auth_code = input("Enter the authorization code here: ").strip()
+        try:
+            oauth_result = auth_flow.finish(auth_code)
+        except Exception as e:
+            print('Error: %s' % (e,))
+        return oauth_result
 
     def download(self, folder, name):
         """Download a file.
@@ -78,11 +102,12 @@ class TransferData:
 
 def main():
     transferData = TransferData()
+    # transferData.login_dropbox()
 
-    file_from = 'scripts/enable_xla.sh'
-    file_to = '/scripts/enable_xla.sh' # The full path to upload the file to, including the file name
-    link = transferData.upload_file(file_from, file_to)
-    print(link)
+    # file_from = 'scripts/enable_xla.sh'
+    # file_to = '/scripts/enable_xla.sh' # The full path to upload the file to, including the file name
+    # link = transferData.upload_file(file_from, file_to)
+    # print(link)
 
     # API v2
     # link = transferData.upload_file(file_from=file_from, file_to=file_to)

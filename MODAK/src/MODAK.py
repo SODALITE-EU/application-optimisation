@@ -1,8 +1,10 @@
+#!/usr/bin/python3
+import sys, getopt
 from MODAK_driver import MODAK_driver
 from settings import settings
 from jobfile_generator import jobfile_generator
 from mapper import mapper
-from MODAK_dropbox import TransferData
+from MODAK_gcloud import TransferData
 from datetime import datetime
 from enforcer import enforcer
 
@@ -10,7 +12,7 @@ import json
 
 class MODAK():
 
-    def __init__(self, conf_file:str = '../conf/prod-iac-model.ini'):
+    def __init__(self, conf_file:str = '../conf/iac-model.ini'):
         self.__driver = MODAK_driver(conf_file)
         self.__map = mapper(self.__driver)
         self.__enf = enforcer(self.__driver)
@@ -49,13 +51,35 @@ class MODAK():
         print(self.__job_link)
         return self.__job_link
 
-def main():
-    print('Test MODAK')
-    m = MODAK()
-    dsl_file = "../test/input/tf_snow.json"
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    try:
+        opts, args = getopt.getopt(argv, "hi:o:", ["ifile=", "ofile="])
+    except getopt.GetoptError:
+        print('MODAK.py -i <inputfile> -o <outputfile>')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print('MODAK.py -i <inputfile> -o <outputfile>')
+            sys.exit()
+        elif opt in ("-i", "--ifile"):
+            inputfile = arg
+        elif opt in ("-o", "--ofile"):
+            outputfile = arg
+    print('Input file is "', inputfile)
+    print('Output file is "', outputfile)
+
+    m = MODAK('../conf/iac-model.ini')
+    # dsl_file = "../test/input/tf_snow.json"
     # dsl_file = "../test/input/mpi_solver.json"
-    with open(dsl_file) as json_file:
-        m.optimise(json.load(json_file))
+    with open(inputfile) as json_file:
+        job_data = json.load(json_file)
+        link = m.optimise(job_data)
+
+    job_data['job'].update({'job_script': link})
+    with open(outputfile, 'w') as fp:
+        json.dump(job_data, fp)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

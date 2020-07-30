@@ -11,8 +11,11 @@ class test_MODAK_driver(unittest.TestCase):
         pass
 
     def test_driver(self):
-        self.assertEqual(self.driver.dbname, 'test_iac_model')
-        df = self.driver.applySQL("select * from optimisation")
+        if settings.MODE == 'test':
+            self.assertEqual(self.driver.dbname, 'test_iac_model')
+        else:
+            self.assertEqual(self.driver.dbname, 'iac_model')
+        df = self.driver.applySQL("select * from optimisation where app_name = 'pytorch'")
         self.assertEqual(df['app_name'][0], 'pytorch')
 
 

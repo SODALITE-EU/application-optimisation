@@ -1,0 +1,19 @@
+{
+  "name": "mvapich_ub1804_cuda101_mpi22_osu",
+  "container_file": "ethcscs/mvapich:ub1804_cuda101_mpi22_osu",
+  "image_type": "docker",
+  "image_hub": "docker",
+  "src": "none",
+  "app_name": "mvapich",
+  "build": {
+    "enable_opt_build": true,
+    "cpu_type": "x86",
+    "acc_type": "nvidia"
+  },
+  "optimisation": {
+    "version": "2.2",
+    "mpic++": "true",
+    "mpicc": "true",
+    "mpifort": "true"
+  }
+}

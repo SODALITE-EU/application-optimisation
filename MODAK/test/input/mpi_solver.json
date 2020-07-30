@@ -14,8 +14,8 @@
     },
     "application": {
       "app_tag": "solver_clinicalUC",
-      "container_runtime": "ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof",
-      "app_type": "mpi",
+      "container_runtime": "codeaster",
+      "app_type": "hpc",
       "executable": "${ASTER_ROOT}/14.4/bin/aster ",
       "arguments": "${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \\\n-commandes fort.1 --num_job=1432 --mode=interactif \\\n--rep_outils=${ASTER_ROOT}/outils \\\n--rep_mat=${ASTER_ROOT}/14.4/share/aster/materiau \\\n--rep_dex=${ASTER_ROOT}/14.4/share/aster/datg \\\n--numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=3600.0",
       "mpi_ranks": 40,
@@ -46,8 +46,7 @@
         },
         "parallelisation-mpi": {
           "library": "mpich",
-          "version": "3.14",
-          "scaling_efficiency": 0.75
+          "version": "3.1.4"
         }
       }
     }

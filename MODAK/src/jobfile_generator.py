@@ -236,7 +236,7 @@ class jobfile_generator():
                 arg = ''
                 if "arguments" in self.app_data:
                     arg = self.app_data['arguments']
-                if app_type == 'mpi':
+                if app_type == 'mpi' or app_type == 'hpc':
                     mpi_ranks = 1
                     threads = 1
                     if "mpi_ranks" in self.app_data:

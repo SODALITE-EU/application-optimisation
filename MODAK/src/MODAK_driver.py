@@ -25,7 +25,7 @@ class MODAK_driver():
         logging.info("selected DB : {}".format(self.dbname))
         # Provide your Spark-master node below
         self.cnx = mysql.connector.connect(user=settings.USER, password=settings.PASSWORD,
-                                       host='localhost',
+                                       host=settings.HOST, port= settings.PORT,
                                        database=settings.DB_NAME)
         # self.__init_IaC_modelrepo(install)
         if settings.QUITE_SERVER_LOGS:

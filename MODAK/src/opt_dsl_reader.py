@@ -57,6 +57,8 @@ class opt_dsl_reader():
         app_type = self.opt_node.get('app_type')
         if app_type == 'ai_training':
             return self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
+        if app_type == 'hpc':
+            return self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
 
 def main():
     print('Test opt dsl reader driver')

@@ -14,8 +14,18 @@ class mapper():
     def map_container(self, opt_json_obj):
         print(opt_json_obj.get('job').get('optimisation'))
         reader = opt_dsl_reader(opt_json_obj['job'])
-        dsl_code = self.decode_ai_training_opt(reader)
+        app_type = reader.get_app_type()
+        if app_type == 'ai_training':
+            dsl_code = self.decode_ai_training_opt(reader)
+        if app_type == 'hpc':
+            dsl_code = self.decode_hpc_opt(reader)
         return self.get_container(dsl_code)
+
+    def add_optcontainer(self, map_obj):
+        self.add_optimisation(map_obj.get('name'), map_obj.get('app_name'), map_obj.get('build'),map_obj.get('optimisation'))
+        self.add_container(map_obj.get('name'), map_obj.get('container_file'), map_obj.get('image_hub'),
+                           map_obj.get('image_type'), map_obj.get('src'))
+
 
     def add_container(self, opt_dsl_code:str, container_file:str, image_hub:str='docker', image_type:str='docker', src: str=''):
 
@@ -54,7 +64,7 @@ class mapper():
         if df.size > 0:
             container_file = df['container_file'][0]
             image_hub = df['image_hub'][0]
-            return str(image_hub) + str(':')+str(container_file)
+            return str(image_hub) + str('://')+str(container_file)
         else:
             return None
 
@@ -69,6 +79,55 @@ class mapper():
             return ['']
         target_nodes = target_str.split(',')
         return target_nodes
+
+    def decode_hpc_opt(self, opt_dsl: opt_dsl_reader):
+        app_type = opt_dsl.get_app_type()
+        if not app_type == 'hpc':
+            return ""
+        if opt_dsl.enable_opt_build():
+            target = opt_dsl.get_opt_build()
+        else:
+            target = u'{"cpu_type":"none","acc_type":"none"}'
+            target = u'{}'
+
+        config = opt_dsl.get_app_config()
+        print(config)
+        parallel = config['parallelisation']
+        print(parallel)
+        opts = opt_dsl.get_opt_list(parallel)
+        print(opts)
+        app_name = opts.get('library')
+        opts.pop('library')
+
+        sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(app_name)
+        print(sqlstr)
+
+        target_nodes = self.get_json_nodes(json.dumps(target))
+        for t in target_nodes:
+            print(t)
+            targetstr = " and target like '%{}%'".format(t)
+            sqlstr = sqlstr + targetstr
+
+        if opt_dsl.enable_opt_build():
+            sqlstr = sqlstr + " and target like '%enable_opt_build:true%'"
+        else:
+            sqlstr = sqlstr + " and target like '%enable_opt_build:false%'"
+
+        opt_nodes = self.get_json_nodes(json.dumps(opts))
+        print(opt_nodes)
+        for t in opt_nodes:
+            print(t)
+            optstr = " and optimisation like '%{}%'".format(t)
+            sqlstr = sqlstr + optstr
+            self.opts.append(t)
+
+        print(sqlstr)
+        df = self.driver.selectSQL(sqlstr)
+        if df.size > 0:
+            dsl_code = df['opt_dsl_code'][0]
+        else:
+            dsl_code = None
+        return dsl_code
 
     def decode_ai_training_opt(self,opt_dsl:opt_dsl_reader):
         app_type = opt_dsl.get_app_type()
@@ -123,19 +182,24 @@ def main():
     driver = MODAK_driver()
     m = mapper(driver)
     print('Test mapper main')
-    # m.add_container('TF_PIP_XLA','AI/containers/tensorflow/tensorflow_pip_xla')
-    # print(m.get_container('TF_PIP_XLA'))
-    # target_string = u'{"cpu_type":"x86","acc_type":"nvidia"}'
-    # opt_string = u'{"xla":true,"version":"1.1"}'
-    # print(json.loads(target_string))
-    # print(json.loads(opt_string))
-    # m.add_optimisation('TF_PIP_XLA','tensorflow',json.loads(target_string),json.loads(opt_string))
 
-    # obj = json.loads(json_string)
-    # print(obj['cpu_type'])
-    reader = opt_dsl_reader('../conf/tf_optimisation_dsl.json')
-    dsl_code = m.decode_ai_training_opt(reader)
-    print(dsl_code)
+    # target_string = u'{"enable_opt_build":"false","cpu_type":"x86","acc_type":"nvidia"}'
+    # opt_string = u'{"version":"3.1.3","mpicc":"true","mpic++":"true","mpifort":"true"}'
+    # m.add_optimisation('ethcscs_openmpi_3.1.3', 'hpc_mpi', json.loads(target_string), json.loads(opt_string))
+
+    # m.add_container('ethcscs_openmpi_3.1.3', 'ethcscs/openmpi:3.1.3')
+
+    # dsl_file = "../test/input/map_container.json"
+    # with open(dsl_file) as json_file:
+    #     map_data = json.load(json_file)
+    #     m.add_optcontainer(map_data)
+
+    with open('../test/input/mpi_solver.json') as json_file:
+        job_data = json.load(json_file)
+        print(job_data)
+        reader = opt_dsl_reader(job_data['job'])
+        dsl_code = m.decode_hpc_opt(reader)
+        print(dsl_code)
 
 if __name__ == '__main__':
     main()
