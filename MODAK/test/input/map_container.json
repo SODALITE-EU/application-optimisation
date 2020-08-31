@@ -5,6 +5,7 @@
   "image_hub": "docker",
   "src": "none",
   "app_name": "mvapich",
+  "version": "2.2",
   "build": {
     "enable_opt_build": true,
     "cpu_type": "x86",

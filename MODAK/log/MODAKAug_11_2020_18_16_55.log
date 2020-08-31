@@ -1,0 +1,236 @@
+INFO:root:Intialising MODAK
+INFO:root:Intialising driver
+INFO:root:Reading ini file : ../conf/iac-model.ini
+INFO:root:Reading section test of ini file 
+INFO:root:db name :test_iac_model
+INFO:root:db dir :/Users/ksivalinga/Documents/sodalite/iac-model-repo/db/test-iac-model/
+INFO:root:out dir :/Users/ksivalinga/Documents/sodalite/MODAK/output
+INFO:root:host :localhost
+INFO:root:port :3306
+INFO:root:user :root
+INFO:root:password : **** 
+INFO:root:selected DB : test_iac_model
+INFO:root:Connecting to model repo
+INFO:root:Successfully initialised driver
+INFO:root:Initialised MODAK mapper
+INFO:root:Initialised MODAK enforcer
+INFO:root:Initialising gcloud storage
+DEBUG:urllib3.util.retry:Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+DEBUG:google.auth.transport.requests:Making request: POST https://oauth2.googleapis.com/token
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): oauth2.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): storage.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "GET /storage/v1/b/modak-bucket?projection=noAcl HTTP/1.1" 200 955
+INFO:root:Successfully intialised MODAK
+INFO:root:Processing job data{'job': {'job_options': {'job_name': 'skyline-extraction-training', 'wall_time_limit': '12:00:00 ', 'node_count': 1, 'core_count': 40, 'process_count_per_node': 40, 'request_gpus': 1, 'request_specific_nodes': 'ssd', 'standard_output_file': 'skyline-extraction-training.out', 'standard_error_file': 'skyline-extraction-training.err', 'combine_stdout_stderr': True, 'copy_environment': True, 'request_event_notification': 'abe', 'email_address': 'kartshy@gmail.com'}, 'application': {'app_tag': 'skyline-extraction-training', 'container_runtime': 'tensorflow/tensorflow:2.1.0-gpu-py3', 'app_type': 'python', 'executable': 'python3 resnet/resnet_imagenet_main.py', 'arguments': '--data_dir=/mnt/nfs/home/karthee/AI/data/tf_records/train/ -batch_size=96 --train_epochs=3 --train_steps=10 --use_synthetic_data=false'}, 'optimisation': {'enable_opt_build': True, 'enable_autotuning': True, 'app_type': 'ai_training', 'opt_build': {'cpu_type': 'x86', 'acc_type': 'nvidia'}, 'autotuning': {'tuner': 'cresta', 'input': 'dsl text'}, 'app_type-ai_training': {'config': {'ai_framework': 'tensorflow'}, 'data': {}, 'ai_framework-tensorflow': {'version': '2.1', 'xla': True}}}}}
+INFO:root:Mapping to optimal container
+INFO:root:Mapping to optimal container
+INFO:root:{'enable_opt_build': True, 'enable_autotuning': True, 'app_type': 'ai_training', 'opt_build': {'cpu_type': 'x86', 'acc_type': 'nvidia'}, 'autotuning': {'tuner': 'cresta', 'input': 'dsl text'}, 'app_type-ai_training': {'config': {'ai_framework': 'tensorflow'}, 'data': {}, 'ai_framework-tensorflow': {'version': '2.1', 'xla': True}}}
+INFO:root:Decoding AI training application
+INFO:root:Decoding AI training optimisation
+INFO:root:Config section: {'ai_framework': 'tensorflow'}
+INFO:root:Data section: {}
+INFO:root:Adding target query  and target like '%cpu_type:x86%'
+INFO:root:Adding target query  and target like '%acc_type:nvidia%'
+INFO:root:Optimisations : ['version:2.1', 'xla:true']
+INFO:root:Adding opt query  and optimisation like '%version:2.1%'
+INFO:root:Adding opt query  and optimisation like '%xla:true%'
+INFO:root:Selecting : select opt_dsl_code from optimisation where app_name = 'tensorflow' and target like '%cpu_type:x86%' and target like '%acc_type:nvidia%' and target like '%enable_opt_build:true%' and optimisation like '%version:2.1%' and optimisation like '%xla:true%'
+INFO:root:Successfully selected SQL
+INFO:root:Decoded dsl codemodak-tensorflow-2.1-gpu-src
+WARNING:root:Unknown application type
+INFO:root:Decoded opt code: modak-tensorflow-2.1-gpu-src
+INFO:root:Get container for opt code: modak-tensorflow-2.1-gpu-src
+INFO:root:Executing : select container_file, image_type, image_hub from mapper                 where opt_dsl_code='modak-tensorflow-2.1-gpu-src' order by map_id desc limit 1
+INFO:root:Successfully executed SQL
+INFO:root:Container link: docker://modakopt/modak:tensorflow-2.1-gpu-src
+INFO:root:Optimal container: docker://modakopt/modak:tensorflow-2.1-gpu-src
+INFO:root:Successfully updated container runtime
+INFO:root:Generating job file header
+INFO:root:Initialising job file generator
+INFO:root:Generating torque header
+INFO:root:Adding autotuning scripts
+INFO:root:Initialised MODAK tuner
+INFO:root:Initialising gcloud storage
+DEBUG:urllib3.util.retry:Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+DEBUG:google.auth.transport.requests:Making request: POST https://oauth2.googleapis.com/token
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): oauth2.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): storage.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "GET /storage/v1/b/modak-bucket?projection=noAcl HTTP/1.1" 200 955
+INFO:root:Encoding tuner
+INFO:root:cresta
+INFO:root:dsl text
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "POST /upload/storage/v1/b/modak-bucket/o?uploadType=multipart HTTP/1.1" 200 983
+INFO:root:Added /Users/ksivalinga/Documents/sodalite/MODAK/output/skyline-extraction-training_20200811181656.tune to storage : https://storage.googleapis.com/modak-bucket//modak/skyline-extraction-training_20200811181656.tune
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "POST /upload/storage/v1/b/modak-bucket/o?uploadType=multipart HTTP/1.1" 200 989
+INFO:root:Added /Users/ksivalinga/Documents/sodalite/MODAK/output/skyline-extraction-training_20200811181656_tune.sh to storage : https://storage.googleapis.com/modak-bucket//modak/skyline-extraction-training_20200811181656_tune.sh
+INFO:root:Successfully encoded tuner
+INFO:root:Adding tuner<tuner.tuner object at 0x116073f90>
+INFO:root:Successfully added tuner
+INFO:root:Applying optimisations ['version:2.1', 'xla:true']
+INFO:root:Enforcing opts ['version:2.1', 'xla:true']
+INFO:root:Ignore version as a optimisation
+INFO:root:Executing : select script_name, script_loc, stage from optscript where opt_code = 'xla' 
+INFO:root:Successfully executed SQL
+INFO:root:Adding optimisations enable_xla.sh
+INFO:root:Successfully added optimisation
+INFO:root:Adding application run
+INFO:root:Adding app run
+INFO:root:Successfully added app run
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "POST /upload/storage/v1/b/modak-bucket/o?uploadType=multipart HTTP/1.1" 200 970
+INFO:root:Added /Users/ksivalinga/Documents/sodalite/MODAK/output/skyline-extraction-training_20200811181656.sh to storage : https://storage.googleapis.com/modak-bucket//modak/skyline-extraction-training_20200811181658.sh
+INFO:root:Job script link: https://storage.googleapis.com/modak-bucket//modak/skyline-extraction-training_20200811181658.sh
+INFO:root:Intialising MODAK
+INFO:root:Intialising driver
+INFO:root:Reading ini file : ../conf/iac-model.ini
+INFO:root:Reading section test of ini file 
+INFO:root:db name :test_iac_model
+INFO:root:db dir :/Users/ksivalinga/Documents/sodalite/iac-model-repo/db/test-iac-model/
+INFO:root:out dir :/Users/ksivalinga/Documents/sodalite/MODAK/output
+INFO:root:host :localhost
+INFO:root:port :3306
+INFO:root:user :root
+INFO:root:password : **** 
+INFO:root:selected DB : test_iac_model
+INFO:root:Connecting to model repo
+INFO:root:Successfully initialised driver
+INFO:root:Initialised MODAK mapper
+INFO:root:Initialised MODAK enforcer
+INFO:root:Initialising gcloud storage
+DEBUG:urllib3.util.retry:Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+DEBUG:google.auth.transport.requests:Making request: POST https://oauth2.googleapis.com/token
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): oauth2.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): storage.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "GET /storage/v1/b/modak-bucket?projection=noAcl HTTP/1.1" 200 955
+INFO:root:Successfully intialised MODAK
+INFO:root:Processing job data{'job': {'job_options': {'job_name': 'solver', 'wall_time_limit': '1:00:00 ', 'node_count': 2, 'core_count': 40, 'process_count_per_node': 40, 'standard_output_file': 'file.out', 'standard_error_file': 'file.err', 'combine_stdout_stderr': True, 'request_event_notification': 'abe', 'email_address': 'kartshy@gmail.com'}, 'application': {'app_tag': 'solver_clinicalUC', 'container_runtime': 'docker://ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof', 'app_type': 'hpc', 'executable': '${ASTER_ROOT}/14.4/bin/aster ', 'arguments': '${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \\\n-commandes fort.1 --num_job=1432 --mode=interactif \\\n--rep_outils=${ASTER_ROOT}/outils \\\n--rep_mat=${ASTER_ROOT}/14.4/share/aster/materiau \\\n--rep_dex=${ASTER_ROOT}/14.4/share/aster/datg \\\n--numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=3600.0', 'mpi_ranks': 40, 'threads': 1, 'build': {'src': 'https://www.code-aster.org/FICHIERS/aster-full-src-14.4.0-1.noarch.tar.gz', 'build_command': 'python3 setup.py install\n'}}, 'optimisation': {'enable_opt_build': True, 'enable_autotuning': True, 'app_type': 'hpc', 'opt_build': {'cpu_type': 'x86', 'acc_type': ''}, 'autotuning': {'tuner': 'cresta', 'input': 'dsl text'}, 'app_type-hpc': {'config': {'parallelisation': 'mpi'}, 'data': {'location': 'L1L2_NonLinear_prepared.tar.gz'}, 'parallelisation-mpi': {'library': 'mpich', 'version': '3.1.4'}}}}}
+INFO:root:Mapping to optimal container
+INFO:root:Mapping to optimal container
+INFO:root:{'enable_opt_build': True, 'enable_autotuning': True, 'app_type': 'hpc', 'opt_build': {'cpu_type': 'x86', 'acc_type': ''}, 'autotuning': {'tuner': 'cresta', 'input': 'dsl text'}, 'app_type-hpc': {'config': {'parallelisation': 'mpi'}, 'data': {'location': 'L1L2_NonLinear_prepared.tar.gz'}, 'parallelisation-mpi': {'library': 'mpich', 'version': '3.1.4'}}}
+INFO:root:Decoding HPC application
+INFO:root:Decoding HPC optimisation
+INFO:root:Config section: {'parallelisation': 'mpi'}
+INFO:root:Parallelisationmpi
+INFO:root:optimisations: {'library': 'mpich', 'version': '3.1.4'}
+INFO:root:Adding target query  and target like '%cpu_type:x86%'
+INFO:root:Adding target query  and target like '%acc_type:%'
+INFO:root:Adding opt query  and optimisation like '%version:3.1.4%'
+INFO:root:Selecting : select opt_dsl_code from optimisation where app_name = 'mpich' and target like '%cpu_type:x86%' and target like '%acc_type:%' and target like '%enable_opt_build:true%' and optimisation like '%version:3.1.4%'
+INFO:root:Successfully selected SQL
+INFO:root:Decoded dsl codempich_ub1804_cuda101_mpi314_gnugprof
+INFO:root:Decoded opt code: mpich_ub1804_cuda101_mpi314_gnugprof
+INFO:root:Get container for opt code: mpich_ub1804_cuda101_mpi314_gnugprof
+INFO:root:Executing : select container_file, image_type, image_hub from mapper                 where opt_dsl_code='mpich_ub1804_cuda101_mpi314_gnugprof' order by map_id desc limit 1
+INFO:root:Successfully executed SQL
+INFO:root:Container link: docker://ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof
+INFO:root:Optimal container: docker://ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof
+INFO:root:Successfully updated container runtime
+INFO:root:Generating job file header
+INFO:root:Initialising job file generator
+INFO:root:Generating torque header
+INFO:root:Adding autotuning scripts
+INFO:root:Initialised MODAK tuner
+INFO:root:Initialising gcloud storage
+DEBUG:urllib3.util.retry:Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+DEBUG:google.auth.transport.requests:Making request: POST https://oauth2.googleapis.com/token
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): oauth2.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): storage.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "GET /storage/v1/b/modak-bucket?projection=noAcl HTTP/1.1" 200 955
+INFO:root:Encoding tuner
+INFO:root:cresta
+INFO:root:dsl text
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "POST /upload/storage/v1/b/modak-bucket/o?uploadType=multipart HTTP/1.1" 200 899
+INFO:root:Added /Users/ksivalinga/Documents/sodalite/MODAK/output/solver_20200811181700.tune to storage : https://storage.googleapis.com/modak-bucket//modak/solver_20200811181700.tune
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "POST /upload/storage/v1/b/modak-bucket/o?uploadType=multipart HTTP/1.1" 200 905
+INFO:root:Added /Users/ksivalinga/Documents/sodalite/MODAK/output/solver_20200811181700_tune.sh to storage : https://storage.googleapis.com/modak-bucket//modak/solver_20200811181700_tune.sh
+INFO:root:Successfully encoded tuner
+INFO:root:Adding tuner<tuner.tuner object at 0x11a1eef90>
+INFO:root:Successfully added tuner
+INFO:root:Applying optimisations ['version:3.1.4']
+INFO:root:Enforcing opts ['version:3.1.4']
+INFO:root:Ignore version as a optimisation
+INFO:root:Adding application run
+INFO:root:Adding app run
+INFO:root:Successfully added app run
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "POST /upload/storage/v1/b/modak-bucket/o?uploadType=multipart HTTP/1.1" 200 886
+INFO:root:Added /Users/ksivalinga/Documents/sodalite/MODAK/output/solver_20200811181700.sh to storage : https://storage.googleapis.com/modak-bucket//modak/solver_20200811181701.sh
+INFO:root:Job script link: https://storage.googleapis.com/modak-bucket//modak/solver_20200811181701.sh
+INFO:root:Intialising MODAK
+INFO:root:Intialising driver
+INFO:root:Reading ini file : ../conf/iac-model.ini
+INFO:root:Reading section test of ini file 
+INFO:root:db name :test_iac_model
+INFO:root:db dir :/Users/ksivalinga/Documents/sodalite/iac-model-repo/db/test-iac-model/
+INFO:root:out dir :/Users/ksivalinga/Documents/sodalite/MODAK/output
+INFO:root:host :localhost
+INFO:root:port :3306
+INFO:root:user :root
+INFO:root:password : **** 
+INFO:root:selected DB : test_iac_model
+INFO:root:Connecting to model repo
+INFO:root:Successfully initialised driver
+INFO:root:Initialised MODAK mapper
+INFO:root:Initialised MODAK enforcer
+INFO:root:Initialising gcloud storage
+DEBUG:urllib3.util.retry:Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+DEBUG:google.auth.transport.requests:Making request: POST https://oauth2.googleapis.com/token
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): oauth2.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): storage.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "GET /storage/v1/b/modak-bucket?projection=noAcl HTTP/1.1" 200 955
+INFO:root:Successfully intialised MODAK
+INFO:root:Processing job data{'job': {'job_options': {'job_name': 'resnet', 'wall_time_limit': '12:00:00 ', 'node_count': 1, 'process_count_per_node': 40, 'request_gpus': 1, 'standard_output_file': 'resnet.out', 'combine_stdout_stderr': True, 'request_event_notification': 'abe', 'email_address': 'kartshy@gmail.com'}, 'application': {'app_tag': 'resnet-benchmark', 'container_runtime': 'tensorflow/tensorflow:2.1.0-gpu-py3', 'executable': 'resnet_benchmark.sh'}, 'optimisation': {'enable_opt_build': True, 'app_type': 'ai_training', 'opt_build': {'cpu_type': 'x86', 'acc_type': 'nvidia'}, 'app_type-ai_training': {'config': {'ai_framework': 'tensorflow'}, 'data': {}, 'ai_framework-tensorflow': {'version': '2.1', 'xla': True}}}}}
+INFO:root:Mapping to optimal container
+INFO:root:Mapping to optimal container
+INFO:root:{'enable_opt_build': True, 'app_type': 'ai_training', 'opt_build': {'cpu_type': 'x86', 'acc_type': 'nvidia'}, 'app_type-ai_training': {'config': {'ai_framework': 'tensorflow'}, 'data': {}, 'ai_framework-tensorflow': {'version': '2.1', 'xla': True}}}
+INFO:root:Decoding AI training application
+INFO:root:Decoding AI training optimisation
+INFO:root:Config section: {'ai_framework': 'tensorflow'}
+INFO:root:Data section: {}
+INFO:root:Adding target query  and target like '%cpu_type:x86%'
+INFO:root:Adding target query  and target like '%acc_type:nvidia%'
+INFO:root:Optimisations : ['version:2.1', 'xla:true']
+INFO:root:Adding opt query  and optimisation like '%version:2.1%'
+INFO:root:Adding opt query  and optimisation like '%xla:true%'
+INFO:root:Selecting : select opt_dsl_code from optimisation where app_name = 'tensorflow' and target like '%cpu_type:x86%' and target like '%acc_type:nvidia%' and target like '%enable_opt_build:true%' and optimisation like '%version:2.1%' and optimisation like '%xla:true%'
+INFO:root:Successfully selected SQL
+INFO:root:Decoded dsl codemodak-tensorflow-2.1-gpu-src
+WARNING:root:Unknown application type
+INFO:root:Decoded opt code: modak-tensorflow-2.1-gpu-src
+INFO:root:Get container for opt code: modak-tensorflow-2.1-gpu-src
+INFO:root:Executing : select container_file, image_type, image_hub from mapper                 where opt_dsl_code='modak-tensorflow-2.1-gpu-src' order by map_id desc limit 1
+INFO:root:Successfully executed SQL
+INFO:root:Container link: docker://modakopt/modak:tensorflow-2.1-gpu-src
+INFO:root:Optimal container: docker://modakopt/modak:tensorflow-2.1-gpu-src
+INFO:root:Successfully updated container runtime
+INFO:root:Generating job file header
+INFO:root:Initialising job file generator
+INFO:root:Generating torque header
+INFO:root:Adding autotuning scripts
+INFO:root:Initialised MODAK tuner
+INFO:root:Initialising gcloud storage
+DEBUG:urllib3.util.retry:Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+DEBUG:google.auth.transport.requests:Making request: POST https://oauth2.googleapis.com/token
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): oauth2.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://oauth2.googleapis.com:443 "POST /token HTTP/1.1" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): storage.googleapis.com:443
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "GET /storage/v1/b/modak-bucket?projection=noAcl HTTP/1.1" 200 955
+INFO:root:Encoding tuner
+INFO:root:Disabled tuning
+WARNING:root:Tuning not enabled or Encoding tuner failed
+INFO:root:Applying optimisations ['version:2.1', 'xla:true']
+INFO:root:Enforcing opts ['version:2.1', 'xla:true']
+INFO:root:Ignore version as a optimisation
+INFO:root:Executing : select script_name, script_loc, stage from optscript where opt_code = 'xla' 
+INFO:root:Successfully executed SQL
+INFO:root:Adding optimisations enable_xla.sh
+INFO:root:Successfully added optimisation
+INFO:root:Adding application run
+INFO:root:Adding app run
+INFO:root:Successfully added app run
+DEBUG:urllib3.connectionpool:https://storage.googleapis.com:443 "POST /upload/storage/v1/b/modak-bucket/o?uploadType=multipart HTTP/1.1" 200 885
+INFO:root:Added /Users/ksivalinga/Documents/sodalite/MODAK/output/resnet_20200811181704.sh to storage : https://storage.googleapis.com/modak-bucket//modak/resnet_20200811181704.sh
+INFO:root:Job script link: https://storage.googleapis.com/modak-bucket//modak/resnet_20200811181704.sh

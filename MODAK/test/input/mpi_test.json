@@ -1,0 +1,49 @@
+{
+  "job":{
+    "job_options": {
+      "job_name": "mpi_test",
+      "wall_time_limit": "1:00:00 ",
+      "node_count": 2,
+      "core_count": 40,
+      "process_count_per_node": 40,
+      "standard_output_file": "mpi_test.out",
+      "standard_error_file": "mpi_test.err",
+      "combine_stdout_stderr": true,
+      "request_event_notification": "abe",
+      "email_address": "kartshy@gmail.com"
+    },
+    "application": {
+      "app_tag": "mpi_test",
+      "container_runtime": "docker://ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof",
+      "app_type": "hpc",
+      "executable": "./xthi",
+      "arguments": "",
+      "mpi_ranks": 80,
+      "threads": 2,
+      "build": {
+        "src": "https://raw.githubusercontent.com/olcf/XC30-Training/master/affinity/Xthi.c",
+        "build_command": "mpicc -o xthi -fopenmp Xthi.c"
+      }
+    },
+    "optimisation": {
+      "enable_opt_build": true,
+      "enable_autotuning":false,
+      "app_type":"hpc",
+      "opt_build": {
+        "cpu_type": "x86",
+        "acc_type": ""
+      },
+      "app_type-hpc": {
+        "config":{
+          "parallelisation":"mpi"
+        },
+        "data":{
+        },
+        "parallelisation-mpi": {
+          "library": "mpich",
+          "version": "3.1.4"
+        }
+      }
+    }
+  }
+}

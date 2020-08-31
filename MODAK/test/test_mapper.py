@@ -15,6 +15,7 @@ class test_mapper(unittest.TestCase):
     def test_add_opt(self):
         target_string = u'{"cpu_type":"x86","acc_type":"nvidia"}'
         opt_string = u'{"xla":true,"version":"1.1"}'
+        self.driver.updateSQL("delete from mapper where opt_dsl_code = '{}'".format('TF_PIP_XLA'))
         self.driver.updateSQL("delete from optimisation where opt_dsl_code = '{}'".format('TF_PIP_XLA'))
         self.m.add_optimisation('TF_PIP_XLA', 'tensorflow', json.loads(target_string), json.loads(opt_string))
         df = self.driver.applySQL("select app_name from optimisation where opt_dsl_code = '{}'".format('TF_PIP_XLA'))

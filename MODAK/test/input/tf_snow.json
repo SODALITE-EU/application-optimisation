@@ -5,6 +5,7 @@
       "wall_time_limit": "12:00:00 ",
       "node_count": 1,
       "core_count": 40,
+      "process_count_per_node": 40,
       "request_gpus": 1,
       "request_specific_nodes": "ssd",
       "standard_output_file": "skyline-extraction-training.out",

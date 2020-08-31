@@ -1,13 +1,35 @@
 from flask import Flask
 from MODAK import MODAK
 from flask import jsonify, make_response
-from flask import request
+from flask import Flask, render_template, redirect, url_for, request
+from flask import session
+
 import json
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return '<h1>MODAK</h1>'
+    file = "../app/modak.html"
+    with open(file) as modak_html:
+        return str(modak_html.read())
+
+# # Route for handling the login page logic
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     error = None
+#     if request.method == 'POST':
+#         if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+#             error = 'Invalid Credentials. Please try again.'
+#         else:
+#             session['logged_in'] = True
+#             return redirect(url_for('home'))
+#
+#     return render_template('login.html', error=error)
+#
+# @app.route('/logout')
+# def logout():
+#     session.pop('logged_in', None)
+#     return redirect(url_for('home'))
 
 @app.route("/optimise", methods=["POST"])
 def modak_optimise():

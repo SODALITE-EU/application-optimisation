@@ -7,49 +7,81 @@ from mapper import mapper
 from MODAK_gcloud import TransferData
 from datetime import datetime
 from enforcer import enforcer
-
+import logging
 import json
 
 class MODAK():
 
     def __init__(self, conf_file:str = '../conf/iac-model.ini'):
+        logging.info('Intialising MODAK')
         self.__driver = MODAK_driver(conf_file)
         self.__map = mapper(self.__driver)
         self.__enf = enforcer(self.__driver)
         self.__drop = TransferData()
         self.__job_link = ''
+        logging.info('Successfully intialised MODAK')
 
     def optimise(self, job_json_data):
-        print(job_json_data)
+        logging.info('Processing job data' + str(job_json_data))
+        logging.info('Mapping to optimal container')
         new_container = self.__map.map_container(job_json_data)
-        print(new_container)
+        logging.info('Optimal container: {}'.format(new_container))
 
         if new_container is not None:
             application = job_json_data.get('job').get('application')
             application['container_runtime'] = new_container
+            logging.info('Successfully updated container runtime')
 
         job_name = job_json_data.get('job').get('job_options').get('job_name')
         if job_name is None:
             job_name = job_json_data.get('job').get('application')
-        job_json_data.get('job').get('application').get('container_runtime')
+        # job_json_data.get('job').get('application').get('container_runtime')
 
+        logging.info('Generating job file header')
         job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
         gen_t = jobfile_generator(job_json_data, job_file, "torque")
 
+        logging.info('Adding autotuning scripts')
         gen_t.add_tuner()
 
-        print(self.__map.get_opts())
+        logging.info('Applying optimisations ' + str(self.__map.get_opts()))
         opts = self.__enf.enforce_opt(self.__map.get_opts())
         if opts is not None:
             for i in range(0, opts.shape[0]):
                 gen_t.add_optscript(opts['script_name'][i], opts['script_loc'][i])
 
+        logging.info('Adding application run')
         gen_t.add_apprun()
 
         file_to = "{}/{}_{}.sh".format('/modak',job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
         self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
-        print(self.__job_link)
+        logging.info('Job script link: ' + self.__job_link)
         return self.__job_link
+
+    def job_header(self, job_json_data):
+        logging.info('Generating job file header')
+        logging.info('Processing job data' + str(job_json_data))
+        job_name = job_json_data.get('job').get('job_options').get('job_name')
+        if job_name is None:
+            job_name = 'job'
+        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR, job_name, datetime.now().strftime('%Y%m%d%H%M%S'))
+        gen_t = jobfile_generator(job_json_data, job_file, "torque")
+
+        file_to = "{}/{}_{}.sh".format('/modak', job_name, datetime.now().strftime('%Y%m%d%H%M%S'))
+        self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
+        logging.info('Job script link: ' + self.__job_link)
+        return self.__job_link
+
+    def opt_container_runtime(self, job_json_data):
+        logging.info('Mapping optimal container for job data' )
+        logging.info('Processing job data' + str(job_json_data))
+        new_container = self.__map.map_container(job_json_data)
+        logging.info('Optimal container: {}'.format(new_container))
+
+        if new_container is not None:
+            application = job_json_data.get('job').get('application')
+            application['container_runtime'] = new_container
+        return new_container
 
 def main(argv=None):
     if argv is None:
@@ -77,6 +109,7 @@ def main(argv=None):
         job_data = json.load(json_file)
         link = m.optimise(job_data)
 
+    print(link)
     job_data['job'].update({'job_script': link})
     with open(outputfile, 'w') as fp:
         json.dump(job_data, fp)

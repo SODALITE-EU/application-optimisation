@@ -16,17 +16,25 @@ class tuner():
         self.__drop = TransferData()
 
     def encode_tune(self, opt_json_obj, jobfile: str):
+        logging.info("Encoding tuner")
         reader = opt_dsl_reader(opt_json_obj['job'])
-        self.tuner = reader.get_tuner()
-        self.tuner_input = reader.get_tuner_input()
+        if not reader.enable_autotuning() or reader.enable_autotuning() is None:
+            logging.info("Disabled tuning")
+            return False
 
-        if self.tuner == 'cresta':
+        tuner = reader.get_tuner()
+        tuner_input = reader.get_tuner_input()
+        logging.info(tuner)
+        logging.info(tuner_input)
+
+        if tuner == 'cresta':
             jobname = jobfile.split('.')
             self.__tune_input_file = jobname[0] + '.tune'
             basename = os.path.basename(self.__tune_input_file)
             with open(self.__tune_input_file, 'w') as t:
-                t.write(self.tuner_input)
+                t.write(tuner_input)
                 t.close()
+
             tune_file_to = "{}/{}".format('/modak', basename)
             self.__tune_input_link = self.__drop.upload_file(file_from=self.__tune_input_file, file_to=tune_file_to)
 
@@ -54,9 +62,11 @@ class tuner():
 
             tune_script_to = "{}/{}".format('/modak', basescript)
             self.__tune_script_link = self.__drop.upload_file(file_from=self.__tune_script_file, file_to=tune_script_to)
-
+            logging.info("Successfully encoded tuner")
+            return True
         else:
-            logging.warn('unsupported tuning framework')
+            logging.warning('unsupported tuning framework')
+            return False
 
     def get_tune_link(self):
         return self.__tune_script_link

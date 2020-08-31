@@ -104,10 +104,10 @@ def main():
     transferData = TransferData()
     # transferData.login_dropbox()
 
-    # file_from = 'scripts/enable_xla.sh'
-    # file_to = '/scripts/enable_xla.sh' # The full path to upload the file to, including the file name
-    # link = transferData.upload_file(file_from, file_to)
-    # print(link)
+    file_from = 'scripts/set_default_egi.sh'
+    file_to = '/scripts/set_default_egi.sh' # The full path to upload the file to, including the file name
+    link = transferData.upload_file(file_from, file_to)
+    print(link)
 
     # API v2
     # link = transferData.upload_file(file_from=file_from, file_to=file_to)

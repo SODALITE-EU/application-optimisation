@@ -1,18 +1,24 @@
 import json
 import os
 from tuner import tuner
+import logging
 
 class jobfile_generator():
 
     def __init__(self, job_json_obj, batch_file:str, scheduler:str):
-        # logging.info("Reading job data from file " + job_file)
+        logging.info("Initialising job file generator")
         self.scheduler = scheduler
         self.batch_file = batch_file
         self.job_json_obj = job_json_obj
         self.job_data = job_json_obj['job']['job_options']
         self.app_data = job_json_obj['job']['application']
         self.opt_data = job_json_obj['job']['optimisation']
-        print(self.job_data)
+        self.singularity_exec = 'singularity exec'
+        self.current_dir = './'
+
+        if job_json_obj['job'].get('target') is not None:
+            if job_json_obj['job'].get('target').get('job_scheduler_type') is not None:
+                scheduler = job_json_obj['job']['target']['job_scheduler_type']
 
         if scheduler == 'torque':
             self.__generate_torque_header(batch_file)
@@ -21,11 +27,12 @@ class jobfile_generator():
 
     # Based on https://kb.northwestern.edu/page.php?id=89454
     def __generate_torque_header(self, filename:str):
+        logging.info("Generating torque header")
         self.scheduler = 'torque'
         self.batch_file = filename
         DIRECTIVE = '#PBS'
         f = open(filename, 'w')
-        f.write('#!/bin/bash')
+        f.write(DIRECTIVE + ' -S ' + '/bin/bash')
         f.write('\n')
         f.write('## START OF HEADER ## ')
         f.write('\n')
@@ -43,12 +50,14 @@ class jobfile_generator():
             f.write('\n')
         if "node_count" in self.job_data:
             f.write(DIRECTIVE + ' -l nodes=' + str(self.job_data['node_count']))
+            if "process_count_per_node" in self.job_data:
+                f.write(':ppn=' + str(self.job_data['process_count_per_node']))
+            if "request_gpus" in self.job_data:
+                f.write(':gpus=' + str(self.job_data['request_gpus']))
+                self.singularity_exec = self.singularity_exec + ' --nv '
             f.write('\n')
         if "core_count" in self.job_data:
             f.write(DIRECTIVE + ' -l procs=' + str(self.job_data['core_count']))
-            f.write('\n')
-        if "process_count_per_node" in self.job_data:
-            f.write(DIRECTIVE + ' -l ppn=' + str(self.job_data['process_count_per_node']))
             f.write('\n')
         if "core_count_per_process" in self.job_data:
             pass
@@ -57,9 +66,6 @@ class jobfile_generator():
             f.write('\n')
         if "minimum_memory_per_processor" in self.job_data:
             f.write(DIRECTIVE + ' -l pmem=' + self.job_data['minimum_memory_per_processor'])
-            f.write('\n')
-        if "request_gpus" in self.job_data:
-            f.write(DIRECTIVE + ' -l gpus=' + str(self.job_data['request_gpus']))
             f.write('\n')
         if "request_specific_nodes" in self.job_data:
             f.write(DIRECTIVE + ' -l nodes=' + self.job_data['request_specific_nodes'])
@@ -92,7 +98,7 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' -m ' + self.job_data['request_event_notification'])
             f.write('\n')
         if "email_address" in self.job_data:
-            f.write(DIRECTIVE + ' M ' + self.job_data['email_address'])
+            f.write(DIRECTIVE + ' -M ' + self.job_data['email_address'])
             f.write('\n')
         if "defer_job" in self.job_data:
             f.write(DIRECTIVE + ' -a ' + self.job_data['defer_job'])
@@ -105,9 +111,13 @@ class jobfile_generator():
         f.write('\n')
         f.write('cd $PBS_O_WORKDIR')
         f.write('\n')
+        self.current_dir = '$PBS_O_WORKDIR/'
+        f.write('export PATH=$PBS_O_WORKDIR:$PATH')
+        f.write('\n')
         f.close()
 
     def __generate_slurm_header(self, filename:str):
+        logging.info("Generating slurm header")
         self.scheduler = 'slurm'
         self.batch_file = filename
         DIRECTIVE = '#SBATCH'
@@ -149,6 +159,7 @@ class jobfile_generator():
         if "request_gpus" in self.job_data:
             f.write(DIRECTIVE + ' --gres=gpu:' + str(self.job_data['request_gpus']))
             f.write('\n')
+            self.singularity_exec = self.singularity_exec + ' --nv '
         if "request_specific_nodes" in self.job_data:
             f.write(DIRECTIVE + ' --nodelist=' + self.job_data['request_specific_nodes'])
             f.write('\n')
@@ -192,50 +203,88 @@ class jobfile_generator():
         f.write('\n')
         f.write('cd $SLURM_SUBMIT_DIR')
         f.write('\n')
+        self.current_dir = '$SLURM_SUBMIT_DIR/'
+        f.write('export PATH=$SLURM_SUBMIT_DIR:$PATH')
+        f.write('\n')
 
         f.close()
 
     def add_tuner(self):
         __tuner = tuner()
-        __tuner.encode_tune(self.job_json_obj, self.batch_file)
+        res = __tuner.encode_tune(self.job_json_obj, self.batch_file)
+        if not res:
+            logging.warning("Tuning not enabled or Encoding tuner failed")
+            return None
+
+        logging.info("Adding tuner" + str(__tuner))
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
             f.write('\n')
             f.write('## START OF TUNER ##')
             f.write('\n')
+            f.write('file='+__tuner.get_tune_filename())
+            f.write('\n')
+            f.write('if [ -f $file ] ; then rm $file; fi')
+            f.write('\n')
             f.write('wget --no-check-certificate ' + __tuner.get_tune_link())
+            f.write('\n')
+            f.write('chmod 755 ' + __tuner.get_tune_filename())
             f.write('\n')
             if "container_runtime" in self.app_data:
                 cont = self.app_data['container_runtime']
-                f.write('\nsingularity exec {} {}'.format(cont, __tuner.get_tune_filename()))
+                f.write('\n{} {} {}'.format(self.singularity_exec, self.get_sif_filename(cont), __tuner.get_tune_filename()))
                 f.write('\n')
             else:
-                f.write(__tuner.get_tune_filename())
+                f.write('source ' + __tuner.get_tune_filename())
                 f.write('\n')
             f.write('## END OF TUNER ##')
             f.write('\n')
             f.close()
+            logging.info("Successfully added tuner")
 
     def add_optscript(self, scriptfile, scriptlink):
+        logging.info("Adding optimisations " + scriptfile)
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
+            f.write('\n')
+            f.write('file=' + scriptfile)
+            f.write('\n')
+            f.write('if [ -f $file ] ; then rm $file; fi')
             f.write('\n')
             f.write('wget --no-check-certificate ' + scriptlink)
             f.write('\n')
-            f.write(scriptfile)
+            f.write('chmod 755 ' + scriptfile)
+            f.write('\n')
+            f.write('source ' + scriptfile)
             f.write('\n')
             f.close()
+            logging.info("Successfully added optimisation")
 
 
     def add_apprun(self):
+        logging.info("Adding app run")
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
+            exe = self.app_data['executable']
+            arg = ''
+            if "container_runtime" in self.app_data:
+                cont = self.app_data['container_runtime']
+                cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont))
+                # f.write('\n{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)))
+            else:
+                f.write('\n')
+            if "arguments" in self.app_data:
+                arg = self.app_data['arguments']
             if "app_type" in self.app_data:
                 app_type = self.app_data['app_type']
-                exe = self.app_data['executable']
-                arg = ''
-                if "arguments" in self.app_data:
-                    arg = self.app_data['arguments']
+                if "build" in self.app_data:
+                    src = self.app_data['build'].get('src')
+                    build_command = self.app_data['build'].get('build_command')
+                    if src[-4] == '.git':
+                        f.write('\ngit clone {}\n'.format(src))
+                    else:
+                        f.write('\nwget --no-check-certificate {}\n'.format(src))
+                    f.write('\n{} {}\n'.format(cont_exec_command, build_command))
                 if app_type == 'mpi' or app_type == 'hpc':
                     mpi_ranks = 1
                     threads = 1
@@ -244,29 +293,26 @@ class jobfile_generator():
                     if "threads" in self.app_data:
                         threads = self.app_data['threads']
                     f.write('\nexport OMP_NUM_THREADS={}\n'.format(threads))
-                    if "container_runtime" in self.app_data:
-                        cont = self.app_data['container_runtime']
-                        f.write('\nsingularity exec {} '.format(cont))
-                    else:
-                        f.write('\n')
-                    if self.scheduler == 'torque':
-                        f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, exe, arg))
+                    if self.scheduler == 'torque' and 'openmpi:1.10' in cont:
+                        f.write('{} mpirun -np {} {} {}\n'.format(cont_exec_command, mpi_ranks, exe, arg))
+                    elif self.scheduler == 'torque':
+                        f.write('mpirun -np {} {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe, arg))
                     elif self.scheduler == 'slurm':
-                        f.write('srun -n {} {} {}\n'.format(mpi_ranks, exe, arg))
+                        f.write('srun -n {} {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe, arg))
                 elif app_type == 'python':
-                    if "container_runtime" in self.app_data:
-                        cont = self.app_data['container_runtime']
-                        f.write('\nsingularity exec {} '.format(cont))
-                    else:
-                        f.write('\n')
-
-                    f.write('python3 {} {}\n'.format(exe, arg))
+                    f.write('{} {} {}\n'.format(cont_exec_command, exe, arg))
+            else:
+                f.write('\n{} {} {}\n'.format(cont_exec_command, exe, arg))
 
             f.close()
+            logging.info("Successfully added app run")
 
+    def get_sif_filename(self, container: str):
+        words = container.split('/')
+        return '$SINGULARITY_DIR/' + words[-1].replace(':', '_') + '.sif'
 
 def main():
-    dsl_file = "../test/mpi_solver.json"
+    dsl_file = "../test/input/tf_snow.json"
     with open(dsl_file) as json_file:
         obj = json.load(json_file)
         gen_t = jobfile_generator(obj, "../test/torque.pbs","torque")
@@ -274,6 +320,7 @@ def main():
         gen_t.add_apprun()
         gen_s.add_apprun()
 
+    print(gen_t.get_sif_filename('shub://sodalite-hpe/modak:pytorch-1.5-cpu-pi'))
 
 if __name__ == '__main__':
     main()

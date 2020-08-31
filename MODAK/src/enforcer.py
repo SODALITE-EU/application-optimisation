@@ -11,7 +11,7 @@ class enforcer():
         self.driver = __driver
 
     def enforce_opt(self, opts):
-        print(opts)
+        logging.info('Enforcing opts ' + str(opts))
         for opt in opts:
             if 'version' in opt:
                 logging.info("Ignore version as a optimisation")

@@ -20,16 +20,24 @@ class MODAK_driver():
 
 
     def __init__(self, conf_file='../conf/iac-model.ini', install=False):
+        logging.info('Intialising driver')
         settings.initialise(conf_file)
         self.dbname = settings.DB_NAME
         logging.info("selected DB : {}".format(self.dbname))
         # Provide your Spark-master node below
-        self.cnx = mysql.connector.connect(user=settings.USER, password=settings.PASSWORD,
+        logging.info('Connecting to model repo')
+        try:
+            self.cnx = mysql.connector.connect(user=settings.USER, password=settings.PASSWORD,
                                        host=settings.HOST, port= settings.PORT,
                                        database=settings.DB_NAME)
+        except mysql.connector.Error as err:
+            logging.error('Error connecting to modak repo')
+            logging.error(err)
+
         # self.__init_IaC_modelrepo(install)
         if settings.QUITE_SERVER_LOGS:
             self._quiet_logs()
+        logging.info('Successfully initialised driver')
 
     def __del__(self):
         self.cnx.close()
@@ -64,28 +72,39 @@ class MODAK_driver():
                 # # Put it all to a data frame
                 # sql_data = pd.DataFrame(data=cur.fetchall(), index=None, columns=cur.column_names)
                 sql_data = pd.read_sql(sqlstr, self.cnx)
+                logging.info('Successfully executed SQL')
                 return sql_data
-
+            except mysql.connector.Error as err:
+                logging.error('Error executing sql')
+                logging.error(err)
+                raise RuntimeError(err)
             except Exception as excpt:
                 logging.warning(str(excpt))
+                raise RuntimeError(excpt)
         else:
             logging.error("Empty or invalid sql string")
             raise ValueError("Empty or invalid SQL statement")
+
 
     def selectSQL(self, sqlstr):
         re.sub("\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
-                logging.info("Executing : {}".format(sqlstr))
+                logging.info("Selecting : {}".format(sqlstr))
                 # cur = self.cnx.cursor()
                 # cur.execute(sqlstr)
                 # # Put it all to a data frame
                 # sql_data = pd.DataFrame(data=cur.fetchall(), index=None, columns=cur.column_names)
                 sql_data = pd.read_sql(sqlstr, self.cnx)
+                logging.info('Successfully selected SQL')
                 return sql_data
-
+            except mysql.connector.Error as err:
+                logging.error('Error executing sql')
+                logging.error(err)
+                raise RuntimeError(err)
             except Exception as excpt:
                 logging.warning(str(excpt))
+                raise RuntimeError(excpt)
         else:
             logging.error("Empty or invalid sql string")
             raise ValueError("Empty or invalid SQL statement")
@@ -94,14 +113,20 @@ class MODAK_driver():
         re.sub("\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
-                logging.info("Executing : {}".format(sqlstr))
+                logging.info("Updating : {}".format(sqlstr))
                 cur = self.cnx.cursor()
                 cur.execute(sqlstr)
                 # # Put it all to a data frame
                 self.cnx.commit()
+                logging.info('Successfully updated SQL')
                 return True
+            except mysql.connector.Error as err:
+                logging.error('Error executing sql')
+                logging.error(err)
+                raise RuntimeError(err)
             except Exception as excpt:
                 logging.warning(str(excpt))
+                raise RuntimeError(excpt)
         else:
             logging.error("Empty or invalid sql string")
             raise ValueError("Empty or invalid SQL statement")

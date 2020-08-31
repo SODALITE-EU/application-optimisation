@@ -43,20 +43,20 @@
     },
     "target": {
       "name": "hlrs_testbed",
-      "queue_type": "slurm"
+      "job_scheduler_type": "slurm"
     },
     "optimisation": {
       "enable_opt_build": true,
-      "enable_autotuning":true,
-      "app_type":"ai_training/hpc/big_data/ai_inference",
       "opt_build": {
         "cpu_type": "x86/arm/amd/power",
         "acc_type": "nvidia/amd/fpga"
       },
+      "enable_autotuning":true,
       "autotuning": {
         "tuner": "cresta",
         "input": "dsl text"
       },
+      "app_type":"ai_training/hpc/big_data/ai_inference",
       "app_type-ai_training": {
         "config": {
           "ai_framework": "tensorflow/pytorch/keras/cntk/mxnet",
@@ -75,13 +75,13 @@
             "cache": 100
           }
         },
-        "ai_framework-keras": {
-          "version": 1.1,
-          "backend": "tensorflow/pytorch/cntk/mxnet/keras"
-        },
         "ai_framework-tensorflow": {
           "version": "1.1",
           "xla": true
+        },
+        "ai_framework-keras": {
+          "version": 1.1,
+          "backend": "tensorflow/pytorch/cntk/mxnet/keras"
         },
         "ai_framework-pytorch": {
           "version": "1.1",
@@ -94,7 +94,7 @@
         },
         "data":{
           "location": "/some/data" ,
-          "basedata": "IMAGE/RESTART" ,
+          "basedata": "checkpoint/restart" ,
           "size": 67 ,
           "count": 4389,
           "etl": {
@@ -103,7 +103,7 @@
           }
         },
         "parallelisation-mpi": {
-          "library": "mvapch/opnmpi",
+          "library": "mvapich/openmpi/mpich",
           "version": "1.1",
           "scaling_efficiency": 0.75,
           "core_subscription": 1,
@@ -112,7 +112,7 @@
         "parallelisation-openmp": {
           "number_of_threads": 2,
           "scaling_efficiency": 0.75,
-          "affinity": "block/simpe"
+          "affinity": "block/simple"
         },
         "parallelisation-opencc": {
           "compiler": "pgi/cray",
