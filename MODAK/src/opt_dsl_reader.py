@@ -60,6 +60,19 @@ class opt_dsl_reader():
         if app_type == 'hpc':
             return self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
 
+    def get_opts_list(self):
+        opts = []
+        app_type = self.opt_node.get('app_type')
+        config = self.get_app_config()
+        if app_type == 'ai_training':
+            app = config['ai_framework']
+            opts = self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
+        elif app_type == 'hpc':
+            app = config['parallelisation']
+            opts = self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
+            opts.pop('library')
+        return opts
+
 def main():
     print('Test opt dsl reader driver')
     dsl_file = "../test/mpi_solver.json"

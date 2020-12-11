@@ -209,8 +209,8 @@ class jobfile_generator():
 
         f.close()
 
-    def add_tuner(self):
-        __tuner = tuner()
+    def add_tuner(self, upload=True):
+        __tuner = tuner(upload)
         res = __tuner.encode_tune(self.job_json_obj, self.batch_file)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")

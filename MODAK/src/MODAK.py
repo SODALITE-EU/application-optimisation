@@ -12,17 +12,18 @@ import json
 
 class MODAK():
 
-    def __init__(self, conf_file:str = '../conf/iac-model.ini'):
+    def __init__(self, conf_file:str = '../conf/iac-model.ini', upload=True):
         logging.info('Intialising MODAK')
         self.__driver = MODAK_driver(conf_file)
         self.__map = mapper(self.__driver)
         self.__enf = enforcer(self.__driver)
         self.__job_link = ''
+        self.__upload = upload
+        if self.__upload:
+            self.__drop = TransferData()
         logging.info('Successfully intialised MODAK')
 
     def optimise(self, job_json_data):
-        self.__drop = TransferData()
-
         logging.info('Processing job data' + str(job_json_data))
         logging.info('Mapping to optimal container')
         new_container = self.__map.map_container(job_json_data)
@@ -35,7 +36,7 @@ class MODAK():
 
         job_name = job_json_data.get('job').get('job_options').get('job_name')
         if job_name is None:
-            job_name = job_json_data.get('job').get('application')
+            job_name = job_json_data.get('job').get('application').get('app_tag', "job")
         # job_json_data.get('job').get('application').get('container_runtime')
 
         logging.info('Generating job file header')
@@ -90,6 +91,34 @@ class MODAK():
         new_container = self.__map.map_container(job_json_data)
         logging.info('Optimal container: {}'.format(new_container))
         return new_container if new_container is not None else ""
+
+    def get_opt_job_script(self, job_json_data):
+        job_name = job_json_data.get('job').get('job_options').get('job_name')
+        if job_name is None:
+            job_name = job_json_data.get('job').get('application').get('app_tag', "job")
+        scheduler = job_json_data.get("job", {}).get("target", {}).get("queue_type", "torque")
+
+        logging.info('Generating job file header')
+        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+        gen_t = jobfile_generator(job_json_data, job_file, scheduler)
+
+        logging.info('Adding autotuning scripts')
+        gen_t.add_tuner(self.__upload)
+
+        logging.info('Applying optimisations ' + str(self.__map.get_decoded_opts(job_json_data)))
+        opts = self.__enf.enforce_opt(self.__map.get_decoded_opts(job_json_data))
+        if opts is not None:
+            for i in range(0, opts.shape[0]):
+                gen_t.add_optscript(opts['script_name'][i], opts['script_loc'][i])
+
+        logging.info('Adding application run')
+        gen_t.add_apprun()
+
+        f = open(job_file, "r")
+        job_script_content = f.read()
+
+        logging.info('Job script content: ' + job_script_content)
+        return job_script_content
 
 def main(argv=None):
     if argv is None:

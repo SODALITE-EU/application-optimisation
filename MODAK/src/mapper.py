@@ -194,6 +194,22 @@ class mapper():
     def get_opts(self):
         return self.opts
 
+    def get_decoded_opts(self, opt_json_obj):
+        opts = []
+
+        try:
+            target_name = opt_json_obj['job']['target']['name'].strip()
+            if target_name:
+                opts.append('{}:true'.format(target_name))
+        except KeyError:
+            pass
+
+        reader = opt_dsl_reader(opt_json_obj['job'])
+        opt_nodes = self.get_json_nodes(json.dumps(reader.get_opts_list()))
+        opts.extend(opt_nodes)
+
+        return opts
+
 def main():
     driver = MODAK_driver()
     m = mapper(driver)

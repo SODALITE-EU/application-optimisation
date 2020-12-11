@@ -7,15 +7,19 @@ from datetime import datetime
 
 class tuner():
 
-    def __init__(self):
+    def __init__(self, upload=True):
         logging.info("Initialised MODAK tuner")
         self.__tune_input_file = ''
         self.__tune_script_file = ''
         self.__tune_input_link = ''
         self.__tune_script_link = ''
-        self.__drop = TransferData()
+        self.__upload = upload
+        if self.__upload:
+            self.__drop = TransferData()
 
     def encode_tune(self, opt_json_obj, jobfile: str):
+        logging.warning("Tuning not yet supported")
+        return False
         logging.info("Encoding tuner")
         reader = opt_dsl_reader(opt_json_obj['job'])
         if not reader.enable_autotuning() or reader.enable_autotuning() is None:
