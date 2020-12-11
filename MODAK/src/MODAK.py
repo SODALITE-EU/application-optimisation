@@ -17,11 +17,12 @@ class MODAK():
         self.__driver = MODAK_driver(conf_file)
         self.__map = mapper(self.__driver)
         self.__enf = enforcer(self.__driver)
-        self.__drop = TransferData()
         self.__job_link = ''
         logging.info('Successfully intialised MODAK')
 
     def optimise(self, job_json_data):
+        self.__drop = TransferData()
+
         logging.info('Processing job data' + str(job_json_data))
         logging.info('Mapping to optimal container')
         new_container = self.__map.map_container(job_json_data)
@@ -82,6 +83,13 @@ class MODAK():
             application = job_json_data.get('job').get('application')
             application['container_runtime'] = new_container
         return new_container
+
+    def get_opt_container_runtime(self, job_json_data):
+        logging.info('Mapping optimal container for job data' )
+        logging.info('Processing job data' + str(job_json_data))
+        new_container = self.__map.map_container(job_json_data)
+        logging.info('Optimal container: {}'.format(new_container))
+        return new_container if new_container is not None else ""
 
 def main(argv=None):
     if argv is None:
