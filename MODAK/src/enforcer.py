@@ -12,6 +12,9 @@ class enforcer():
 
     def enforce_opt(self, opts):
         logging.info('Enforcing opts ' + str(opts))
+        # TODO: do we enforce only one optimisation?
+        # TODO: redo if it is the case 
+        dfs = []
         for opt in opts:
             if 'version' in opt:
                 logging.info("Ignore version as a optimisation")
@@ -20,7 +23,8 @@ class enforcer():
                 if 'true' in opt_code[1]:
                     df = self.driver.applySQL("select script_name, script_loc, stage from optscript "
                                          "where opt_code = '{}' ". format(opt_code[0]))
-                    return df
+                    dfs.append(df)
+        return dfs
 
 
 

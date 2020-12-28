@@ -3,13 +3,16 @@ import json
 class opt_dsl_reader():
 
     def __init__(self, opt_dsl_obj):
-        self.opt_node = opt_dsl_obj.get('optimisation')
+        self.opt_node = opt_dsl_obj.get('optimisation', {})
+
+    def optimisations_exist(self):
+        return bool(self.opt_node)
 
     def enable_opt_build(self):
         return self.opt_node.get('enable_opt_build')
 
     def enable_autotuning(self):
-        return self.opt_node.get('enable_autotuning')
+        return bool(self.opt_node.get('enable_autotuning', False))
 
     def get_app_type(self):
         return self.opt_node.get('app_type')
@@ -62,15 +65,17 @@ class opt_dsl_reader():
 
     def get_opts_list(self):
         opts = []
-        app_type = self.opt_node.get('app_type')
-        config = self.get_app_config()
-        if app_type == 'ai_training':
-            app = config['ai_framework']
-            opts = self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
-        elif app_type == 'hpc':
-            app = config['parallelisation']
-            opts = self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
-            opts.pop('library')
+        if self.optimisations_exist():
+            app_type = self.opt_node.get('app_type')
+            config = self.get_app_config()
+            if app_type == 'ai_training':
+                app = config['ai_framework']
+                opts = self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
+            elif app_type == 'hpc':
+                app = config['parallelisation']
+                opts = self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
+                if 'library' in opts:
+                    opts.pop('library')
         return opts
 
 def main():

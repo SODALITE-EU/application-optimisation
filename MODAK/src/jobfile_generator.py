@@ -5,31 +5,28 @@ import logging
 
 class jobfile_generator():
 
-    def __init__(self, job_json_obj, batch_file:str, scheduler:str):
+    def __init__(self, job_json_obj, batch_file:str, scheduler:str = None):
         logging.info("Initialising job file generator")
-        self.scheduler = scheduler
         self.batch_file = batch_file
         self.job_json_obj = job_json_obj
-        self.job_data = job_json_obj['job']['job_options']
-        self.app_data = job_json_obj['job']['application']
-        self.opt_data = job_json_obj['job']['optimisation']
+        self.job_data = job_json_obj.get('job').get('job_options', {})
+        self.app_data = job_json_obj.get('job').get('application', {})
+        self.opt_data = job_json_obj.get('job').get('optimisation', {})
         self.singularity_exec = 'singularity exec'
         self.current_dir = './'
-
-        if job_json_obj['job'].get('target') is not None:
-            if job_json_obj['job'].get('target').get('job_scheduler_type') is not None:
-                scheduler = job_json_obj['job']['target']['job_scheduler_type']
-
-        if scheduler == 'torque':
-            self.__generate_torque_header(batch_file)
-        elif scheduler == 'slurm':
-            self.__generate_slurm_header(batch_file)
+        # TODO: scheduler type should be derived based on the infrastructure target name
+        # TODO: there shall be an entry in the database where scheduler type is specified in the infrastructure target
+        self.scheduler = scheduler if scheduler else self.job_json_obj.get("job", {}).get("target", {}).get("job_scheduler_type")
+        self.target_name = self.job_json_obj.get("job", {}).get("target", {}).get("name")
+        if self.target_name == "egi":
+            self.scheduler = "torque"
+        elif self.target_name == "hlrs_testbed":
+            self.scheduler = "torque"
 
     # Based on https://kb.northwestern.edu/page.php?id=89454
-    def __generate_torque_header(self, filename:str):
+    def __generate_torque_header(self):
         logging.info("Generating torque header")
-        self.scheduler = 'torque'
-        self.batch_file = filename
+        filename = self.batch_file
         DIRECTIVE = '#PBS'
         f = open(filename, 'w')
         f.write(DIRECTIVE + ' -S ' + '/bin/bash')
@@ -116,10 +113,9 @@ class jobfile_generator():
         f.write('\n')
         f.close()
 
-    def __generate_slurm_header(self, filename:str):
+    def __generate_slurm_header(self):
         logging.info("Generating slurm header")
-        self.scheduler = 'slurm'
-        self.batch_file = filename
+        filename = self.batch_file
         DIRECTIVE = '#SBATCH'
         f = open(filename, 'w')
         f.write('#!/bin/bash')
@@ -209,6 +205,22 @@ class jobfile_generator():
 
         f.close()
 
+    def __generate_bash_header(self):
+        logging.info("Generating bash header")
+        filename = self.batch_file
+        f = open(filename, 'w')
+        f.write('#!/bin/bash\n\n')
+        f.close()
+
+    def add_job_header(self):
+        if self.job_data and self.scheduler == 'torque':
+            self.__generate_torque_header()
+        elif self.job_data and self.scheduler == 'slurm':
+            self.__generate_slurm_header()
+        else:
+            self.__generate_bash_header()
+
+
     def add_tuner(self, upload=True):
         __tuner = tuner(upload)
         res = __tuner.encode_tune(self.job_json_obj, self.batch_file)
@@ -265,44 +277,34 @@ class jobfile_generator():
         logging.info("Adding app run")
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
-            exe = self.app_data['executable']
-            arg = ''
-            if "container_runtime" in self.app_data:
-                cont = self.app_data['container_runtime']
-                cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont))
-                # f.write('\n{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)))
-            else:
-                f.write('\n')
-            if "arguments" in self.app_data:
-                arg = self.app_data['arguments']
-            if "app_type" in self.app_data:
-                app_type = self.app_data['app_type']
-                if "build" in self.app_data:
-                    src = self.app_data['build'].get('src')
-                    build_command = self.app_data['build'].get('build_command')
-                    if src[-4] == '.git':
-                        f.write('\ngit clone {}\n'.format(src))
-                    else:
-                        f.write('\nwget --no-check-certificate {}\n'.format(src))
-                    f.write('\n{} {}\n'.format(cont_exec_command, build_command))
-                if app_type == 'mpi' or app_type == 'hpc':
-                    mpi_ranks = 1
-                    threads = 1
-                    if "mpi_ranks" in self.app_data:
-                        mpi_ranks = self.app_data['mpi_ranks']
-                    if "threads" in self.app_data:
-                        threads = self.app_data['threads']
-                    f.write('\nexport OMP_NUM_THREADS={}\n'.format(threads))
-                    if self.scheduler == 'torque' and 'openmpi:1.10' in cont:
-                        f.write('{} mpirun -np {} {} {}\n'.format(cont_exec_command, mpi_ranks, exe, arg))
-                    elif self.scheduler == 'torque':
-                        f.write('mpirun -np {} {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe, arg))
-                    elif self.scheduler == 'slurm':
-                        f.write('srun -n {} {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe, arg))
-                elif app_type == 'python':
-                    f.write('{} {} {}\n'.format(cont_exec_command, exe, arg))
-            else:
-                f.write('\n{} {} {}\n'.format(cont_exec_command, exe, arg))
+            exe = '{} {}'.format(self.app_data.get('executable'), self.app_data.get('arguments'))
+            cont = self.app_data.get('container_runtime', "")
+            cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)) if cont else ""
+            app_type = self.app_data.get('app_type')
+
+            if "build" in self.app_data:
+                src = self.app_data['build'].get('src')
+                build_command = self.app_data['build'].get('build_command')
+                if src[-4] == '.git':
+                    f.write('\ngit clone {}\n'.format(src))
+                else:
+                    f.write('\nwget --no-check-certificate {}\n'.format(src))
+                f.write('\n{} {}\n'.format(cont_exec_command, build_command))
+
+            if app_type == 'mpi' or app_type == 'hpc':
+                mpi_ranks = self.app_data.get("mpi_ranks", 1)
+                threads = self.app_data.get("threads", 1)
+                f.write('\nexport OMP_NUM_THREADS={}\n'.format(threads))
+                if self.scheduler == 'torque' and 'openmpi:1.10' in cont:
+                    f.write('{} mpirun -np {} {}\n'.format(cont_exec_command, mpi_ranks, exe))
+                elif self.scheduler == 'torque':
+                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                elif self.scheduler == 'slurm':
+                    f.write('srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                else:
+                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+            else: # other app types, e.g. python
+                f.write('{} {}\n'.format(cont_exec_command, exe))
 
             f.close()
             logging.info("Successfully added app run")
