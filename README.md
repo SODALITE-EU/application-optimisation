@@ -6,6 +6,7 @@ contains all components for Application Optimiser
 * Performance-Model - Infrastructure and Application Performance model
 * use-cases - Use case applications
 * MODAK - the application optimiser
+* MODAK-DB - Database for optimiser with initial data 
 * iac-model-repo - Model repository
 
  
