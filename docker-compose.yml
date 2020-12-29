@@ -2,17 +2,17 @@ version: "2"
 services:
   restapi:
     build: ./MODAK
-    image: modak_api
-    links:
-      - modaksql
+    image: modak-api
     ports:
       - "55000:5000"
     environment:
       MODAK_DATABASE_PASSWORD: my-very-secret-pw
+      MODAK_DATABASE_HOST: modaksql
+      MODAK_DATABASE_PORT: 3306
 
   modaksql:
     build: ./MODAK-DB
-    image: modak_py3_mysql
+    image: modak-py3-mysql
     ports:
       - "32000:3306"
     environment:
