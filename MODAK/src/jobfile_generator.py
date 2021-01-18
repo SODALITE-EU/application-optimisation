@@ -52,6 +52,9 @@ class jobfile_generator():
             if "request_gpus" in self.job_data:
                 f.write(':gpus=' + str(self.job_data['request_gpus']))
                 self.singularity_exec = self.singularity_exec + ' --nv '
+            # secific to torque with default scheduler
+            if "queue" in self.job_data:
+                f.write(':' + str(self.job_data['queue']))
             f.write('\n')
         if "core_count" in self.job_data:
             f.write(DIRECTIVE + ' -l procs=' + str(self.job_data['core_count']))
