@@ -19,7 +19,11 @@ class opt_dsl_reader():
 
     def get_opt_build(self):
         if self.enable_opt_build():
-            return self.opt_node.get('opt_build')
+            return {
+                "cpu_type": self.get_cpu_type(),
+                "acc_type": self.get_acc_type()
+            }
+            # return self.opt_node.get('opt_build')
 
     def get_cpu_type(self):
         if self.enable_opt_build():
@@ -29,7 +33,7 @@ class opt_dsl_reader():
     def get_acc_type(self):
         if self.enable_opt_build():
             acc_type = self.opt_node.get('opt_build').get('acc_type')
-            return acc_type
+            return "" if (acc_type == None or acc_type == "None" or acc_type == "none") else acc_type
 
     def get_tuner(self):
         if self.enable_autotuning():
