@@ -280,7 +280,7 @@ class jobfile_generator():
         logging.info("Adding app run")
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
-            exe = '{} {}'.format(self.app_data.get('executable'), self.app_data.get('arguments'))
+            exe = '{} {}'.format(self.app_data.get('executable', ""), self.app_data.get('arguments', ""))
             cont = self.app_data.get('container_runtime', "")
             cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)) if cont else ""
             app_type = self.app_data.get('app_type')
@@ -288,7 +288,7 @@ class jobfile_generator():
             if "build" in self.app_data:
                 src = self.app_data['build'].get('src')
                 build_command = self.app_data['build'].get('build_command')
-                if src[-4] == '.git':
+                if src[-4:] == '.git':
                     f.write('\ngit clone {}\n'.format(src))
                 else:
                     f.write('\nwget --no-check-certificate {}\n'.format(src))
