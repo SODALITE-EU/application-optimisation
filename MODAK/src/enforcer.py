@@ -33,6 +33,7 @@ def main():
     e = enforcer(driver)
     print('Test enforcer main')
     opts = ['version:2.1', 'xla:true']
+    df = {}
     df = e.enforce_opt(opts)
     print(df.shape[0])
     for i in range(0, df.shape[0]):

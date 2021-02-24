@@ -4,8 +4,8 @@ from tuner import tuner
 import logging
 
 class jobfile_generator():
-
     def __init__(self, job_json_obj, batch_file:str, scheduler:str = None):
+        """Generates the job files, e.g. PBS and SLURM."""
         logging.info("Initialising job file generator")
         self.batch_file = batch_file
         self.job_json_obj = job_json_obj
@@ -24,6 +24,7 @@ class jobfile_generator():
             self.scheduler = "torque"
 
     # Based on https://kb.northwestern.edu/page.php?id=89454
+
     def __generate_torque_header(self):
         logging.info("Generating torque header")
         filename = self.batch_file

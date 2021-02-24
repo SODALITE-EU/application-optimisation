@@ -12,8 +12,8 @@ import logging
 import json
 
 class MODAK():
-
     def __init__(self, conf_file:str = '../conf/iac-model.ini', upload=True):
+        """General MODAK class."""
         logging.info('Intialising MODAK')
         self.__driver = MODAK_driver(conf_file)
         self.__map = mapper(self.__driver)
@@ -48,6 +48,7 @@ class MODAK():
         gen_t.add_tuner()
 
         logging.info('Applying optimisations ' + str(self.__map.get_opts()))
+        opts = {}
         opts = self.__enf.enforce_opt(self.__map.get_opts())
         if opts is not None:
             for i in range(0, opts.shape[0]):
