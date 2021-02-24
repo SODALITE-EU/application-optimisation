@@ -7,7 +7,7 @@ git clone https://github.com/SODALITE-EU/application-optimisation.git
 cd application-optimisation
 ```
 
-[optional] download a Google service account JSON keyfile to  
+\[optional\] download a Google service account JSON keyfile to  
 ```
 MODAK/conf/modak-f305a35c96dc.json
 ```
