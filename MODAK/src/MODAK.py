@@ -48,7 +48,6 @@ class MODAK():
         gen_t.add_tuner()
 
         logging.info('Applying optimisations ' + str(self.__map.get_opts()))
-        opts = {}
         opts = self.__enf.enforce_opt(self.__map.get_opts())
         if opts is not None:
             for i in range(0, opts.shape[0]):
