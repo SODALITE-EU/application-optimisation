@@ -13,7 +13,7 @@ class enforcer():
     def enforce_opt(self, opts):
         logging.info('Enforcing opts ' + str(opts))
         # TODO: do we enforce only one optimisation?
-        # TODO: redo if it is the case 
+        # TODO: redo if it is the case
         dfs = []
         for opt in opts:
             if 'version' in opt:

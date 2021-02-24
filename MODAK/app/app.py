@@ -85,7 +85,7 @@ def modak_get_optimisation():
         print(req)
         m = MODAK('../conf/iac-model.ini', upload=False)
         job_data = req
-        
+
         container_runtime, job_content = m.get_optimisation(job_data)
         job_data['job'].update({'container_runtime': container_runtime})
         job_data['job'].update({'job_content': job_content})
