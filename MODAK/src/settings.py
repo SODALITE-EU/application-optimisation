@@ -9,6 +9,10 @@ class settings:
     @classmethod
     def initialise(cls, conf_file: str = '../conf/iac-model.ini'):
         my_conf_file = os.environ.get('MODAK_CONFIG', conf_file)
+        database_user = os.environ.get('MODAK_DATABASE_USER')
+        database_password = os.environ.get('MODAK_DATABASE_PASSWORD')
+        database_host = os.environ.get('MODAK_DATABASE_HOST')
+        database_port = os.environ.get('MODAK_DATABASE_PORT')
         logging.info("Reading ini file : {}".format(my_conf_file))
         try:
             config = ConfigParser()
@@ -28,13 +32,13 @@ class settings:
             logging.info("db dir :" + cls.DB_DIR)
             cls.OUT_DIR = config.get(section, "out_dir")
             logging.info("out dir :" + cls.OUT_DIR)
-            cls.HOST = config.get(section, "host")
+            cls.HOST = database_host if database_host else config.get(section, "host")
             logging.info("host :" + cls.HOST)
-            cls.PORT = config.get(section, "port")
+            cls.PORT = database_port if database_port else config.get(section, "port")
             logging.info("port :" + cls.PORT)
-            cls.USER = config.get(section, "user")
+            cls.USER = database_user if database_user else config.get(section, "user")
             logging.info("user :" + cls.USER)
-            cls.PASSWORD = config.get(section, "password")
+            cls.PASSWORD = database_password if database_password else config.get(section, "password")
             logging.info("password : **** " )
         except configparser.Error as err:
             logging.error(str(err))

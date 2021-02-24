@@ -114,6 +114,7 @@ class mapper():
         opts = opt_dsl.get_opt_list(parallel)
         logging.info('optimisations: ' +  str(opts))
         app_name = opts.get('library')
+        # TODO: this changes original values from the request
         opts.pop('library')
 
         sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(app_name)
@@ -188,11 +189,29 @@ class mapper():
             dsl_code = df['opt_dsl_code'][0]
         else:
             dsl_code = None
-        logging.info('Decoded dsl code' + dsl_code)
+        logging.info('Decoded dsl code' + str(dsl_code))
         return dsl_code
 
     def get_opts(self):
         return self.opts
+
+    def get_decoded_opts(self, opt_json_obj):
+        opts = []
+
+        try:
+            target_name = opt_json_obj['job']['target']['name'].strip()
+            if target_name:
+                opts.append('{}:true'.format(target_name))
+        except KeyError:
+            pass
+
+        reader = opt_dsl_reader(opt_json_obj['job'])
+        opts_list = reader.get_opts_list()
+        if opts_list:
+            opt_nodes = self.get_json_nodes(json.dumps(opts_list))
+            opts.extend(opt_nodes)
+
+        return opts
 
 def main():
     driver = MODAK_driver()

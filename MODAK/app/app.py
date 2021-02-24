@@ -46,5 +46,52 @@ def modak_optimise():
         res = make_response(jsonify(job_data), 200)
         return res
 
+@app.route("/get_image", methods=["POST"])
+def modak_get_image():
+    if request.is_json:
+        # Parse the JSON into a Python dictionary
+        req = request.get_json()
+        # Print the dictionary
+        print(req)
+        m = MODAK('../conf/iac-model.ini', upload=False)
+        job_data = req
+        container_runtime = m.get_opt_container_runtime(job_data)
+
+        job_data['job'].update({'container_runtime': container_runtime})
+        res = make_response(jsonify(job_data), 200)
+        return res
+
+@app.route("/get_job_content", methods=["POST"])
+def modak_get_job_content():
+    if request.is_json:
+        # Parse the JSON into a Python dictionary
+        req = request.get_json()
+        # Print the dictionary
+        print(req)
+        m = MODAK('../conf/iac-model.ini', upload=False)
+        job_data = req
+        _, job_content = m.get_optimisation(job_data)
+
+        job_data['job'].update({'job_content': job_content})
+        res = make_response(jsonify(job_data), 200)
+        return res
+
+@app.route("/get_optimisation", methods=["POST"])
+def modak_get_optimisation():
+    if request.is_json:
+        # Parse the JSON into a Python dictionary
+        req = request.get_json()
+        # Print the dictionary
+        print(req)
+        m = MODAK('../conf/iac-model.ini', upload=False)
+        job_data = req
+
+        container_runtime, job_content = m.get_optimisation(job_data)
+        job_data['job'].update({'container_runtime': container_runtime})
+        job_data['job'].update({'job_content': job_content})
+
+        res = make_response(jsonify(job_data), 200)
+        return res
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

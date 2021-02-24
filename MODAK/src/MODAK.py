@@ -7,18 +7,21 @@ from mapper import mapper
 from MODAK_gcloud import TransferData
 from datetime import datetime
 from enforcer import enforcer
+from opt_dsl_reader import opt_dsl_reader
 import logging
 import json
 
 class MODAK():
-
-    def __init__(self, conf_file:str = '../conf/iac-model.ini'):
+    def __init__(self, conf_file:str = '../conf/iac-model.ini', upload=True):
+        """General MODAK class."""
         logging.info('Intialising MODAK')
         self.__driver = MODAK_driver(conf_file)
         self.__map = mapper(self.__driver)
         self.__enf = enforcer(self.__driver)
-        self.__drop = TransferData()
         self.__job_link = ''
+        self.__upload = upload
+        if self.__upload:
+            self.__drop = TransferData()
         logging.info('Successfully intialised MODAK')
 
     def optimise(self, job_json_data):
@@ -34,7 +37,7 @@ class MODAK():
 
         job_name = job_json_data.get('job').get('job_options').get('job_name')
         if job_name is None:
-            job_name = job_json_data.get('job').get('application')
+            job_name = job_json_data.get('job').get('application').get('app_tag', "job")
         # job_json_data.get('job').get('application').get('container_runtime')
 
         logging.info('Generating job file header')
@@ -45,6 +48,7 @@ class MODAK():
         gen_t.add_tuner()
 
         logging.info('Applying optimisations ' + str(self.__map.get_opts()))
+        opts = {}
         opts = self.__enf.enforce_opt(self.__map.get_opts())
         if opts is not None:
             for i in range(0, opts.shape[0]):
@@ -82,6 +86,61 @@ class MODAK():
             application = job_json_data.get('job').get('application')
             application['container_runtime'] = new_container
         return new_container
+
+    def get_opt_container_runtime(self, job_json_data):
+        logging.info('Mapping optimal container for job data')
+        logging.info('Processing job data' + str(job_json_data))
+        opt_reader = opt_dsl_reader(job_json_data["job"])
+        new_container = ""
+        if opt_reader.optimisations_exist():
+            new_container = self.__map.map_container(job_json_data)
+        logging.info('Optimal container: {}'.format(new_container))
+        return new_container if new_container else ""
+
+    def get_optimisation(self, job_json_data):
+        if not job_json_data.get('job').get('application'):
+            raise RuntimeError("Application must be defined")
+
+        # if mapper finds an optimised container based on requested optimisation,
+        # update the container runtime of application
+        new_container = self.get_opt_container_runtime(job_json_data)
+        if new_container:
+            application = job_json_data.get('job').get('application')
+            application['container_runtime'] = new_container
+            logging.info('Successfully updated container runtime')
+
+        job_name = job_json_data.get('job').get('job_options', {}).get('job_name', "job")
+        if job_name is None:
+            job_name = job_json_data.get('job').get('application', {}).get('app_tag', "job")
+
+        logging.info('Generating job file header')
+        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+        gen_t = jobfile_generator(job_json_data, job_file)
+
+        logging.info('Adding job header')
+        gen_t.add_job_header()
+
+        opt_reader = opt_dsl_reader(job_json_data["job"])
+
+        # TODO: support for autotuning
+        if opt_reader.enable_autotuning():
+            logging.info('Adding autotuning scripts')
+            gen_t.add_tuner(self.__upload)
+
+        logging.info('Applying optimisations ' + str(self.__map.get_decoded_opts(job_json_data)))
+        opts = self.__enf.enforce_opt(self.__map.get_decoded_opts(job_json_data))
+        for opt in opts:
+            for i in range(0, opt.shape[0]):
+                gen_t.add_optscript(opt['script_name'][i], opt['script_loc'][i])
+
+        logging.info('Adding application run')
+        gen_t.add_apprun()
+
+        f = open(job_file, "r")
+        job_script_content = f.read()
+
+        logging.info('Job script content: ' + job_script_content)
+        return ( new_container, job_script_content )
 
 def main(argv=None):
     if argv is None:
