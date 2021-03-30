@@ -2,6 +2,7 @@ version: "2"
 services:
   restapi:
     build: ./MODAK
+    restart: unless-stopped
     image: modak-api
     ports:
       - "55000:5000"
@@ -12,6 +13,7 @@ services:
 
   modaksql:
     build: ./MODAK-DB
+    restart: unless-stopped
     image: modak-py3-mysql
     ports:
       - "32000:3306"
