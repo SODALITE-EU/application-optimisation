@@ -19,7 +19,7 @@ class jobfile_generator():
         self.scheduler = scheduler if scheduler else self.job_json_obj.get("job", {}).get("target", {}).get("job_scheduler_type")
         self.target_name = self.job_json_obj.get("job", {}).get("target", {}).get("name")
         if self.target_name == "egi":
-            self.scheduler = "torque"
+            self.scheduler = "slurm"
         elif self.target_name == "hlrs_testbed":
             self.scheduler = "torque"
 
