@@ -304,7 +304,8 @@ class jobfile_generator():
                 elif self.scheduler == 'torque':
                     f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
                 elif self.scheduler == 'slurm':
-                    f.write('srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                    # f.write('srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
                 else:
                     f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
             else: # other app types, e.g. python
