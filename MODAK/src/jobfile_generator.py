@@ -170,7 +170,7 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' --output=' + self.job_data['standard_output_file'])
             f.write('\n')
         if "standard_error_file" in self.job_data:
-            f.write(DIRECTIVE + ' -error=' + self.job_data['standard_error_file'])
+            f.write(DIRECTIVE + ' --error=' + self.job_data['standard_error_file'])
             f.write('\n')
         if "combine_stdout_stderr" in self.job_data:
             pass
