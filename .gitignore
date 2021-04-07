@@ -1,2 +1,5 @@
 .venv
 *~
+.vscode
+MODAK/log/
+__pycache__
