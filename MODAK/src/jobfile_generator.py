@@ -20,7 +20,7 @@ class jobfile_generator():
         self.scheduler = scheduler if scheduler else self.job_json_obj.get("job", {}).get("target", {}).get("job_scheduler_type")
         self.target_name = self.job_json_obj.get("job", {}).get("target", {}).get("name")
         if self.target_name == "egi":
-            self.scheduler = "torque"
+            self.scheduler = "slurm"
         elif self.target_name == "hlrs_testbed":
             self.scheduler = "torque"
 
@@ -171,7 +171,7 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' --output=' + self.job_data['standard_output_file'])
             f.write('\n')
         if "standard_error_file" in self.job_data:
-            f.write(DIRECTIVE + ' -error=' + self.job_data['standard_error_file'])
+            f.write(DIRECTIVE + ' --error=' + self.job_data['standard_error_file'])
             f.write('\n')
         if "combine_stdout_stderr" in self.job_data:
             pass
@@ -308,7 +308,8 @@ source {scriptfile}
                 elif self.scheduler == 'torque':
                     f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
                 elif self.scheduler == 'slurm':
-                    f.write('srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                    # f.write('srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
                 else:
                     f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
             else: # other app types, e.g. python
