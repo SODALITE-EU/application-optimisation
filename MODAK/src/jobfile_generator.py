@@ -1,5 +1,6 @@
 import json
 import os
+import urllib.request
 from tuner import tuner
 import logging
 
@@ -353,19 +354,22 @@ class jobfile_generator():
         logging.info("Adding optimisations " + scriptfile)
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
-            f.write('\n')
-            f.write('file=' + scriptfile)
-            f.write('\n')
-            f.write('if [ -f $file ] ; then rm $file; fi')
-            f.write('\n')
-            f.write('wget --no-check-certificate ' + scriptlink)
-            f.write('\n')
-            f.write('chmod 755 ' + scriptfile)
-            f.write('\n')
-            f.write('source ' + scriptfile)
-            f.write('\n')
-            f.close()
-            logging.info("Successfully added optimisation")
+            scriptcontents = None
+            try:
+                scriptcontents = urllib.request.urlopen(scriptlink)
+            except Exception as e:
+                logging.info("Couldn't inline optscript: %s" % e)
+            if scriptcontents is not None:
+                f.write(scriptcontents.read().decode("UTF-8"))
+            else:
+                f.write(str.format("""
+file={scriptfile}
+if [ -f $file ] ; then rm $file; fi
+wget --no-check-certificate {scriptlink}
+chmod 755 {scriptfile}
+source {scriptfile}
+""", scriptfile=scriptfile, scriptlink=scriptlink))
+        logging.info("Successfully added optimisation")
 
 
     def add_apprun(self):
