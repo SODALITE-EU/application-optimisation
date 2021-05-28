@@ -92,10 +92,10 @@ pipeline {
                         python3 -m pip install --upgrade pip
                         python3 -m pip install --no-cache-dir -r requirements.txt
                         cd MODAK/test
-                        # Running tests in this envornment doesn't work yet.
-                        #PYTHONPATH=${PYTHONPATH}:../src python3 -m pytest --junitxml=../results.xml --cov=../MODAK
                     """
                 //junit 'src/results.xml'
+                //# Running tests in this envornment doesn't work yet.
+                //#PYTHONPATH=${PYTHONPATH}:../src python3 -m pytest --junitxml=../results.xml --cov=../MODAK
             }
         }
         stage('SonarQube analysis'){
