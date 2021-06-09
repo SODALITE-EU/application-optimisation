@@ -1,8 +1,8 @@
-
 #PBS -S /bin/bash
 #PBS -m abe
 #PBS -M ksivalinga@cray.com
-#PBS -l nodes=1,walltime=24:00:00
+#PBS -l nodes=1:ppn=40:gpus=1,walltime=24:00:00
 
 cd $PBS_O_WORKDIR 
-/usr/local/bin/singularity exec --nv tensorflow_1.11.0-gpu.sif python peaklens-original-training.py
+module load cuda/cuda-10.1
+/usr/local/bin/singularity exec --nv /mnt/nfs/home/karthee/sodalite/AI/containers/tensorflow_2.2.1-gpu-py3.sif python3 peaklens-original-training_new.py > peaklens-original-training.$PBS_JOBID.out 2>&1
