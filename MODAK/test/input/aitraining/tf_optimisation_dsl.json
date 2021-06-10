@@ -1,0 +1,38 @@
+{
+  "optimisation": {
+    "enable_opt_build": false,
+    "enable_autotuning": true,
+    "app_type": "ai_training",
+    "opt_build": {
+      "cpu_type": "x86",
+      "acc_type": "none"
+    },
+    "autotuning": {
+      "tuner": "cresta",
+      "input": "Mandatory; DSL or input text for the autotuning tool"
+    },
+    "app_type-ai_training": {
+      "config": {
+        "ai_framework": "tensorflow",
+        "type": "image_classification",
+        "distributed_training": true,
+        "layers": 6,
+        "parameters": 872684236
+      },
+      "data": {
+        "location": "/some/data",
+        "basedata": "Imagenet/CIFAR/MNIST",
+        "size": 67,
+        "count": 4389,
+        "etl": {
+          "prefetch": 100,
+          "cache": 100
+        }
+      },
+      "ai_framework-tensorflow": {
+        "version": "2.1",
+        "xla": true
+      }
+    }
+  }
+}

@@ -104,8 +104,8 @@ def main():
     transferData = TransferData()
     # transferData.login_dropbox()
 
-    file_from = 'scripts/set_default_egi.sh'
-    file_to = '/scripts/set_default_egi.sh' # The full path to upload the file to, including the file name
+    file_from = 'scripts/set_default_cirrus.sh'
+    file_to = '/scripts/set_default_cirrus.sh' # The full path to upload the file to, including the file name
     link = transferData.upload_file(file_from, file_to)
     print(link)
 

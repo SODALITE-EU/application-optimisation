@@ -1,0 +1,24 @@
+2020-10-05 07:35:55.066570: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcuda.so.1
+2020-10-05 07:35:55.070776: E tensorflow/stream_executor/cuda/cuda_driver.cc:313] failed call to cuInit: CUDA_ERROR_NO_DEVICE: no CUDA-capable device is detected
+2020-10-05 07:35:55.070834: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:163] no NVIDIA GPU device is present: /dev/nvidia0 does not exist
+2020-10-05 07:36:02.562829: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2020-10-05 07:36:02.569984: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 2199840000 Hz
+2020-10-05 07:36:02.570117: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f3c78000b20 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2020-10-05 07:36:02.570127: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2020-10-05 07:36:06.129374: I tensorflow/core/profiler/lib/profiler_session.cc:159] Profiler session started.
+2020-10-05 07:36:16.884642: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 28575 of 1699377
+2020-10-05 07:36:26.884605: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 55703 of 1699377
+2020-10-05 07:36:36.884644: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 81840 of 1699377
+2020-10-05 07:36:46.884904: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 106171 of 1699377
+2020-10-05 07:36:56.884657: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 127515 of 1699377
+2020-10-05 07:37:06.884740: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 147014 of 1699377
+2020-10-05 07:37:16.884705: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 165579 of 1699377
+2020-10-05 07:37:26.884737: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 182660 of 1699377
+2020-10-05 07:37:36.884549: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 199075 of 1699377
+2020-10-05 07:37:46.884861: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 213846 of 1699377
+2020-10-05 07:37:56.884787: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 228777 of 1699377
+2020-10-05 07:38:06.886342: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 240943 of 1699377
+2020-10-05 07:38:16.884776: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 262873 of 1699377
+2020-10-05 07:38:26.884632: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 282597 of 1699377
+2020-10-05 07:38:36.884996: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 300977 of 1699377
+2020-10-05 07:38:46.884778: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 318494 of 1699377

@@ -1,0 +1,39 @@
+{
+  "job": {
+    "job_options": {
+      "job_name": "resnet",
+      "wall_time_limit": "12:00:00 ",
+      "node_count": 1,
+      "process_count_per_node": 40,
+      "request_gpus": 1,
+      "standard_output_file": "resnet.out",
+      "combine_stdout_stderr": true,
+      "request_event_notification": "abe",
+      "email_address": "kartshy@gmail.com"
+    },
+    "application": {
+      "app_tag": "resnet-benchmark",
+      "container_runtime": "tensorflow/tensorflow:2.1.0-gpu-py3",
+      "executable": "./resnet_benchmark.sh"
+    },
+    "optimisation": {
+      "enable_opt_build": true,
+      "app_type":"ai_training",
+      "opt_build": {
+        "cpu_type": "x86",
+        "acc_type": "nvidia"
+      },
+      "app_type-ai_training": {
+        "config": {
+          "ai_framework": "tensorflow"
+        },
+        "data": {
+        },
+        "ai_framework-tensorflow": {
+          "version": "2.1",
+          "xla": true
+        }
+      }
+    }
+  }
+}
