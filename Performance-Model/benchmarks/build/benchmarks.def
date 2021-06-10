@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: ubuntu:19.10
+From: ubuntu:16.04
 
 %help
     This is the container used to run SODALITE (https://www.sodalite.eu/)
@@ -10,34 +10,55 @@ From: ubuntu:19.10
     Version v0.1.0
 
 %environment
-    export BINDIR=/workdir/bin
+    #
+    # Read configuration
+    #
+    . /usr/local/benchmarks/config/benchmarks_conf.def
+
+    export BINDIR=/usr/local/benchmarks/bin
 
     # Taken MPI parameters
-    export MYRANK=$(${BINDIR}/mpirank | cut -d':' -f 1)
-    export NPROCS=$(${BINDIR}/mpirank | cut -d':' -f 2)
+    if test "$MPI_DIST" = "MPICH"; then
+	MPIOUT=`${BINDIR}/mpirank`
+	export MYRANK=$(echo ${MPIOUT} | cut -d':' -f 1)
+	export NPROCS=$(echo ${MPIOUT} | cut -d':' -f 2)
+    elif test "$MPI_DIST" = "OpenMPI"; then
+	# Use env variables
+	export MYRANK=${OMPI_COMM_WORLD_RANK:-0}
+	export NPROCS=${OMPI_COMM_WORLD_SIZE:-1}
+    else
+	echo "No MPI distribution recongnized!"
+	exit -1
+    fi
 
     # Ignore inputs if multiple ranks are recongnized
-    if test ${NPROCS} -eq 1; then
+    if test "${NPROCS}" = "1"; then
 	if test ! -z ${NP+x}; then
 	    export NPROCS=${NP}
 	    export RUNCMD="mpiexec -np ${NPROCS}"
 	fi
     fi
 
+    export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
+    export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+    export OMP_PROC_BIND=${OMP_PROC_BIND:-TRUE}
+
 %setup
-    mkdir ${SINGULARITY_ROOTFS}/workdir
-    mkdir ${SINGULARITY_ROOTFS}/workdir/config
+    mkdir ${SINGULARITY_ROOTFS}/usr/local/benchmarks
+    mkdir ${SINGULARITY_ROOTFS}/usr/local/benchmarks/config
 
 %runscript
     trace()
     {
-	if test ${MYRANK} -eq 0; then
+	if test "${MYRANK}" = "0"; then
 	    echo $@
 	fi
     }
 
     timestamp=${timestamp:-$(date '+%Y%m%d%H%M')}
-    filelabel=${filelabel:-"ranks${NPROCS}"}
+    HOSTNAME=`hostname`
+    CLUSTER=`echo $HOSTNAME | sed -e "s/[0-9]//g" | cut -f 1 -d '.'`
+    filelabel=${filelabel:-"nodes-1_ppn-1_nranks${NPROCS}___${CLUSTER}___default"}
     maindir=${PWD}
     rundir=${rundir:-${maindir}}
     trace "NPROCS:" ${NPROCS}
@@ -47,23 +68,24 @@ From: ubuntu:19.10
     run_hpcc()
     {
 	trace "Run:" ${RUNCMD} ${BINDIR}/hpcc
-	if test ${MYRANK} -eq 0; then
+	if test "${MYRANK}" = "0"; then
 	    # Delete previous HPCC output
 	    rm -f hpccoutf.txt
 	    # Check if there is an input file in the local directory, otherwise take the default on
 	    if test -e ${maindir}/hpccinf.txt; then
 		infdir="${maindir}"
 	    else
-		infdir="/workdir/config"
+		infdir="/usr/local/benchmarks/config"
 	    fi
 	    cmp -s ${infdir}/hpccinf.txt ${rundir}/hpccinf.txt || cp ${infdir}/hpccinf.txt ${rundir}/hpccinf.txt
 	fi
 	trace "Inf file: " ${infdir}/hpccinf.txt
 	${RUNCMD} ${BINDIR}/hpcc
-	if test ${MYRANK} -eq 0; then
+	rm -f ${rundir}/hpccinf.txt
+	if test "${MYRANK}" = "0"; then
 	    # Rename HPCC output
 	    if test -f hpccoutf.txt; then
-		mv hpccoutf.txt ${maindir}/results/${filelabel}_${timestamp}_hpccoutf.txt
+		mv hpccoutf.txt ${maindir}/results/${filelabel}___${timestamp}___hpccoutf.txt
 	    else
 		trace "Exit with error!"
 		exit 1
@@ -78,16 +100,16 @@ From: ubuntu:19.10
 	if test -e ${maindir}/beffio_flags.txt; then
 	    flagsdir="${maindir}"
 	else
-	    flagsdir="/workdir/config"
+	    flagsdir="/usr/local/benchmarks/config"
 	fi
 	BEFFFLAGS="${flagsdir}/beffio_flags.txt"
 	trace "Flags file: " ${BEFFFLAGS}
-	BEFFIOCMD="-MB ${COREMEM} -MT ${TOTMEM} $(cat ${BEFFFLAGS}) -N ${NPROCS} -f ${filelabel}_${timestamp}_b_eff_io"
+	BEFFIOCMD="-MB ${COREMEM} -MT ${TOTMEM} $(cat ${BEFFFLAGS}) -N ${NPROCS} -f ${filelabel}___${timestamp}___b_eff_io"
 	trace "Run:" ${RUNCMD} ${BINDIR}/b_eff_io ${BEFFIOCMD}
 	${RUNCMD} ${BINDIR}/b_eff_io ${BEFFIOCMD}
-	if test ${MYRANK} -eq 0; then
-	    if test -f ${filelabel}_${timestamp}_b_eff_io.prot -a -f ${filelabel}_${timestamp}_b_eff_io.sum; then
-		mv ${filelabel}_${timestamp}_b_eff_io.prot ${filelabel}_${timestamp}_b_eff_io.sum ${maindir}/results
+	if test "${MYRANK}" = "0"; then
+	    if test -f ${filelabel}___${timestamp}___b_eff_io.prot -a -f ${filelabel}___${timestamp}___b_eff_io.sum; then
+		mv ${filelabel}___${timestamp}___b_eff_io.prot ${filelabel}___${timestamp}___b_eff_io.sum ${maindir}/results
 	    else
 		trace "Exit with error!"
 		exit 1
@@ -105,9 +127,7 @@ From: ubuntu:19.10
 	    run_beffio
 	    ;;
 	*)
-	    # Run all apps
-	    run_hpcc
-	    run_beffio
+	    echo "Specify which APP to run (APP=hpcc or APP=beffio)!"
 	    ;;
     esac
 
@@ -117,21 +137,23 @@ From: ubuntu:19.10
 %files
     # Copy ARCH file to compile HPCC
     # Based on https://github.com/hpc-uk/archer-benchmarks/blob/master/synth/HPCC/Make_arch/Athena/Make.athena_gcc
-    # Create workdir
-    Make.Linux /workdir/
+    Make.Linux /usr/local/benchmarks/
 
     # Copy C program to check MPI rank
-    mpirank.c /workdir
+    mpirank.c /usr/local/benchmarks
 
     # Copy configuration files
-    beffio_flags.txt /workdir/config
-    hpccinf.txt /workdir/config
+    beffio_flags.txt /usr/local/benchmarks/config
+    hpccinf.txt /usr/local/benchmarks/config
+
+    # Building configuration
+    benchmarks_conf.def /usr/local/benchmarks/config
 
 %post
     #
     # Binary directory
     #
-    export BINDIR=/workdir/bin
+    export BINDIR=/usr/local/benchmarks/bin
     mkdir -p ${BINDIR}
 
     #
@@ -143,27 +165,49 @@ From: ubuntu:19.10
 		       libopenblas-dev locales ca-certificates \
 		       libxpm4 libxext6 libfreetype6 libxft2 \
 		       libtiff5 \
-		       python
+		       python \
+		       ssh
 
     apt-get clean && rm -rf /var/lib/apt/lists/* # do not forget to clean!
 
     #
     # Move inside build directory
     #
-    cd /workdir
+    cd /usr/local/benchmarks
+
+    #
+    # Read configuration
+    #
+    . config/benchmarks_conf.def
 
     #
     # Install MPICH
     #
-    export MPICH_VERSION=3.3.1
-    wget -q http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
-    tar xf mpich-${MPICH_VERSION}.tar.gz && rm mpich-${MPICH_VERSION}.tar.gz
-    cd mpich-${MPICH_VERSION}
-    ./configure --prefix=/usr/local --disable-static --disable-rpath --disable-wrapper-rpath \
-                --mandir=/usr/share/man --enable-fast=all,O3
-    make -j$(getconf _NPROCESSORS_ONLN) install
-    ldconfig
-    cd .. && rm -rf mpich-${MPICH_VERSION}
+    if test "$MPI_DIST" = "MPICH"; then
+	export MPICH_VERSION=3.3.1
+	wget -q http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
+	tar xf mpich-${MPICH_VERSION}.tar.gz && rm mpich-${MPICH_VERSION}.tar.gz
+	cd mpich-${MPICH_VERSION}
+	./configure --prefix=/usr/local --disable-static --disable-rpath --disable-wrapper-rpath \
+                    --mandir=/usr/share/man --enable-fast=all,O3
+	make -j$(getconf _NPROCESSORS_ONLN) install
+	ldconfig
+	cd .. && rm -rf mpich-${MPICH_VERSION}
+    #
+    # Install OpenMPI
+    #
+    elif test "$MPI_DIST" = "OpenMPI"; then
+	export OMPI_VERSION=4.0.1
+	wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-$OMPI_VERSION.tar.bz2
+	tar xf openmpi-$OMPI_VERSION.tar.bz2 && rm openmpi-$OMPI_VERSION.tar.bz2
+	cd openmpi-$OMPI_VERSION
+	./configure --prefix=/usr/local --disable-static --disable-rpath \
+                    --mandir=/usr/share/man --enable-fast=all,O3 \
+		    --enable-mpi1-compatibility
+	make -j$(getconf _NPROCESSORS_ONLN) install
+	ldconfig
+	cd .. && rm -rf openmpi-$OMPI_VERSION
+    fi
 
     #
     # Install HPCC (https://icl.cs.utk.edu/hpcc/)
@@ -175,7 +219,7 @@ From: ubuntu:19.10
     # Move Arch file
     mv ../Make.Linux hpl/
     make arch=Linux
-    cp /workdir/hpcc-${HPCC_VERSION}/hpcc ${BINDIR}
+    cp /usr/local/benchmarks/hpcc-${HPCC_VERSION}/hpcc ${BINDIR}
     cd .. && rm -rf hpcc-${HPCC_VERSION}
 
     #
@@ -192,13 +236,13 @@ From: ubuntu:19.10
     #
     # Compile program to get MPI rank
     #
-    mpicc /workdir/mpirank.c -o ${BINDIR}/mpirank
+    mpicc /usr/local/benchmarks/mpirank.c -o ${BINDIR}/mpirank
 
     # Install ROOT for analysis
-    export ROOTVER=root_v6.20.04.Linux-ubuntu19-x86_64-gcc9.2.tar.gz
-    wget https://root.cern/download/${ROOTVER}
+    export ROOTVER=root_v6.20.04.Linux-ubuntu16-x86_64-gcc5.4.tar.gz
+    wget -q https://root.cern/download/${ROOTVER}
     tar xf ${ROOTVER} && rm ${ROOTVER}
-    echo 'export ROOTSYS=/workdir/root' >> /.singularity.d/env/90-local.sh
+    echo 'export ROOTSYS=/usr/local/benchmarks/root' >> /.singularity.d/env/90-local.sh
     echo 'export PATH=${ROOTSYS}/bin:$PATH' >> /.singularity.d/env/90-local.sh
     echo 'export LD_LIBRARY_PATH=${ROOTSYS}/lib:${LD_LIBRARY_PATH}' >> /.singularity.d/env/90-local.sh
 

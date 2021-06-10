@@ -21,6 +21,12 @@
   Then, the script execution will show and fit the values.
 */
 
+#include <iostream>
+#include "TROOT.h"
+#include "TStyle.h"
+#include "ROOT/RCsvDS.hxx"
+
+/*
 // Components must be global defined
 TF1 *fn_hpl(0), *fn_mpibw(0), *fn_membw(0), *fn_iobw(0);
 
@@ -101,9 +107,18 @@ TF1* fitdraw(int icol, bool scale, const char* name, const char* title, TF1 *fcn
   c1->Print(TString::Format("%s.png", c1->GetName()));
   return fcn;
 }
-
+*/
 void readvalues(const char* filename)
 {
+  auto df = ROOT::RDF::MakeCsvDataFrame(filename);
+  std::cout << df.GetColumnNames()[1] << std::endl;
+//  std::cout << df.GetColumnType("name2") << std::endl;
+  auto d1 = df.Display({"Make"},2);
+  d1->Print();
+//  std::cout << df.Count() << std::endl;
+
+  return;
+/*
   std::ifstream fdata;
   fdata.open(filename);
 
@@ -124,6 +139,8 @@ void readvalues(const char* filename)
 
   fdata.close();
 
+  return;
+
   // Print values for checking
   for (auto col : headers) {
     std::cout << col << " ";
@@ -137,11 +154,16 @@ void readvalues(const char* filename)
     std::cout << std::endl;
     ii++;
   }
-
+*/
 }
 
-int benchmarks(const char* filename = "benchmarks.txt")
+int benchmarks(const char* filename = 0)
 {
+  if (filename==0) {
+    std::cout << "Please specify filename!" << std::endl;
+    return -1;
+  }
+
   gROOT->SetStyle("Plain");
   gStyle->SetTitleX(0.5);
   gStyle->SetTitleAlign(23);
@@ -152,8 +174,11 @@ int benchmarks(const char* filename = "benchmarks.txt")
 
   readvalues(filename);
 
+  return 0;
+
+
   // Fits
-  fn_hpl = fitdraw(3, false, "hpl", "HPL");
+//  fn_hpl = fitdraw(3, false, "hpl", "HPL");
   /*
   auto l_pol_two = [](double* xs, double* ps) {
 		     if (xs[0]<(ps[2]-ps[0])/(ps[1]-ps[3]))
@@ -177,9 +202,9 @@ int benchmarks(const char* filename = "benchmarks.txt")
 	    << (pol_two->GetParameter(3)-pol_two->GetParameter(1))/(pol_two->GetParameter(0)-pol_two->GetParameter(2))
 	    << std::endl;
   */
-  fn_mpibw = fitdraw(4, true, "mpibw", "MPI BW");
-  fn_membw = fitdraw(5, true, "membw", "MEM BW");
-  fn_iobw = fitdraw(6, false, "iobw", "IO BW");
+//  fn_mpibw = fitdraw(4, true, "mpibw", "MPI BW");
+//  fn_membw = fitdraw(5, true, "membw", "MEM BW");
+//  fn_iobw = fitdraw(6, false, "iobw", "IO BW");
 
   return 0;
 }
