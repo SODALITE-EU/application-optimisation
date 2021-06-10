@@ -22,22 +22,27 @@ class mapper():
                 target_name = opt_json_obj['job'].get('target').get('name').strip()
                 self.opts.append('{}:true'.format(target_name))
 
-        if app_type == 'ai_training':
-            logging.info('Decoding AI training application')
-            dsl_code = self.decode_ai_training_opt(reader)
-        if app_type == 'hpc':
-            logging.info('Decoding HPC application')
-            dsl_code = self.decode_hpc_opt(reader)
-        else:
-            logging.warning('Unknown application type')
+        # if app_type == 'ai_training':
+        #     logging.info('Decoding AI training application')
+        #     dsl_code = self.decode_ai_training_opt(reader)
+        # if app_type == 'hpc':
+        #     logging.info('Decoding HPC application')
+        #     dsl_code = self.decode_hpc_opt(reader)
+        # else:
+        #     logging.warning('Unknown application type')
+        #     dsl_code = self.decode_hpc_opt(reader)
+        dsl_code = self.decode_opt(reader)
         logging.info('Decoded opt code: ' + str(dsl_code))
         return self.get_container(dsl_code)
 
     def add_optcontainer(self, map_obj):
         logging.info('Adding optimal container ' + str(map_obj))
-        self.add_optimisation(map_obj.get('name'), map_obj.get('app_name'), map_obj.get('build'),map_obj.get('optimisation'))
-        self.add_container(map_obj.get('name'), map_obj.get('container_file'), map_obj.get('image_hub'),
+        return1 = self.add_optimisation(map_obj.get('name'), map_obj.get('app_name'), map_obj.get('arch_build'),map_obj.get('app_build'), map_obj.get('version'))
+        if return1:
+            return1 = self.add_container(map_obj.get('name'), map_obj.get('container_file'), map_obj.get('image_hub'),
                            map_obj.get('image_type'), map_obj.get('src'))
+
+        return return1
 
 
     def add_container(self, opt_dsl_code:str, container_file:str, image_hub:str='docker', image_type:str='docker', src: str=''):
@@ -50,7 +55,7 @@ class mapper():
                                           image_type=image_type, image_hub=image_hub, src=src))
         return True
 
-    def add_optimisation(self, opt_dsl_code: str, app_name: str,  target: dict, optimisation: dict):
+    def add_optimisation(self, opt_dsl_code: str, app_name: str,  target: dict, optimisation: dict, version: str = ''):
         logging.info('Adding dsl code to Optimisation ')
         target_str = ""
         for key in target:
@@ -65,9 +70,9 @@ class mapper():
                "('{opt_dsl_code}','{app_name}','{target}','{optimisation}','{version}')"
 
         logging.info((stmt.format(opt_dsl_code=opt_dsl_code, app_name=app_name,
-                          target=target_str, optimisation=opt_str, version='')))
+                          target=target_str, optimisation=opt_str, version=version)))
         self.driver.updateSQL(stmt.format(opt_dsl_code=opt_dsl_code, app_name=app_name,
-                                         target=target_str, optimisation=opt_str, version=''))
+                                         target=target_str, optimisation=opt_str, version=version))
         return True
 
     def get_container(self, opt_dsl_code:str):
@@ -85,6 +90,9 @@ class mapper():
             return None
 
     def get_json_nodes(self,target_str: str):
+        print(target_str)
+        if str == '' or str is None or str == 'null':
+            return ['']
         target_str = target_str.replace('{', '')
         target_str = target_str.replace('}', '')
         target_str = target_str.replace('"', '')
@@ -96,11 +104,9 @@ class mapper():
         target_nodes = target_str.split(',')
         return target_nodes
 
-    def decode_hpc_opt(self, opt_dsl: opt_dsl_reader):
-        logging.info('Decoding HPC optimisation')
+    def decode_opt(self, opt_dsl: opt_dsl_reader):
+        logging.info('Decoding optimisation')
         app_type = opt_dsl.get_app_type()
-        if not app_type == 'hpc':
-            return ""
         if opt_dsl.enable_opt_build():
             target = opt_dsl.get_opt_build()
         else:
@@ -108,34 +114,39 @@ class mapper():
             target = u'{}'
 
         config = opt_dsl.get_app_config()
-        logging.info('Config section: ' +  str(config))
-        parallel = config['parallelisation']
-        logging.info('Parallelisation' + str(parallel))
-        opts = opt_dsl.get_opt_list(parallel)
-        logging.info('optimisations: ' +  str(opts))
-        app_name = opts.get('library')
-        # TODO: this changes original values from the request
-        opts.pop('library')
+        opts = opt_dsl.get_opt_list()
+        app_build = opt_dsl.get_app_build()
+        logging.info('optimisations: ' + str(opts))
+        app_name = opt_dsl.get_app_name()
 
         sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(app_name)
-
-        target_nodes = self.get_json_nodes(json.dumps(target))
-        for t in target_nodes:
-            targetstr = " and target like '%{}%'".format(t)
-            sqlstr = sqlstr + targetstr
-            logging.info('Adding target query ' + targetstr)
+        if target is not None:
+            target_nodes = self.get_json_nodes(json.dumps(target))
+            for t in target_nodes:
+                targetstr = " and target like '%{}%'".format(t)
+                sqlstr = sqlstr + targetstr
+                logging.info('Adding target query ' + targetstr)
 
         if opt_dsl.enable_opt_build():
             sqlstr = sqlstr + " and target like '%enable_opt_build:true%'"
         else:
             sqlstr = sqlstr + " and target like '%enable_opt_build:false%'"
 
-        opt_nodes = self.get_json_nodes(json.dumps(opts))
-        for t in opt_nodes:
-            optstr = " and optimisation like '%{}%'".format(t)
-            sqlstr = sqlstr + optstr
-            logging.info('Adding opt query ' + optstr)
-            self.opts.append(t)
+        if app_build is not None:
+            build_nodes = self.get_json_nodes(json.dumps(app_build))
+            for build in build_nodes:
+                optstr = " and optimisation like '%{}%'".format(build)
+                sqlstr = sqlstr + optstr
+                logging.info('Adding build query ' + optstr)
+
+        if opts is not None:
+            opt_nodes = self.get_json_nodes(json.dumps(opts))
+            print(opt_nodes)
+            for t in opt_nodes:
+                optstr = " and optimisation like '%{}%'".format(t)
+                sqlstr = sqlstr + optstr
+                logging.info('Adding opt query ' + optstr)
+                self.opts.append(t)
 
         df = self.driver.selectSQL(sqlstr)
         if df.size > 0:
@@ -145,73 +156,15 @@ class mapper():
         logging.info('Decoded dsl code :  {}'.format(dsl_code))
         return dsl_code
 
+    def decode_hpc_opt(self, opt_dsl: opt_dsl_reader):
+        return 1
+
     def decode_ai_training_opt(self,opt_dsl:opt_dsl_reader):
         logging.info('Decoding AI training optimisation')
-        app_type = opt_dsl.get_app_type()
-        if not app_type == 'ai_training':
-            return ""
-        config = opt_dsl.get_app_config()
-        logging.info('Config section: ' + str(config))
-        data = opt_dsl.get_app_data()
-        logging.info('Data section: ' + str(data))
-        ai_framework = config['ai_framework']
-        if opt_dsl.enable_opt_build():
-            target = opt_dsl.get_opt_build()
-        else:
-            target = u'{"cpu_type":"none","acc_type":"none"}'
-            target = u'{}'
-
-        optimisation = opt_dsl.get_opt_list(ai_framework)
-
-        sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(ai_framework)
-
-        target_nodes = self.get_json_nodes(json.dumps(target))
-        for t in target_nodes:
-            targetstr = " and target like '%{}%'".format(t)
-            sqlstr = sqlstr + targetstr
-            logging.info('Adding target query ' + targetstr)
-
-        if opt_dsl.enable_opt_build():
-            sqlstr = sqlstr + " and target like '%enable_opt_build:true%'"
-        else:
-            sqlstr = sqlstr + " and target like '%enable_opt_build:false%'"
-
-        opt_nodes = self.get_json_nodes(json.dumps(optimisation))
-        logging.info('Optimisations : ' + str(opt_nodes))
-        for t in opt_nodes:
-            optstr = " and optimisation like '%{}%'".format(t)
-            sqlstr = sqlstr + optstr
-            logging.info('Adding opt query ' + optstr)
-            self.opts.append(t)
-
-        df = self.driver.selectSQL(sqlstr)
-        if df.size > 0:
-            dsl_code = df['opt_dsl_code'][0]
-        else:
-            dsl_code = None
-        logging.info('Decoded dsl code' + str(dsl_code))
-        return dsl_code
+        return 1
 
     def get_opts(self):
         return self.opts
-
-    def get_decoded_opts(self, opt_json_obj):
-        opts = []
-
-        try:
-            target_name = opt_json_obj['job']['target']['name'].strip()
-            if target_name:
-                opts.append('{}:true'.format(target_name))
-        except KeyError:
-            pass
-
-        reader = opt_dsl_reader(opt_json_obj['job'])
-        opts_list = reader.get_opts_list()
-        if opts_list:
-            opt_nodes = self.get_json_nodes(json.dumps(opts_list))
-            opts.extend(opt_nodes)
-
-        return opts
 
 def main():
     driver = MODAK_driver()
@@ -224,17 +177,17 @@ def main():
 
     # m.add_container('ethcscs_openmpi_3.1.3', 'ethcscs/openmpi:3.1.3')
 
-    # dsl_file = "../test/input/map_container.json"
-    # with open(dsl_file) as json_file:
-    #     map_data = json.load(json_file)
-    #     m.add_optcontainer(map_data)
+    dsl_file = "../test/input/map_container.json"
+    with open(dsl_file) as json_file:
+         map_data = json.load(json_file)
+         m.add_optcontainer(map_data)
 
-    with open('../test/input/mpi_solver.json') as json_file:
-        job_data = json.load(json_file)
-        print(job_data)
-        reader = opt_dsl_reader(job_data['job'])
-        dsl_code = m.decode_hpc_opt(reader)
-        print(dsl_code)
+    # with open('../test/input/mpi_solver.json') as json_file:
+    #     job_data = json.load(json_file)
+    #     print(job_data)
+    #     reader = opt_dsl_reader(job_data['job'])
+    #     dsl_code = m.decode_hpc_opt(reader)
+    #     print(dsl_code)
 
 if __name__ == '__main__':
     main()

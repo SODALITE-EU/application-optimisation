@@ -3,37 +3,33 @@ import json
 class opt_dsl_reader():
 
     def __init__(self, opt_dsl_obj):
-        self.opt_node = opt_dsl_obj.get('optimisation', {})
-
-    def optimisations_exist(self):
-        return bool(self.opt_node)
+        self.opt_node = opt_dsl_obj.get('optimisation')
 
     def enable_opt_build(self):
         return self.opt_node.get('enable_opt_build')
 
     def enable_autotuning(self):
-        return bool(self.opt_node.get('enable_autotuning', False))
+        return self.opt_node.get('enable_autotuning')
 
     def get_app_type(self):
         return self.opt_node.get('app_type')
 
+    def get_app_name(self):
+        return self.opt_node.get('app_name')
+
     def get_opt_build(self):
         if self.enable_opt_build():
-            return {
-                "cpu_type": self.get_cpu_type(),
-                "acc_type": self.get_acc_type()
-            }
-            # return self.opt_node.get('opt_build')
+            return self.opt_node.get('arch_build')
 
     def get_cpu_type(self):
         if self.enable_opt_build():
-            cpu_type = self.opt_node.get('opt_build').get('cpu_type')
+            cpu_type = self.opt_node.get('arch_build').get('cpu_type')
             return cpu_type
 
     def get_acc_type(self):
         if self.enable_opt_build():
-            acc_type = self.opt_node.get('opt_build').get('acc_type')
-            return "" if (acc_type == None or acc_type == "None" or acc_type == "none") else acc_type
+            acc_type = self.opt_node.get('arch_build').get('acc_type')
+            return acc_type
 
     def get_tuner(self):
         if self.enable_autotuning():
@@ -49,38 +45,19 @@ class opt_dsl_reader():
         return self.opt_node.get('app_type')
 
     def get_app_config(self):
-        app_type = self.opt_node.get('app_type')
-        return self.opt_node.get('app_type-'+app_type).get('config')
+        return self.opt_node.get('app_config')
 
     def get_app_data(self):
-        app_type = self.opt_node.get('app_type')
-        return self.opt_node.get('app_type-'+app_type).get('data')
+        return self.opt_node.get('app_data')
 
     def get_app_etl(self):
-        app_type = self.opt_node.get('app_type')
-        return self.opt_node.get('app_type-'+app_type).get('data').get('etl')
+        return self.opt_node.get('app_data')
 
-    def get_opt_list(self,app):
-        app_type = self.opt_node.get('app_type')
-        if app_type == 'ai_training':
-            return self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
-        if app_type == 'hpc':
-            return self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
+    def get_opt_list(self):
+        return self.opt_node.get('app_opt')
 
-    def get_opts_list(self):
-        opts = []
-        if self.optimisations_exist():
-            app_type = self.opt_node.get('app_type')
-            config = self.get_app_config()
-            if app_type == 'ai_training':
-                app = config['ai_framework']
-                opts = self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
-            elif app_type == 'hpc':
-                app = config['parallelisation']
-                opts = self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
-                if 'library' in opts:
-                    opts.pop('library')
-        return opts
+    def get_app_build(self):
+        return self.opt_node.get('app_build')
 
 def main():
     print('Test opt dsl reader driver')

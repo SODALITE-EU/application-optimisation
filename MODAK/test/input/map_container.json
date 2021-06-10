@@ -1,20 +1,22 @@
 {
-  "name": "mvapich_ub1804_cuda101_mpi22_osu",
-  "container_file": "ethcscs/mvapich:ub1804_cuda101_mpi22_osu",
+  "name": "codeastersolver_codeaster-mpi:14.4.0",
+  "container_file": "codeastersolver/codeaster-mpi:14.4.0",
   "image_type": "docker",
   "image_hub": "docker",
   "src": "none",
-  "app_name": "mvapich",
-  "version": "2.2",
-  "build": {
-    "enable_opt_build": true,
+  "app_name": "codeaster",
+  "version": "14.4.0",
+  "arch_build": {
+    "enable_opt_build": false,
     "cpu_type": "x86",
-    "acc_type": "nvidia"
+    "cpu_type": "amd64"
   },
-  "optimisation": {
-    "version": "2.2",
-    "mpic++": "true",
-    "mpicc": "true",
-    "mpifort": "true"
+  "app_build": {
+    "version": "14.4.0",
+    "hdf5": "1.10.3",
+    "med": "4.0.0",
+    "tfel": "3.2.1",
+    "mpi": true,
+    "openmpi": "default"
   }
 }

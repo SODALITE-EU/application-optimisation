@@ -2,32 +2,35 @@ import json
 import os
 from tuner import tuner
 import logging
+import requests
 
 class jobfile_generator():
-    def __init__(self, job_json_obj, batch_file:str, scheduler:str = None):
-        """Generates the job files, e.g. PBS and SLURM."""
+
+    def __init__(self, job_json_obj, batch_file:str, scheduler:str):
         logging.info("Initialising job file generator")
+        self.scheduler = scheduler
         self.batch_file = batch_file
         self.job_json_obj = job_json_obj
-        self.job_data = job_json_obj.get('job').get('job_options', {})
-        self.app_data = job_json_obj.get('job').get('application', {})
-        self.opt_data = job_json_obj.get('job').get('optimisation', {})
+        self.job_data = job_json_obj['job']['job_options']
+        self.app_data = job_json_obj['job']['application']
+        self.opt_data = job_json_obj['job']['optimisation']
         self.singularity_exec = 'singularity exec'
         self.current_dir = './'
-        # TODO: scheduler type should be derived based on the infrastructure target name
-        # TODO: there shall be an entry in the database where scheduler type is specified in the infrastructure target
-        self.scheduler = scheduler if scheduler else self.job_json_obj.get("job", {}).get("target", {}).get("job_scheduler_type")
-        self.target_name = self.job_json_obj.get("job", {}).get("target", {}).get("name")
-        if self.target_name == "egi":
-            self.scheduler = "torque"
-        elif self.target_name == "hlrs_testbed":
-            self.scheduler = "torque"
+
+        if job_json_obj['job'].get('target') is not None:
+            if job_json_obj['job'].get('target').get('job_scheduler_type') is not None:
+                scheduler = job_json_obj['job']['target']['job_scheduler_type']
+
+        if scheduler == 'torque':
+            self.__generate_torque_header(batch_file)
+        elif scheduler == 'slurm':
+            self.__generate_slurm_header(batch_file)
 
     # Based on https://kb.northwestern.edu/page.php?id=89454
-
-    def __generate_torque_header(self):
+    def __generate_torque_header(self, filename:str):
         logging.info("Generating torque header")
-        filename = self.batch_file
+        self.scheduler = 'torque'
+        self.batch_file = filename
         DIRECTIVE = '#PBS'
         f = open(filename, 'w')
         f.write(DIRECTIVE + ' -S ' + '/bin/bash')
@@ -53,9 +56,6 @@ class jobfile_generator():
             if "request_gpus" in self.job_data:
                 f.write(':gpus=' + str(self.job_data['request_gpus']))
                 self.singularity_exec = self.singularity_exec + ' --nv '
-            # secific to torque with default scheduler
-            if "queue" in self.job_data:
-                f.write(':' + str(self.job_data['queue']))
             f.write('\n')
         if "core_count" in self.job_data:
             f.write(DIRECTIVE + ' -l procs=' + str(self.job_data['core_count']))
@@ -107,6 +107,9 @@ class jobfile_generator():
         if "node_exclusive" in self.job_data:
             f.write(DIRECTIVE + ' -l naccesspolicy=singlejob')
             f.write('\n')
+        if "qos" in self.job_data:
+            f.write(DIRECTIVE + ' -l qos=' + self.job_data['qos'])
+            f.write('\n')
 
         f.write('## END OF HEADER ## ')
         f.write('\n')
@@ -117,9 +120,10 @@ class jobfile_generator():
         f.write('\n')
         f.close()
 
-    def __generate_slurm_header(self):
+    def __generate_slurm_header(self, filename:str):
         logging.info("Generating slurm header")
-        filename = self.batch_file
+        self.scheduler = 'slurm'
+        self.batch_file = filename
         DIRECTIVE = '#SBATCH'
         f = open(filename, 'w')
         f.write('#!/bin/bash')
@@ -139,7 +143,7 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' --time=' + self.job_data['wall_time_limit'])
             f.write('\n')
         if "node_count" in self.job_data:
-            f.write(DIRECTIVE + ' -N ' + str(self.job_data['node_count']))
+            f.write(DIRECTIVE + ' --nodes=' + str(self.job_data['node_count']))
             f.write('\n')
         if "core_count" in self.job_data:
             f.write(DIRECTIVE + ' -n ' + str(self.job_data['core_count']))
@@ -148,7 +152,7 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' --ntasks-per-node=' + str(self.job_data['process_count_per_node']))
             f.write('\n')
         if "core_count_per_process" in self.job_data:
-            f.write(DIRECTIVE + ' ----cpus-per-task=' + str(self.job_data['core_count_per_process']))
+            f.write(DIRECTIVE + ' --cpus-per-task=' + str(self.job_data['core_count_per_process']))
             f.write('\n')
         if "memory_limit" in self.job_data:
             f.write(DIRECTIVE + ' --mem=' + self.job_data['memory_limit'])
@@ -170,12 +174,12 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' --output=' + self.job_data['standard_output_file'])
             f.write('\n')
         if "standard_error_file" in self.job_data:
-            f.write(DIRECTIVE + ' -error=' + self.job_data['standard_error_file'])
+            f.write(DIRECTIVE + ' --error=' + self.job_data['standard_error_file'])
             f.write('\n')
         if "combine_stdout_stderr" in self.job_data:
             pass
         if "architecture_constraint" in self.job_data:
-            f.write(DIRECTIVE + ' -C ' + self.job_data['architecture_constraint'])
+            f.write(DIRECTIVE + ' --constraint=' + self.job_data['architecture_constraint'])
             f.write('\n')
         if "copy_environment" in self.job_data:
             f.write(DIRECTIVE + ' --export=ALL ')
@@ -187,7 +191,11 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' --dependency=' + self.job_data['job_dependency'])
             f.write('\n')
         if "request_event_notification" in self.job_data:
-            f.write(DIRECTIVE + ' --mail-type=' + self.job_data['request_event_notification'])
+            event_spec = self.job_data['request_event_notification']
+            events = ['NONE', 'BEGIN', 'END', 'FAIL', 'REQUEUE', 'ALL']
+            if event_spec not in events:
+                event_spec = 'ALL'
+            f.write(DIRECTIVE + ' --mail-type=' + event_spec)
             f.write('\n')
         if "email_address" in self.job_data:
             f.write(DIRECTIVE + ' --mail-user=' + self.job_data['email_address'])
@@ -197,6 +205,9 @@ class jobfile_generator():
             f.write('\n')
         if "node_exclusive" in self.job_data:
             f.write(DIRECTIVE + ' --exclusive')
+            f.write('\n')
+        if "qos" in self.job_data:
+            f.write(DIRECTIVE + ' --qos=' + self.job_data['qos'])
             f.write('\n')
 
         f.write('## END OF HEADER ##')
@@ -209,24 +220,8 @@ class jobfile_generator():
 
         f.close()
 
-    def __generate_bash_header(self):
-        logging.info("Generating bash header")
-        filename = self.batch_file
-        f = open(filename, 'w')
-        f.write('#!/bin/bash\n\n')
-        f.close()
-
-    def add_job_header(self):
-        if self.job_data and self.scheduler == 'torque':
-            self.__generate_torque_header()
-        elif self.job_data and self.scheduler == 'slurm':
-            self.__generate_slurm_header()
-        else:
-            self.__generate_bash_header()
-
-
-    def add_tuner(self, upload=True):
-        __tuner = tuner(upload)
+    def add_tuner(self):
+        __tuner = tuner()
         res = __tuner.encode_tune(self.job_json_obj, self.batch_file)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")
@@ -260,55 +255,68 @@ class jobfile_generator():
 
     def add_optscript(self, scriptfile, scriptlink):
         logging.info("Adding optimisations " + scriptfile)
-        with open(self.batch_file, 'a') as f:
-            f.seek(0, os.SEEK_END)
-            f.write('\n')
-            f.write('file=' + scriptfile)
-            f.write('\n')
-            f.write('if [ -f $file ] ; then rm $file; fi')
-            f.write('\n')
-            f.write('wget --no-check-certificate ' + scriptlink)
-            f.write('\n')
-            f.write('chmod 755 ' + scriptfile)
-            f.write('\n')
-            f.write('source ' + scriptfile)
-            f.write('\n')
-            f.close()
-            logging.info("Successfully added optimisation")
+        r = requests.get(scriptlink+'?dl=1', allow_redirects=True)
+        open(self.batch_file, 'a').write('\n{}\n'.format(r.text))
+
+        # with open(self.batch_file, 'a') as f:
+        #     f.seek(0, os.SEEK_END)
+        #     f.write('\n')
+        #     f.write('file=' + scriptfile)
+        #     f.write('\n')
+        #     f.write('if [ -f $file ] ; then rm $file; fi')
+        #     f.write('\n')
+        #     f.write('wget --no-check-certificate ' + scriptlink)
+        #     f.write('\n')
+        #     f.write('chmod 755 ' + scriptfile)
+        #     f.write('\n')
+        #     f.write('source ' + scriptfile)
+        #     f.write('\n')
+        #     f.close()
+        #     logging.info("Successfully added optimisation")
 
 
     def add_apprun(self):
         logging.info("Adding app run")
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
-            exe = '{} {}'.format(self.app_data.get('executable', ""), self.app_data.get('arguments', ""))
-            cont = self.app_data.get('container_runtime', "")
-            cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)) if cont else ""
-            app_type = self.app_data.get('app_type')
-
-            if "build" in self.app_data:
-                src = self.app_data['build'].get('src')
-                build_command = self.app_data['build'].get('build_command')
-                if src[-4:] == '.git':
-                    f.write('\ngit clone {}\n'.format(src))
-                else:
-                    f.write('\nwget --no-check-certificate {}\n'.format(src))
-                f.write('\n{} {}\n'.format(cont_exec_command, build_command))
-
-            if app_type == 'mpi' or app_type == 'hpc':
-                mpi_ranks = self.app_data.get("mpi_ranks", 1)
-                threads = self.app_data.get("threads", 1)
-                f.write('\nexport OMP_NUM_THREADS={}\n'.format(threads))
-                if self.scheduler == 'torque' and 'openmpi:1.10' in cont:
-                    f.write('{} mpirun -np {} {}\n'.format(cont_exec_command, mpi_ranks, exe))
-                elif self.scheduler == 'torque':
-                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
-                elif self.scheduler == 'slurm':
-                    f.write('srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
-                else:
-                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
-            else: # other app types, e.g. python
-                f.write('{} {}\n'.format(cont_exec_command, exe))
+            exe = self.app_data['executable']
+            arg = ''
+            if "container_runtime" in self.app_data:
+                cont = self.app_data['container_runtime']
+                cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont))
+                # f.write('\n{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)))
+            else:
+                f.write('\n')
+            if "arguments" in self.app_data:
+                arg = self.app_data['arguments']
+            if "app_type" in self.app_data:
+                app_type = self.app_data['app_type']
+                if "build" in self.app_data:
+                    src = self.app_data['build'].get('src')
+                    build_command = self.app_data['build'].get('build_command')
+                    if src[-4] == '.git':
+                        f.write('\ngit clone {}\n'.format(src))
+                    else:
+                        f.write('\nwget --no-check-certificate {}\n'.format(src))
+                    f.write('\n{} {}\n'.format(cont_exec_command, build_command))
+                if app_type == 'mpi' or app_type == 'hpc':
+                    mpi_ranks = 1
+                    threads = 1
+                    if "mpi_ranks" in self.app_data:
+                        mpi_ranks = self.app_data['mpi_ranks']
+                    if "threads" in self.app_data:
+                        threads = self.app_data['threads']
+                    f.write('\nexport OMP_NUM_THREADS={}\n'.format(threads))
+                    if self.scheduler == 'torque' and 'openmpi:1.10' in cont:
+                        f.write('{} mpirun -np {} {} {}\n'.format(cont_exec_command, mpi_ranks, exe, arg))
+                    elif self.scheduler == 'torque':
+                        f.write('mpirun -np {} {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe, arg))
+                    elif self.scheduler == 'slurm':
+                        f.write('srun -n {} {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe, arg))
+                elif app_type == 'python':
+                    f.write('{} {} {}\n'.format(cont_exec_command, exe, arg))
+            else:
+                f.write('\n{} {} {}\n'.format(cont_exec_command, exe, arg))
 
             f.close()
             logging.info("Successfully added app run")
