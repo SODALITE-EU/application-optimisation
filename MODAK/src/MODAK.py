@@ -50,8 +50,9 @@ class MODAK():
         logging.info('Applying optimisations ' + str(self.__map.get_opts()))
         opts = self.__enf.enforce_opt(self.__map.get_opts())
         if opts is not None:
-            for i in range(0, opts.shape[0]):
-                gen_t.add_optscript(opts['script_name'][i], opts['script_loc'][i])
+            for opt in opts:
+                for i in range(0, opt.shape[0]):
+                    gen_t.add_optscript(opt['script_name'][i], opt['script_loc'][i])
 
         logging.info('Adding application run')
         gen_t.add_apprun()
