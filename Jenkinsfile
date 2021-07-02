@@ -92,9 +92,9 @@ pipeline {
                         docker-compose build --no-cache
                         docker-compose up -d
                         docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
-                        RES=$?
+                        RES=\$?
                         docker-compose down
-                        exit $RES
+                        exit \$RES
                     """
                 // python3 -m venv venv-test
                 // . venv-test/bin/activate
