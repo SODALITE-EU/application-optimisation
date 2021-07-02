@@ -87,12 +87,20 @@ pipeline {
         stage('Test MODAK') {
             steps {
                 sh  """ #!/bin/bash
-                        python3 -m venv venv-test
-                        . venv-test/bin/activate
-                        python3 -m pip install --upgrade pip
-                        python3 -m pip install --no-cache-dir -r MODAK/requirements.txt
-                        cd MODAK/test
+                        pwd
+                        ls
+                        docker-compose build --no-cache
+                        docker-compose up -d
+                        docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
+                        RES=$?
+                        docker-compose down
+                        exit $RES
                     """
+                // python3 -m venv venv-test
+                // . venv-test/bin/activate
+                // python3 -m pip install --upgrade pip
+                // python3 -m pip install --no-cache-dir -r MODAK/requirements.txt
+                // cd MODAK/test
                 //junit 'src/results.xml'
                 //# Running tests in this envornment doesn't work yet.
                 //#PYTHONPATH=${PYTHONPATH}:../src python3 -m pytest --junitxml=../results.xml --cov=../MODAK
