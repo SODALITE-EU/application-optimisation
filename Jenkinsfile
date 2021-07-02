@@ -204,8 +204,13 @@ pipeline {
                     sh """#!/bin/bash
                         hostname
                         ls
-                        ssh -i ${modak_ssh_key_file} ${modak_ssh_username}@modak-dev "hostname; ls; pwd"
+                        ssh -i ${modak_ssh_key_file} ${modak_ssh_username}@192.168.2.155 "hostname; ls; pwd"
                        """
+                        //docker pull \${docker_registry_ip:-localhost}/modak-api:$BRANCH_NAME
+                        //docker-compose up -d
+                        //docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
+                        //RES=\$?
+                        //exit \$RES
                 }
             }
         }
