@@ -202,7 +202,8 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'modak_ssh_key', keyFileVariable: 'modak_ssh_key_file', usernameVariable: 'modak_ssh_username')]) {
                     sh """#!/bin/bash
-                        docker pull ${docker_registry_ip:-localhost}/modak-api:$BRANCH_NAME
+                        hostname
+                        docker pull \${docker_registry_ip:-localhost}/modak-api:$BRANCH_NAME
                         docker-compose up -d
                         docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
                         RES=\$?
