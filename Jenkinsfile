@@ -204,7 +204,7 @@ pipeline {
                     sh """#!/bin/bash
                         hostname
                         ls
-                        ssh -i ${modak_ssh_key_file} ${modak_ssh_username}@192.168.2.155 "hostname; ls; pwd"
+                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "hostname; ls; pwd"
                        """
                         //docker pull \${docker_registry_ip:-localhost}/modak-api:$BRANCH_NAME
                         //docker-compose up -d
