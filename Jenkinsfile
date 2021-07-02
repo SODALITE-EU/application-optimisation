@@ -204,7 +204,7 @@ pipeline {
                     sh """#!/bin/bash
                         hostname
                         ls
-                        ssh -i ${modak_ssh_key} ${modak_ssh_username}@modak-dev "hostname; ls; pwd"
+                        ssh -i ${modak_ssh_key_file} ${modak_ssh_username}@modak-dev "hostname; ls; pwd"
                        """
                 }
             }
