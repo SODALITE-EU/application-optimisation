@@ -89,13 +89,13 @@ pipeline {
                 sh  """ #!/bin/bash
                         pwd
                         ls
-                        docker-compose build --no-cache
-                        docker-compose up -d
-                        docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
-                        RES=\$?
-                        docker-compose down
-                        exit \$RES
                     """
+                //docker-compose build --no-cache
+                //docker-compose up -d
+                //docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
+                //RES=\$?
+                //docker-compose down
+                //exit \$RES
                 // python3 -m venv venv-test
                 // . venv-test/bin/activate
                 // python3 -m pip install --upgrade pip
@@ -202,6 +202,11 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'modak_ssh_key', keyFileVariable: 'modak_ssh_key_file', usernameVariable: 'modak_ssh_username')]) {
                     sh """#!/bin/bash
+                        docker pull ${docker_registry_ip:-localhost}/modak-api:$BRANCH_NAME
+                        docker-compose up -d
+                        docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
+                        RES=\$?
+                        exit \$RES
                        """
                 }
             }
