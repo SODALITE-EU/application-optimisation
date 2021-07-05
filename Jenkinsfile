@@ -206,7 +206,7 @@ pipeline {
                         ls
                         ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose down && cd .. && rm -rf application-optimization; mkdir -p application-optimization"
                         scp -i ${modak_ssh_key_file} -r ./* ${modak_ssh_username}@192.168.2.155:application-optimization/
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose up"
+                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose up -d"
                        """
                         //docker pull \${docker_registry_ip:-localhost}/modak-api:$BRANCH_NAME
                         //docker-compose up -d
