@@ -87,6 +87,7 @@ pipeline {
         stage('Test MODAK') {
             steps {
                 sh  """ #!/bin/bash
+                docker kill \$(docker ps | grep modak | awk '{print \$1}')
                 docker-compose build --no-cache
                 docker-compose up -d
                 docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
