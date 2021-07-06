@@ -93,7 +93,7 @@ pipeline {
                 fi
                 docker-compose build --no-cache
                 docker-compose up -d
-                docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
+                docker exec -it application-optimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
                 RES=\$?
                 docker-compose down
                 exit \$RES
