@@ -22,7 +22,3 @@ services:
       MYSQL_ROOT_PASSWORD: my-very-secret-pw
     volumes:
       - /docker-entrypoint-initdb.d/
-    healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
-      timeout: 30s
-      retries: 10
