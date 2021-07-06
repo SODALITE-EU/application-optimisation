@@ -87,6 +87,7 @@ pipeline {
         stage('Test MODAK') {
             steps {
                 sh  """ #!/bin/bash
+                docker-compose down
                 if [ -n "\$(docker ps | grep modak)" ]; then
                     docker kill \$(docker ps | grep modak | awk '{print \$1}')
                 fi
