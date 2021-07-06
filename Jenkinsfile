@@ -94,9 +94,6 @@ pipeline {
                 docker-compose build --no-cache
                 docker-compose up -d
                 #sleep 300 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
-                echo -n Waiting for mysql to be up
-                while [ ! docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') mysqladmin ping --silent ]; do echo -n .; sleep 1; done
-                echo Done
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') /bin/bash -c "cd ../test; python3 -m unittest -v"
                 RES=\$?
                 docker-compose down
