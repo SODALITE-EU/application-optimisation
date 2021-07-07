@@ -213,7 +213,7 @@ pipeline {
                     sh """#!/bin/bash
                         hostname
                         ls
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose down && cd .. && rm -rf application-optimization; docker kill \$(docker ps | grep modak | awk '{print \$1}'); mkdir -p application-optimization"
+                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose down && cd .. && rm -rf application-optimization; docker kill \$(docker ps | grep modak | awk '{print \$1}'); mkdir -p application-optimization; docker system prune -a -f"
                         scp -i ${modak_ssh_key_file} -r ./* ${modak_ssh_username}@192.168.2.155:application-optimization/
                         ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose up -d"
                         sleep 100
