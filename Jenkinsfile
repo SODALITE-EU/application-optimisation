@@ -216,7 +216,7 @@ pipeline {
                         ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose down && cd .. && rm -rf application-optimization; docker kill \$(docker ps | grep modak | awk '{print \$1}'); mkdir -p application-optimization"
                         scp -i ${modak_ssh_key_file} -r ./* ${modak_ssh_username}@192.168.2.155:application-optimization/
                         ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "cd application-optimization && docker-compose up -d"
-                        sleep 300
+                        sleep 100
                         ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@192.168.2.155 "docker ps; echo docker exec \\\$(docker ps | grep modak | grep restapi | awk '{print \\\$1}' ) ../test/integration/hpc.sh; docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}' ) ../test/integration/hpc.sh"
                        """
                         //docker pull \${docker_registry_ip:-localhost}/modak-api:$BRANCH_NAME
