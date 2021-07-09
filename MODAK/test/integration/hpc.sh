@@ -4,7 +4,7 @@
 set -e
 
 # local test
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -34,7 +34,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
   }
 }'   http://localhost:55000/get_image
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -65,7 +65,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 }'   http://localhost:55000/get_image
 
 # + test getting image
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimization": {
       "app_type": "ai_training", 
@@ -106,7 +106,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
   }
 }'   http://localhost:55000/get_image
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -136,7 +136,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 }'   http://localhost:55000/get_image
 
 # + test getting image
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -195,7 +195,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 #   }
 # }
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -255,7 +255,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 
 # + test full job script with target name = hlrs_testbed, job_scheduler_type = slurm
 # + assert torque header, since hlrs_testbed has torque wm
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -367,7 +367,7 @@ curl --header "Content-Type: application/json" \
 
 # + test full job script with target name = hlrs_testbed, job_scheduler_type = torque
 # + assert torque header
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -479,7 +479,7 @@ curl --header "Content-Type: application/json" \
 
 # + test full job script with target name = hlrs_testbed
 # + assert torque header, since hlrs_testbed has torque wm
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -589,7 +589,7 @@ curl --header "Content-Type: application/json" \
 
 # + test full job script with target job_scheduler_type = torque no xla and with xla
 # + assert torque header
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -699,7 +699,7 @@ curl --header "Content-Type: application/json" \
 
 # + test full job script with target job_scheduler_type = slurm
 # + assert slurm header
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -811,7 +811,7 @@ curl --header "Content-Type: application/json" \
 # + test script with opts without job_options with target job_scheduler_type = torque
 # + test script with opts without job_options without target
 # + assert no headers with opts
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -891,7 +891,7 @@ curl --header "Content-Type: application/json" \
 #   }
 # }
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -972,7 +972,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1050,7 +1050,7 @@ curl --header "Content-Type: application/json" \
 # + test script with opts without job_options with target name = egi
 # + test script with opts without job_options with target name = hlrs_testbed
 # + assert no headers with opts specific to target
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1130,7 +1130,7 @@ curl --header "Content-Type: application/json" \
 #   }
 # }
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1213,7 +1213,7 @@ curl --header "Content-Type: application/json" \
 # - test script without opts without job_options with target target name = egi
 # - test script without opts without job_options with target target name = hlrs_testbed
 # - assert no headers with opts specific to target
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1246,7 +1246,7 @@ curl --header "Content-Type: application/json" \
 #   }
 # }
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1282,7 +1282,7 @@ curl --header "Content-Type: application/json" \
 
 # - test script without opts without target
 # - assert no headers without opts - only app
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1310,7 +1310,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 # + test app without container runtime
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1336,7 +1336,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 # + test app without container runtime but with target
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1368,7 +1368,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 # + test app without container runtime with app_type mpi without target
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job": {
     "application": {
       "app_tag": "skyline-extraction-training",
@@ -1392,7 +1392,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 # }
 
 # + test app without container runtime with app_type mpi with target
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1424,7 +1424,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 # + test app without container runtime but with target without app_type
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1454,7 +1454,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 # + test app without container runtime but with opt
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1529,7 +1529,7 @@ curl --header "Content-Type: application/json" \
 
 # + test app without container runtime but with opt and target
 # + assert two enforced scripts - one for hlrs_testbed target and one for xla
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1609,7 +1609,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 # + test app without container runtime but with opt hpc
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1686,7 +1686,7 @@ curl --header "Content-Type: application/json" \
 
 
 # - test full optimisation
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1763,7 +1763,7 @@ curl --header "Content-Type: application/json" \
 # }
 
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -1795,7 +1795,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 
 
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1852,7 +1852,7 @@ curl --header "Content-Type: application/json" \
 
 
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1906,7 +1906,7 @@ curl --header "Content-Type: application/json" \
 }
 ' http://77.231.202.209:5000/get_job_content
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1957,7 +1957,7 @@ curl --header "Content-Type: application/json" \
 }
 ' http://localhost:55000/get_job_content
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -1989,7 +1989,7 @@ curl --header "Content-Type: application/json" \
 
 
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -2018,7 +2018,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 
 
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -2048,7 +2048,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 
 
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -2102,7 +2102,7 @@ curl --header "Content-Type: application/json" \
 }
 ' http://77.231.202.209:5000/get_job_content
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -2153,7 +2153,7 @@ curl --header "Content-Type: application/json" \
 }
 ' http://77.231.202.209:5000/get_job_content
 
-curl --header "Content-Type: application/json" \
+curl --fail --header "Content-Type: application/json" \
   --request POST \
   --data '{
   "job": {
@@ -2185,7 +2185,7 @@ curl --header "Content-Type: application/json" \
 
 
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
@@ -2214,7 +2214,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 
 
 
-curl --header "Content-Type: application/json"   --request POST   --data '{
+curl --fail --header "Content-Type: application/json"   --request POST   --data '{
   "job":{
     "optimisation": {
       "enable_opt_build": true,
