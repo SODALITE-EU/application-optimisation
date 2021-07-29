@@ -12,7 +12,7 @@ import logging
 import json
 
 class MODAK():
-    def __init__(self, conf_file:str = '../conf/iac-model.ini', upload=True):
+    def __init__(self, conf_file:str = '../conf/iac-model.ini', upload=False):
         """General MODAK class."""
         logging.info('Intialising MODAK')
         self.__driver = MODAK_driver(conf_file)
