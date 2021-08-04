@@ -12,3 +12,5 @@ hpccoutf*.txt
 *.sif
 beffio_flags.txt
 hpccinf.txt
+build/benchmarks_conf.def.bak
+b_eff_io_data*
