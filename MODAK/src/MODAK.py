@@ -45,19 +45,22 @@ class MODAK():
         gen_t = jobfile_generator(job_json_data, job_file, "torque")
 
         logging.info('Adding autotuning scripts')
-        gen_t.add_tuner()
+        gen_t.add_tuner(upload=self.__upload)
 
         logging.info('Applying optimisations ' + str(self.__map.get_opts()))
         opts = self.__enf.enforce_opt(self.__map.get_opts())
-        if opts is not None:
+        if opts:
             for i in range(0, opts.shape[0]):
                 gen_t.add_optscript(opts['script_name'][i], opts['script_loc'][i])
 
         logging.info('Adding application run')
         gen_t.add_apprun()
 
-        file_to = "{}/{}_{}.sh".format('/modak',job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
-        self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
+        if self.__upload:
+            file_to = "{}/{}_{}.sh".format('/modak',job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+            self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
+        else:
+            self.__job_link = job_file
         logging.info('Job script link: ' + self.__job_link)
         return self.__job_link
 
@@ -71,7 +74,8 @@ class MODAK():
         gen_t = jobfile_generator(job_json_data, job_file, "torque")
 
         file_to = "{}/{}_{}.sh".format('/modak', job_name, datetime.now().strftime('%Y%m%d%H%M%S'))
-        self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
+        if self.__upload:
+            self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
         logging.info('Job script link: ' + self.__job_link)
         return self.__job_link
 

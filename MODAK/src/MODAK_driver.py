@@ -18,7 +18,6 @@ class MODAK_driver():
                         filemode='w', level=logging.DEBUG)
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
-
     def __init__(self, conf_file='../conf/iac-model.ini', install=False):
         logging.info('Intialising driver')
         settings.initialise(conf_file)
@@ -40,7 +39,10 @@ class MODAK_driver():
         logging.info('Successfully initialised driver')
 
     def __del__(self):
-        self.cnx.close()
+        try:
+            self.cnx.close()
+        except AttributeError:
+            pass
 
     # def __init_IaC_modelrepo(self, install=False):
     #     logging.info("Initialising IaC Model repo")
@@ -74,6 +76,9 @@ class MODAK_driver():
                 sql_data = pd.read_sql(sqlstr, self.cnx)
                 logging.info('Successfully executed SQL')
                 return sql_data
+            except AttributeError:
+                logging.warning("No connected database")
+                return pd.DataFrame()
             except mysql.connector.Error as err:
                 logging.error('Error executing sql')
                 logging.error(err)
@@ -98,6 +103,9 @@ class MODAK_driver():
                 sql_data = pd.read_sql(sqlstr, self.cnx)
                 logging.info('Successfully selected SQL')
                 return sql_data
+            except AttributeError:
+                logging.warning("No connected database")
+                return pd.DataFrame()
             except mysql.connector.Error as err:
                 logging.error('Error executing sql')
                 logging.error(err)
@@ -120,6 +128,9 @@ class MODAK_driver():
                 self.cnx.commit()
                 logging.info('Successfully updated SQL')
                 return True
+            except AttributeError:
+                logging.warning("No connected database")
+                return False
             except mysql.connector.Error as err:
                 logging.error('Error executing sql')
                 logging.error(err)

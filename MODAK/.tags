@@ -1,0 +1,975 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CREATE_APPMODEL_TABLE	src/MODAK_sql.py	/^            '{}\/appmodel'"$/;"	v	class:MODAK_sql
+CREATE_APP_TABLE	src/MODAK_sql.py	/^            '{}\/application'"$/;"	v	class:MODAK_sql
+CREATE_AUDIT_TABLE	src/MODAK_sql.py	/^            '{}\/audit_log'"$/;"	v	class:MODAK_sql
+CREATE_BENCH_TABLE	src/MODAK_sql.py	/^            '{}\/benchmark'"$/;"	v	class:MODAK_sql
+CREATE_INFRA_TABLE	src/MODAK_sql.py	/^            '{}\/infrastructure'"$/;"	v	class:MODAK_sql
+CREATE_MAPPER_TABLE	src/MODAK_sql.py	/^            '{}\/mapper'"$/;"	v	class:MODAK_sql
+CREATE_MODEL_TABLE	src/MODAK_sql.py	/^            '{}\/model'"$/;"	v	class:MODAK_sql
+CREATE_OPT_TABLE	src/MODAK_sql.py	/^            '{}\/optimisation'"$/;"	v	class:MODAK_sql
+CREATE_QUEUE_TABLE	src/MODAK_sql.py	/^            '{}\/queue'"$/;"	v	class:MODAK_sql
+ConfigParser	src/settings.py	/^from configparser import ConfigParser$/;"	i
+DropboxOAuth2FlowNoRedirect	src/MODAK_dropbox.py	/^from dropbox import DropboxOAuth2FlowNoRedirect$/;"	i
+Flask	app/app.py	/^from flask import Flask$/;"	i
+Flask	app/app.py	/^from flask import Flask, render_template, redirect, url_for, request$/;"	i
+MODAK	app/app.py	/^from MODAK import MODAK$/;"	i
+MODAK	examples/example.py	/^from MODAK import MODAK$/;"	i
+MODAK	src/MODAK.py	/^class MODAK():$/;"	c
+MODAK	test/test_MODAK.py	/^from MODAK import MODAK$/;"	i
+MODAK_driver	src/MODAK.py	/^from MODAK_driver import MODAK_driver$/;"	i
+MODAK_driver	src/MODAK_driver.py	/^class MODAK_driver():$/;"	c
+MODAK_driver	src/enforcer.py	/^from MODAK_driver import MODAK_driver$/;"	i
+MODAK_driver	src/mapper.py	/^from MODAK_driver import MODAK_driver$/;"	i
+MODAK_driver	src/tuner.py	/^from MODAK_driver import MODAK_driver$/;"	i
+MODAK_driver	test/test_MODAK_driver.py	/^from MODAK_driver import MODAK_driver$/;"	i
+MODAK_driver	test/test_mapper.py	/^from MODAK_driver import MODAK_driver$/;"	i
+MODAK_sql	src/MODAK_driver.py	/^from MODAK_sql import MODAK_sql$/;"	i
+MODAK_sql	src/MODAK_sql.py	/^class MODAK_sql():$/;"	c
+TransferData	src/MODAK.py	/^from MODAK_gcloud import TransferData$/;"	i
+TransferData	src/MODAK_dropbox.py	/^class TransferData:$/;"	c
+TransferData	src/MODAK_gcloud.py	/^class TransferData:$/;"	c
+TransferData	src/tuner.py	/^from MODAK_gcloud import TransferData$/;"	i
+__del__	src/MODAK_driver.py	/^    def __del__(self):$/;"	m	class:MODAK_driver	file:
+__generate_bash_header	src/jobfile_generator.py	/^    def __generate_bash_header(self):$/;"	m	class:jobfile_generator	file:
+__generate_slurm_header	src/jobfile_generator.py	/^    def __generate_slurm_header(self):$/;"	m	class:jobfile_generator	file:
+__generate_torque_header	src/jobfile_generator.py	/^    def __generate_torque_header(self):$/;"	m	class:jobfile_generator	file:
+__init__	src/MODAK.py	/^    def __init__(self, conf_file:str = '..\/conf\/iac-model.ini', upload=False):$/;"	m	class:MODAK
+__init__	src/MODAK_driver.py	/^    def __init__(self, conf_file='..\/conf\/iac-model.ini', install=False):$/;"	m	class:MODAK_driver
+__init__	src/MODAK_dropbox.py	/^    def __init__(self, access_token=''):$/;"	m	class:TransferData
+__init__	src/MODAK_gcloud.py	/^    def __init__(self, google_cred='..\/conf\/modak-f305a35c96dc.json'):$/;"	m	class:TransferData
+__init__	src/enforcer.py	/^    def __init__(self, __driver):$/;"	m	class:enforcer
+__init__	src/jobfile_generator.py	/^    def __init__(self, job_json_obj, batch_file:str, scheduler:str = None):$/;"	m	class:jobfile_generator
+__init__	src/mapper.py	/^    def __init__(self, driver:MODAK_driver):$/;"	m	class:mapper
+__init__	src/opt_dsl_reader.py	/^    def __init__(self, opt_dsl_obj):$/;"	m	class:opt_dsl_reader
+__init__	src/scaler.py	/^    def __init__(self):$/;"	m	class:scaler
+__init__	src/tuner.py	/^    def __init__(self, upload=True):$/;"	m	class:tuner
+_quiet_logs	src/MODAK_driver.py	/^    def _quiet_logs(self):$/;"	m	class:MODAK_driver
+acc_type	app/pyMODAK/IO/tf_snow.json	/^        "acc_type": "nvidia"$/;"	f
+acc_type	test/input/aitraining/tf_optimisation_dsl.json	/^      "acc_type": "none"$/;"	f
+acc_type	test/input/aitraining/tf_resnet.json	/^        "acc_type": "nvidia"$/;"	f
+acc_type	test/input/aitraining/tf_snow.json	/^        "acc_type": "nvidia"$/;"	f
+acc_type	test/input/job_data.json	/^        "acc_type": "nvidia\/amd\/fpga"$/;"	f
+acc_type	test/input/map_container.json	/^    "acc_type": "nvidia"$/;"	f
+acc_type	test/input/mpi/mpi_solver.json	/^        "acc_type": ""$/;"	f
+acc_type	test/input/mpi/mpi_test.json	/^        "acc_type": ""$/;"	f
+acc_type	test/input/mpi/mpi_test_egi.json	/^        "acc_type": ""$/;"	f
+acc_type	test/input/mpi/solver_optimisation_dsl.json	/^			"acc_type": "nvidia"$/;"	f
+acc_type	test/input/mpi_solver.json	/^        "acc_type": ""$/;"	f
+acc_type	test/input/mpi_test.json	/^        "acc_type": ""$/;"	f
+acc_type	test/input/mpi_test_egi.json	/^        "acc_type": ""$/;"	f
+acc_type	test/input/optimisation_dsl.json	/^      "acc_type": "nvidia\/amd\/fpga"$/;"	f
+acc_type	test/input/solver_optimisation_dsl.json	/^			"acc_type": "nvidia"$/;"	f
+acc_type	test/input/tf_optimisation_dsl.json	/^      "acc_type": "none"$/;"	f
+acc_type	test/input/tf_resnet.json	/^        "acc_type": "nvidia"$/;"	f
+acc_type	test/input/tf_snow.json	/^        "acc_type": "nvidia"$/;"	f
+account	test/input/job_data.json	/^      "account": "test",$/;"	f
+account	test/input/mpi/mpi_test_cirrus.json	/^      "account": "dc117",$/;"	f
+add_apprun	src/jobfile_generator.py	/^    def add_apprun(self):$/;"	m	class:jobfile_generator
+add_container	src/mapper.py	/^    def add_container(self, opt_dsl_code:str, container_file:str, image_hub:str='docker', image_type:str='docker', src: str=''):$/;"	m	class:mapper
+add_job_header	src/jobfile_generator.py	/^    def add_job_header(self):$/;"	m	class:jobfile_generator
+add_optcontainer	src/mapper.py	/^    def add_optcontainer(self, map_obj):$/;"	m	class:mapper
+add_optimisation	src/mapper.py	/^    def add_optimisation(self, opt_dsl_code: str, app_name: str,  target: dict, optimisation: dict):$/;"	m	class:mapper
+add_optscript	src/jobfile_generator.py	/^    def add_optscript(self, scriptfile, scriptlink):$/;"	m	class:jobfile_generator
+add_tuner	src/jobfile_generator.py	/^    def add_tuner(self, upload=True):$/;"	m	class:jobfile_generator
+affinity	test/input/job_data.json	/^          "affinity": "block\/simple"$/;"	f
+affinity	test/input/optimisation_dsl.json	/^        "affinity": "block\/simpe"$/;"	f
+ai_framework	app/pyMODAK/IO/tf_snow.json	/^          "ai_framework": "tensorflow"$/;"	f
+ai_framework	test/input/aitraining/tf_optimisation_dsl.json	/^        "ai_framework": "tensorflow",$/;"	f
+ai_framework	test/input/aitraining/tf_resnet.json	/^          "ai_framework": "tensorflow"$/;"	f
+ai_framework	test/input/aitraining/tf_snow.json	/^          "ai_framework": "tensorflow"$/;"	f
+ai_framework	test/input/job_data.json	/^          "ai_framework": "tensorflow\/pytorch\/keras\/cntk\/mxnet",$/;"	f
+ai_framework	test/input/optimisation_dsl.json	/^        "ai_framework": "tensorflow\/pytorch\/keras\/cntk\/mxnet",$/;"	f
+ai_framework	test/input/tf_optimisation_dsl.json	/^        "ai_framework": "tensorflow",$/;"	f
+ai_framework	test/input/tf_resnet.json	/^          "ai_framework": "tensorflow"$/;"	f
+ai_framework	test/input/tf_snow.json	/^          "ai_framework": "tensorflow"$/;"	f
+ai_framework-keras	test/input/job_data.json	/^        "ai_framework-keras": {$/;"	f
+ai_framework-keras	test/input/optimisation_dsl.json	/^      "ai_framework-keras": {$/;"	f
+ai_framework-pytorch	test/input/job_data.json	/^        "ai_framework-pytorch": {$/;"	f
+ai_framework-pytorch	test/input/optimisation_dsl.json	/^      "ai_framework-pytorch": {$/;"	f
+ai_framework-tensorflow	app/pyMODAK/IO/tf_snow.json	/^        "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/aitraining/tf_optimisation_dsl.json	/^      "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/aitraining/tf_resnet.json	/^        "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/aitraining/tf_snow.json	/^        "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/job_data.json	/^        "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/optimisation_dsl.json	/^      "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/tf_optimisation_dsl.json	/^      "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/tf_resnet.json	/^        "ai_framework-tensorflow": {$/;"	f
+ai_framework-tensorflow	test/input/tf_snow.json	/^        "ai_framework-tensorflow": {$/;"	f
+app	app/app.py	/^app = Flask(__name__)$/;"	v
+app_build	test/input/mpi/mpi_test_cirrus.json	/^      "app_build": {$/;"	f
+app_build	test/input/mpi/mpi_test_daint.json	/^      "app_build": {$/;"	f
+app_name	test/input/map_container.json	/^  "app_name": "mvapich",$/;"	f
+app_name	test/input/mpi/mpi_test_cirrus.json	/^      "app_name":"openmpi",$/;"	f
+app_name	test/input/mpi/mpi_test_daint.json	/^      "app_name":"openmpi",$/;"	f
+app_tag	app/pyMODAK/IO/tf_snow.json	/^      "app_tag": "skyline-extraction-training",$/;"	f
+app_tag	test/input/aitraining/tf_resnet.json	/^      "app_tag": "resnet-benchmark",$/;"	f
+app_tag	test/input/aitraining/tf_snow.json	/^      "app_tag": "skyline-extraction-training",$/;"	f
+app_tag	test/input/job_data.json	/^      "app_tag": "",$/;"	f
+app_tag	test/input/mpi/mpi_solver.json	/^      "app_tag": "solver_clinicalUC",$/;"	f
+app_tag	test/input/mpi/mpi_test.json	/^      "app_tag": "mpi_test",$/;"	f
+app_tag	test/input/mpi/mpi_test_cirrus.json	/^      "app_tag": "mpi_test",$/;"	f
+app_tag	test/input/mpi/mpi_test_daint.json	/^      "app_tag": "mpi_test",$/;"	f
+app_tag	test/input/mpi/mpi_test_egi.json	/^      "app_tag": "mpi_test",$/;"	f
+app_tag	test/input/mpi_solver.json	/^      "app_tag": "solver_clinicalUC",$/;"	f
+app_tag	test/input/mpi_test.json	/^      "app_tag": "mpi_test",$/;"	f
+app_tag	test/input/mpi_test_egi.json	/^      "app_tag": "mpi_test",$/;"	f
+app_tag	test/input/tf_resnet.json	/^      "app_tag": "resnet-benchmark",$/;"	f
+app_tag	test/input/tf_snow.json	/^      "app_tag": "skyline-extraction-training",$/;"	f
+app_type	app/pyMODAK/IO/tf_snow.json	/^      "app_type": "python",$/;"	f
+app_type	app/pyMODAK/IO/tf_snow.json	/^      "app_type":"ai_training",$/;"	f
+app_type	test/input/aitraining/tf_optimisation_dsl.json	/^    "app_type": "ai_training",$/;"	f
+app_type	test/input/aitraining/tf_resnet.json	/^      "app_type":"ai_training",$/;"	f
+app_type	test/input/aitraining/tf_snow.json	/^      "app_type": "python",$/;"	f
+app_type	test/input/aitraining/tf_snow.json	/^      "app_type":"ai_training",$/;"	f
+app_type	test/input/job_data.json	/^      "app_type": "mpi",$/;"	f
+app_type	test/input/job_data.json	/^      "app_type":"ai_training\/hpc\/ai_inference",$/;"	f
+app_type	test/input/mpi/mpi_solver.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi/mpi_solver.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/mpi/mpi_test.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi/mpi_test.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/mpi/mpi_test_cirrus.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi/mpi_test_cirrus.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/mpi/mpi_test_daint.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi/mpi_test_daint.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/mpi/mpi_test_egi.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi/mpi_test_egi.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/mpi/solver_optimisation_dsl.json	/^		"app_type":"HPC",$/;"	f
+app_type	test/input/mpi_solver.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi_solver.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/mpi_test.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi_test.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/mpi_test_egi.json	/^      "app_type": "hpc",$/;"	f
+app_type	test/input/mpi_test_egi.json	/^      "app_type":"hpc",$/;"	f
+app_type	test/input/optimisation_dsl.json	/^    "app_type":"ai_training\/hpc\/ai_inference",$/;"	f
+app_type	test/input/solver_optimisation_dsl.json	/^		"app_type":"HPC",$/;"	f
+app_type	test/input/tf_optimisation_dsl.json	/^    "app_type": "ai_training",$/;"	f
+app_type	test/input/tf_resnet.json	/^      "app_type":"ai_training",$/;"	f
+app_type	test/input/tf_snow.json	/^      "app_type": "python",$/;"	f
+app_type	test/input/tf_snow.json	/^      "app_type":"ai_training",$/;"	f
+app_type-ai_inference	test/input/job_data.json	/^      "app_type-ai_inference": {}$/;"	f
+app_type-ai_inference	test/input/optimisation_dsl.json	/^    "app_type-ai_inference": {}$/;"	f
+app_type-ai_training	app/pyMODAK/IO/tf_snow.json	/^      "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/aitraining/tf_optimisation_dsl.json	/^    "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/aitraining/tf_resnet.json	/^      "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/aitraining/tf_snow.json	/^      "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/job_data.json	/^      "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/optimisation_dsl.json	/^    "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/tf_optimisation_dsl.json	/^    "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/tf_resnet.json	/^      "app_type-ai_training": {$/;"	f
+app_type-ai_training	test/input/tf_snow.json	/^      "app_type-ai_training": {$/;"	f
+app_type-hpc	test/input/job_data.json	/^      "app_type-hpc": {$/;"	f
+app_type-hpc	test/input/mpi/mpi_solver.json	/^      "app_type-hpc": {$/;"	f
+app_type-hpc	test/input/mpi/mpi_test.json	/^      "app_type-hpc": {$/;"	f
+app_type-hpc	test/input/mpi/mpi_test_egi.json	/^      "app_type-hpc": {$/;"	f
+app_type-hpc	test/input/mpi_solver.json	/^      "app_type-hpc": {$/;"	f
+app_type-hpc	test/input/mpi_test.json	/^      "app_type-hpc": {$/;"	f
+app_type-hpc	test/input/mpi_test_egi.json	/^      "app_type-hpc": {$/;"	f
+app_type-hpc	test/input/optimisation_dsl.json	/^    "app_type-hpc": {$/;"	f
+application	app/pyMODAK/IO/tf_snow.json	/^    "application": {$/;"	f
+application	test/input/aitraining/tf_resnet.json	/^    "application": {$/;"	f
+application	test/input/aitraining/tf_snow.json	/^    "application": {$/;"	f
+application	test/input/job_data.json	/^    "application": {$/;"	f
+application	test/input/mpi/mpi_solver.json	/^    "application": {$/;"	f
+application	test/input/mpi/mpi_test.json	/^    "application": {$/;"	f
+application	test/input/mpi/mpi_test_cirrus.json	/^    "application": {$/;"	f
+application	test/input/mpi/mpi_test_daint.json	/^    "application": {$/;"	f
+application	test/input/mpi/mpi_test_egi.json	/^    "application": {$/;"	f
+application	test/input/mpi_solver.json	/^    "application": {$/;"	f
+application	test/input/mpi_test.json	/^    "application": {$/;"	f
+application	test/input/mpi_test_egi.json	/^    "application": {$/;"	f
+application	test/input/tf_resnet.json	/^    "application": {$/;"	f
+application	test/input/tf_snow.json	/^    "application": {$/;"	f
+applySQL	src/MODAK_driver.py	/^    def applySQL(self, sqlstr):$/;"	m	class:MODAK_driver
+arch_build	test/input/mpi/mpi_test_cirrus.json	/^      "arch_build": {$/;"	f
+arch_build	test/input/mpi/mpi_test_daint.json	/^      "arch_build": {$/;"	f
+architecture_constraint	test/input/job_data.json	/^      "architecture_constraint": "arch",$/;"	f
+architecture_constraint	test/input/mpi/mpi_test_daint.json	/^      "architecture_constraint" : "mc"$/;"	f
+arguments	app/pyMODAK/IO/tf_snow.json	/^      "arguments": "--data_dir=\/mnt\/nfs\/home\/karthee\/AI\/data\/tf_records\/train\/ -batch_size=96 --train_epochs=3 --train_steps=10 --use_synthetic_data=false"$/;"	f
+arguments	test/input/aitraining/tf_snow.json	/^      "arguments": "--data_dir=\/mnt\/nfs\/home\/karthee\/AI\/data\/tf_records\/train\/ -batch_size=96 --train_epochs=3 --train_steps=10 --use_synthetic_data=false"$/;"	f
+arguments	test/input/job_data.json	/^      "arguments": "a b c",$/;"	f
+arguments	test/input/mpi/mpi_solver.json	/^      "arguments": "${ASTER_ROOT}\/14.4\/lib\/aster\/Execution\/E_SUPERV.py \\\\\\n-commandes fort.1 --num_job=1432 --mode=interactif \\\\\\n--rep_outils=${ASTER_ROOT}\/outils \\\\\\n--rep_mat=${ASTER_ROOT}\/14.4\/share\/aster\/materiau \\\\\\n--rep_dex=${ASTER_ROOT}\/14.4\/share\/aster\/datg \\\\\\n--numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=3600.0",$/;"	f
+arguments	test/input/mpi/mpi_test.json	/^      "arguments": "",$/;"	f
+arguments	test/input/mpi/mpi_test_cirrus.json	/^      "arguments": "",$/;"	f
+arguments	test/input/mpi/mpi_test_daint.json	/^      "arguments": "",$/;"	f
+arguments	test/input/mpi/mpi_test_egi.json	/^      "arguments": "",$/;"	f
+arguments	test/input/mpi_solver.json	/^      "arguments": "${ASTER_ROOT}\/14.4\/lib\/aster\/Execution\/E_SUPERV.py \\\\\\n-commandes fort.1 --num_job=1432 --mode=interactif \\\\\\n--rep_outils=${ASTER_ROOT}\/outils \\\\\\n--rep_mat=${ASTER_ROOT}\/14.4\/share\/aster\/materiau \\\\\\n--rep_dex=${ASTER_ROOT}\/14.4\/share\/aster\/datg \\\\\\n--numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=3600.0",$/;"	f
+arguments	test/input/mpi_test.json	/^      "arguments": "",$/;"	f
+arguments	test/input/mpi_test_egi.json	/^      "arguments": "",$/;"	f
+arguments	test/input/tf_snow.json	/^      "arguments": "--data_dir=\/mnt\/nfs\/home\/karthee\/AI\/data\/tf_records\/train\/ -batch_size=96 --train_epochs=3 --train_steps=10 --use_synthetic_data=false"$/;"	f
+auth_provider_x509_cert_url	conf/modak-f305a35c96dc.json	/^  "auth_provider_x509_cert_url": "https:\/\/www.googleapis.com\/oauth2\/v1\/certs",$/;"	f
+auth_uri	conf/modak-f305a35c96dc.json	/^  "auth_uri": "https:\/\/accounts.google.com\/o\/oauth2\/auth",$/;"	f
+autotuning	app/pyMODAK/IO/tf_snow.json	/^      "autotuning": {$/;"	f
+autotuning	test/input/aitraining/tf_optimisation_dsl.json	/^    "autotuning": {$/;"	f
+autotuning	test/input/aitraining/tf_snow.json	/^      "autotuning": {$/;"	f
+autotuning	test/input/job_data.json	/^      "autotuning": {$/;"	f
+autotuning	test/input/mpi/mpi_solver.json	/^      "autotuning": {$/;"	f
+autotuning	test/input/mpi/solver_optimisation_dsl.json	/^		"autotuning": {$/;"	f
+autotuning	test/input/mpi_solver.json	/^      "autotuning": {$/;"	f
+autotuning	test/input/optimisation_dsl.json	/^    "autotuning": {$/;"	f
+autotuning	test/input/solver_optimisation_dsl.json	/^		"autotuning": {$/;"	f
+autotuning	test/input/tf_optimisation_dsl.json	/^    "autotuning": {$/;"	f
+autotuning	test/input/tf_snow.json	/^      "autotuning": {$/;"	f
+backend	test/input/job_data.json	/^          "backend": "tensorflow\/pytorch\/cntk\/mxnet\/keras"$/;"	f
+backend	test/input/optimisation_dsl.json	/^        "backend": "tensorflow\/pytorch\/cntk\/mxnet\/keras"$/;"	f
+basedata	test/input/aitraining/tf_optimisation_dsl.json	/^        "basedata": "Imagenet\/CIFAR\/MNIST",$/;"	f
+basedata	test/input/job_data.json	/^          "basedata": "Imagenet\/CIFAR\/MNIST" ,$/;"	f
+basedata	test/input/job_data.json	/^          "basedata": "checkpoint\/restart" ,$/;"	f
+basedata	test/input/optimisation_dsl.json	/^        "basedata": "IMAGE\/RESTART" ,$/;"	f
+basedata	test/input/optimisation_dsl.json	/^        "basedata": "Imagenet\/CIFAR\/MNIST" ,$/;"	f
+basedata	test/input/tf_optimisation_dsl.json	/^        "basedata": "Imagenet\/CIFAR\/MNIST",$/;"	f
+build	test/input/job_data.json	/^      "build": {$/;"	f
+build	test/input/map_container.json	/^  "build": {$/;"	f
+build	test/input/mpi/mpi_solver.json	/^      "build": {$/;"	f
+build	test/input/mpi/mpi_test.json	/^      "build": {$/;"	f
+build	test/input/mpi/mpi_test_daint.json	/^      "build": {$/;"	f
+build	test/input/mpi/mpi_test_egi.json	/^      "build": {$/;"	f
+build	test/input/mpi_solver.json	/^      "build": {$/;"	f
+build	test/input/mpi_test.json	/^      "build": {$/;"	f
+build	test/input/mpi_test_egi.json	/^      "build": {$/;"	f
+build_command	test/input/job_data.json	/^        "build_command": "make -j 2"$/;"	f
+build_command	test/input/mpi/mpi_solver.json	/^        "build_command": "python3 setup.py install\\n"$/;"	f
+build_command	test/input/mpi/mpi_test.json	/^        "build_command": "mpicc -o xthi -fopenmp Xthi.c"$/;"	f
+build_command	test/input/mpi/mpi_test_daint.json	/^        "build_command": "mpicc -o xthi -fopenmp Xthi.c"$/;"	f
+build_command	test/input/mpi/mpi_test_egi.json	/^        "build_command": "mpicc -o xthi -fopenmp Xthi.c"$/;"	f
+build_command	test/input/mpi_solver.json	/^        "build_command": "python3 setup.py install\\n"$/;"	f
+build_command	test/input/mpi_test.json	/^        "build_command": "mpicc -o xthi -fopenmp Xthi.c"$/;"	f
+build_command	test/input/mpi_test_egi.json	/^        "build_command": "mpicc -o xthi -fopenmp Xthi.c"$/;"	f
+cache	test/input/aitraining/tf_optimisation_dsl.json	/^          "cache": 100$/;"	f
+cache	test/input/job_data.json	/^            "cache": 100$/;"	f
+cache	test/input/job_data.json	/^            "cache": true$/;"	f
+cache	test/input/optimisation_dsl.json	/^          "cache": 100$/;"	f
+cache	test/input/optimisation_dsl.json	/^          "cache": true$/;"	f
+cache	test/input/tf_optimisation_dsl.json	/^          "cache": 100$/;"	f
+client_email	conf/modak-f305a35c96dc.json	/^  "client_email": "karthee@modak-284811.iam.gserviceaccount.com",$/;"	f
+client_id	conf/modak-f305a35c96dc.json	/^  "client_id": "101914763436499038274",$/;"	f
+client_x509_cert_url	conf/modak-f305a35c96dc.json	/^  "client_x509_cert_url": "https:\/\/www.googleapis.com\/robot\/v1\/metadata\/x509\/karthee%40modak-284811.iam.gserviceaccount.com"$/;"	f
+cloud	src/MODAK_gcloud.py	/^import google.cloud.exceptions$/;"	i
+combine_stdout_stderr	app/pyMODAK/IO/tf_snow.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/aitraining/tf_resnet.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/aitraining/tf_snow.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/job_data.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi/mpi_solver.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi/mpi_test.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi/mpi_test_cirrus.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi/mpi_test_daint.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi/mpi_test_egi.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi_solver.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi_test.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/mpi_test_egi.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/tf_resnet.json	/^      "combine_stdout_stderr": true,$/;"	f
+combine_stdout_stderr	test/input/tf_snow.json	/^      "combine_stdout_stderr": true,$/;"	f
+compiler	test/input/job_data.json	/^          "compiler": "pgi\/cray",$/;"	f
+compiler	test/input/optimisation_dsl.json	/^        "compiler": "pgi\/cray",$/;"	f
+config	app/pyMODAK/IO/tf_snow.json	/^        "config": {$/;"	f
+config	test/input/aitraining/tf_optimisation_dsl.json	/^      "config": {$/;"	f
+config	test/input/aitraining/tf_resnet.json	/^        "config": {$/;"	f
+config	test/input/aitraining/tf_snow.json	/^        "config": {$/;"	f
+config	test/input/job_data.json	/^        "config": {$/;"	f
+config	test/input/job_data.json	/^        "config":{$/;"	f
+config	test/input/mpi/mpi_solver.json	/^        "config":{$/;"	f
+config	test/input/mpi/mpi_test.json	/^        "config":{$/;"	f
+config	test/input/mpi/mpi_test_egi.json	/^        "config":{$/;"	f
+config	test/input/mpi/solver_optimisation_dsl.json	/^			"config":{$/;"	f
+config	test/input/mpi_solver.json	/^        "config":{$/;"	f
+config	test/input/mpi_test.json	/^        "config":{$/;"	f
+config	test/input/mpi_test_egi.json	/^        "config":{$/;"	f
+config	test/input/optimisation_dsl.json	/^      "config": {$/;"	f
+config	test/input/optimisation_dsl.json	/^      "config":{$/;"	f
+config	test/input/solver_optimisation_dsl.json	/^			"config":{$/;"	f
+config	test/input/tf_optimisation_dsl.json	/^      "config": {$/;"	f
+config	test/input/tf_resnet.json	/^        "config": {$/;"	f
+config	test/input/tf_snow.json	/^        "config": {$/;"	f
+configparser	src/settings.py	/^import configparser$/;"	i
+connector	src/MODAK_driver.py	/^import mysql.connector$/;"	i
+container_file	test/input/map_container.json	/^  "container_file": "ethcscs\/mvapich:ub1804_cuda101_mpi22_osu",$/;"	f
+container_runtime	app/pyMODAK/IO/tf_snow.json	/^      "container_runtime": "tensorflow\/tensorflow:2.1.0-gpu-py3",$/;"	f
+container_runtime	test/input/aitraining/tf_resnet.json	/^      "container_runtime": "tensorflow\/tensorflow:2.1.0-gpu-py3",$/;"	f
+container_runtime	test/input/aitraining/tf_snow.json	/^      "container_runtime": "tensorflow\/tensorflow:2.1.0-gpu-py3",$/;"	f
+container_runtime	test/input/job_data.json	/^      "container_runtime": "ubuntu:18_04",$/;"	f
+container_runtime	test/input/mpi/mpi_solver.json	/^      "container_runtime": "docker:\/\/ethcscs\/mpich:ub1804_cuda101_mpi314_gnugprof",$/;"	f
+container_runtime	test/input/mpi/mpi_test.json	/^      "container_runtime": "docker:\/\/ethcscs\/mpich:ub1804_cuda101_mpi314_gnugprof",$/;"	f
+container_runtime	test/input/mpi/mpi_test_cirrus.json	/^      "container_runtime": "",$/;"	f
+container_runtime	test/input/mpi/mpi_test_daint.json	/^      "container_runtime": "",$/;"	f
+container_runtime	test/input/mpi/mpi_test_egi.json	/^      "container_runtime": "",$/;"	f
+container_runtime	test/input/mpi_solver.json	/^      "container_runtime": "docker:\/\/ethcscs\/mpich:ub1804_cuda101_mpi314_gnugprof",$/;"	f
+container_runtime	test/input/mpi_test.json	/^      "container_runtime": "docker:\/\/ethcscs\/mpich:ub1804_cuda101_mpi314_gnugprof",$/;"	f
+container_runtime	test/input/mpi_test_egi.json	/^      "container_runtime": "",$/;"	f
+container_runtime	test/input/tf_resnet.json	/^      "container_runtime": "tensorflow\/tensorflow:2.1.0-gpu-py3",$/;"	f
+container_runtime	test/input/tf_snow.json	/^      "container_runtime": "tensorflow\/tensorflow:2.1.0-gpu-py3",$/;"	f
+copy_environment	app/pyMODAK/IO/tf_snow.json	/^      "copy_environment": true,$/;"	f
+copy_environment	test/input/aitraining/tf_snow.json	/^      "copy_environment": true,$/;"	f
+copy_environment	test/input/job_data.json	/^      "copy_environment": true,$/;"	f
+copy_environment	test/input/tf_snow.json	/^      "copy_environment": true,$/;"	f
+copy_environment_variable	test/input/job_data.json	/^      "copy_environment_variable": "",$/;"	f
+core_count	app/pyMODAK/IO/tf_snow.json	/^      "core_count": 40,$/;"	f
+core_count	test/input/aitraining/tf_snow.json	/^      "core_count": 40,$/;"	f
+core_count	test/input/job_data.json	/^      "core_count": 12,$/;"	f
+core_count	test/input/mpi/mpi_solver.json	/^      "core_count": 40,$/;"	f
+core_count	test/input/mpi/mpi_test.json	/^      "core_count": 40,$/;"	f
+core_count	test/input/mpi_solver.json	/^      "core_count": 40,$/;"	f
+core_count	test/input/mpi_test.json	/^      "core_count": 40,$/;"	f
+core_count	test/input/tf_snow.json	/^      "core_count": 40,$/;"	f
+core_count_per_process	test/input/job_data.json	/^      "core_count_per_process": 2,$/;"	f
+core_subscription	test/input/job_data.json	/^          "core_subscription": 1,$/;"	f
+core_subscription	test/input/optimisation_dsl.json	/^        "core_subscription": 1,$/;"	f
+count	test/input/aitraining/tf_optimisation_dsl.json	/^        "count": 4389,$/;"	f
+count	test/input/job_data.json	/^          "count": 4389,$/;"	f
+count	test/input/optimisation_dsl.json	/^        "count": 4389,$/;"	f
+count	test/input/tf_optimisation_dsl.json	/^        "count": 4389,$/;"	f
+cpu_type	app/pyMODAK/IO/tf_snow.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/aitraining/tf_optimisation_dsl.json	/^      "cpu_type": "x86",$/;"	f
+cpu_type	test/input/aitraining/tf_resnet.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/aitraining/tf_snow.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/job_data.json	/^        "cpu_type": "x86\/arm\/amd\/power",$/;"	f
+cpu_type	test/input/map_container.json	/^    "cpu_type": "x86",$/;"	f
+cpu_type	test/input/mpi/mpi_solver.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/mpi/mpi_test.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/mpi/mpi_test_cirrus.json	/^        "cpu_type": "x86"$/;"	f
+cpu_type	test/input/mpi/mpi_test_daint.json	/^        "cpu_type": "x86"$/;"	f
+cpu_type	test/input/mpi/mpi_test_egi.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/mpi/solver_optimisation_dsl.json	/^			"cpu_type": "arm",$/;"	f
+cpu_type	test/input/mpi_solver.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/mpi_test.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/mpi_test_egi.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/optimisation_dsl.json	/^      "cpu_type": "x86\/arm\/amd\/power",$/;"	f
+cpu_type	test/input/solver_optimisation_dsl.json	/^			"cpu_type": "arm",$/;"	f
+cpu_type	test/input/tf_optimisation_dsl.json	/^      "cpu_type": "x86",$/;"	f
+cpu_type	test/input/tf_resnet.json	/^        "cpu_type": "x86",$/;"	f
+cpu_type	test/input/tf_snow.json	/^        "cpu_type": "x86",$/;"	f
+data	app/pyMODAK/IO/tf_snow.json	/^        "data": {$/;"	f
+data	test/input/aitraining/tf_optimisation_dsl.json	/^      "data": {$/;"	f
+data	test/input/aitraining/tf_resnet.json	/^        "data": {$/;"	f
+data	test/input/aitraining/tf_snow.json	/^        "data": {$/;"	f
+data	test/input/job_data.json	/^        "data": {$/;"	f
+data	test/input/job_data.json	/^        "data":{$/;"	f
+data	test/input/mpi/mpi_solver.json	/^        "data":{$/;"	f
+data	test/input/mpi/mpi_test.json	/^        "data":{$/;"	f
+data	test/input/mpi/mpi_test_egi.json	/^        "data":{$/;"	f
+data	test/input/mpi/solver_optimisation_dsl.json	/^			"data":{$/;"	f
+data	test/input/mpi_solver.json	/^        "data":{$/;"	f
+data	test/input/mpi_test.json	/^        "data":{$/;"	f
+data	test/input/mpi_test_egi.json	/^        "data":{$/;"	f
+data	test/input/optimisation_dsl.json	/^      "data": {$/;"	f
+data	test/input/optimisation_dsl.json	/^      "data":{$/;"	f
+data	test/input/solver_optimisation_dsl.json	/^			"data":{$/;"	f
+data	test/input/tf_optimisation_dsl.json	/^      "data": {$/;"	f
+data	test/input/tf_resnet.json	/^        "data": {$/;"	f
+data	test/input/tf_snow.json	/^        "data": {$/;"	f
+datetime	src/MODAK.py	/^from datetime import datetime$/;"	i
+datetime	src/MODAK_driver.py	/^from datetime import datetime, timedelta$/;"	i
+datetime	src/MODAK_dropbox.py	/^from datetime import datetime$/;"	i
+datetime	src/MODAK_gcloud.py	/^from datetime import datetime$/;"	i
+datetime	src/tuner.py	/^from datetime import datetime$/;"	i
+db_dir	src/MODAK_driver.py	/^    db_dir = ""$/;"	v	class:MODAK_driver
+dblist	src/MODAK_driver.py	/^    dblist = []$/;"	v	class:MODAK_driver
+decode_ai_training_opt	src/mapper.py	/^    def decode_ai_training_opt(self,opt_dsl:opt_dsl_reader):$/;"	m	class:mapper
+decode_hpc_opt	src/mapper.py	/^    def decode_hpc_opt(self, opt_dsl: opt_dsl_reader):$/;"	m	class:mapper
+defer_job	test/input/job_data.json	/^      "defer_job": "date\/time",$/;"	f
+distributed_training	test/input/aitraining/tf_optimisation_dsl.json	/^        "distributed_training": true,$/;"	f
+distributed_training	test/input/job_data.json	/^          "distributed_training": true,$/;"	f
+distributed_training	test/input/optimisation_dsl.json	/^        "distributed_training": true,$/;"	f
+distributed_training	test/input/tf_optimisation_dsl.json	/^        "distributed_training": true,$/;"	f
+download	src/MODAK_dropbox.py	/^    def download(self, folder, name):$/;"	m	class:TransferData
+dropbox	src/MODAK_dropbox.py	/^import dropbox$/;"	i
+dsl_file	examples/example.py	/^dsl_file = "..\/test\/input\/mpi_test.json"$/;"	v
+email_address	app/pyMODAK/IO/tf_snow.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/aitraining/tf_resnet.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/aitraining/tf_snow.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/job_data.json	/^      "email_address": "mail.com",$/;"	f
+email_address	test/input/mpi/mpi_solver.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/mpi/mpi_test.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/mpi/mpi_test_cirrus.json	/^      "email_address": "kartshy@gmail.com",$/;"	f
+email_address	test/input/mpi/mpi_test_daint.json	/^      "email_address": "kartshy@gmail.com",$/;"	f
+email_address	test/input/mpi/mpi_test_egi.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/mpi_solver.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/mpi_test.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/mpi_test_egi.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/tf_resnet.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+email_address	test/input/tf_snow.json	/^      "email_address": "kartshy@gmail.com"$/;"	f
+enable_autotuning	app/pyMODAK/IO/tf_snow.json	/^      "enable_autotuning":true,$/;"	f
+enable_autotuning	src/opt_dsl_reader.py	/^    def enable_autotuning(self):$/;"	m	class:opt_dsl_reader
+enable_autotuning	test/input/aitraining/tf_optimisation_dsl.json	/^    "enable_autotuning": true,$/;"	f
+enable_autotuning	test/input/aitraining/tf_snow.json	/^      "enable_autotuning":true,$/;"	f
+enable_autotuning	test/input/job_data.json	/^      "enable_autotuning":true,$/;"	f
+enable_autotuning	test/input/mpi/mpi_solver.json	/^      "enable_autotuning":true,$/;"	f
+enable_autotuning	test/input/mpi/mpi_test.json	/^      "enable_autotuning":false,$/;"	f
+enable_autotuning	test/input/mpi/mpi_test_cirrus.json	/^      "enable_autotuning":false,$/;"	f
+enable_autotuning	test/input/mpi/mpi_test_daint.json	/^      "enable_autotuning":false,$/;"	f
+enable_autotuning	test/input/mpi/mpi_test_egi.json	/^      "enable_autotuning":false,$/;"	f
+enable_autotuning	test/input/mpi/solver_optimisation_dsl.json	/^		"enable_autotuning": true,$/;"	f
+enable_autotuning	test/input/mpi_solver.json	/^      "enable_autotuning":true,$/;"	f
+enable_autotuning	test/input/mpi_test.json	/^      "enable_autotuning":false,$/;"	f
+enable_autotuning	test/input/mpi_test_egi.json	/^      "enable_autotuning":false,$/;"	f
+enable_autotuning	test/input/optimisation_dsl.json	/^    "enable_autotuning":true,$/;"	f
+enable_autotuning	test/input/solver_optimisation_dsl.json	/^		"enable_autotuning": true,$/;"	f
+enable_autotuning	test/input/tf_optimisation_dsl.json	/^    "enable_autotuning": true,$/;"	f
+enable_autotuning	test/input/tf_snow.json	/^      "enable_autotuning":true,$/;"	f
+enable_opt_build	app/pyMODAK/IO/tf_snow.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	src/opt_dsl_reader.py	/^    def enable_opt_build(self):$/;"	m	class:opt_dsl_reader
+enable_opt_build	test/input/aitraining/tf_optimisation_dsl.json	/^    "enable_opt_build": false,$/;"	f
+enable_opt_build	test/input/aitraining/tf_resnet.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/aitraining/tf_snow.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/job_data.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/map_container.json	/^    "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi/mpi_solver.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi/mpi_test.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi/mpi_test_cirrus.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi/mpi_test_daint.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi/mpi_test_egi.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi/solver_optimisation_dsl.json	/^		"enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi_solver.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi_test.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/mpi_test_egi.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/optimisation_dsl.json	/^    "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/solver_optimisation_dsl.json	/^		"enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/tf_optimisation_dsl.json	/^    "enable_opt_build": false,$/;"	f
+enable_opt_build	test/input/tf_resnet.json	/^      "enable_opt_build": true,$/;"	f
+enable_opt_build	test/input/tf_snow.json	/^      "enable_opt_build": true,$/;"	f
+encode_tune	src/tuner.py	/^    def encode_tune(self, opt_json_obj, jobfile: str):$/;"	m	class:tuner
+enforce_opt	src/enforcer.py	/^    def enforce_opt(self, opts):$/;"	m	class:enforcer
+enforcer	src/MODAK.py	/^from enforcer import enforcer$/;"	i
+enforcer	src/enforcer.py	/^class enforcer():$/;"	c
+errno	src/enforcer.py	/^import os,errno$/;"	i
+errno	src/mapper.py	/^import os,errno$/;"	i
+errno	src/scaler.py	/^import os,errno$/;"	i
+errno	src/tuner.py	/^import os,errno$/;"	i
+etl	test/input/aitraining/tf_optimisation_dsl.json	/^        "etl": {$/;"	f
+etl	test/input/job_data.json	/^          "etl": {$/;"	f
+etl	test/input/optimisation_dsl.json	/^         "etl": {$/;"	f
+etl	test/input/optimisation_dsl.json	/^        "etl": {$/;"	f
+etl	test/input/tf_optimisation_dsl.json	/^        "etl": {$/;"	f
+exceptions	src/MODAK_gcloud.py	/^import google.cloud.exceptions$/;"	i
+executable	app/pyMODAK/IO/tf_snow.json	/^      "executable": "python3 resnet\/resnet_imagenet_main.py",$/;"	f
+executable	test/input/aitraining/tf_resnet.json	/^      "executable": ".\/resnet_benchmark.sh"$/;"	f
+executable	test/input/aitraining/tf_snow.json	/^      "executable": "python3 resnet\/resnet_imagenet_main.py",$/;"	f
+executable	test/input/job_data.json	/^      "executable": "test_mpi",$/;"	f
+executable	test/input/mpi/mpi_solver.json	/^      "executable": "${ASTER_ROOT}\/14.4\/bin\/aster ",$/;"	f
+executable	test/input/mpi/mpi_test.json	/^      "executable": ".\/xthi",$/;"	f
+executable	test/input/mpi/mpi_test_cirrus.json	/^      "executable": ".\/xthi",$/;"	f
+executable	test/input/mpi/mpi_test_daint.json	/^      "executable": ".\/xthi",$/;"	f
+executable	test/input/mpi/mpi_test_egi.json	/^      "executable": ".\/xthi",$/;"	f
+executable	test/input/mpi_solver.json	/^      "executable": "${ASTER_ROOT}\/14.4\/bin\/aster ",$/;"	f
+executable	test/input/mpi_test.json	/^      "executable": ".\/xthi",$/;"	f
+executable	test/input/mpi_test_egi.json	/^      "executable": ".\/xthi",$/;"	f
+executable	test/input/tf_resnet.json	/^      "executable": ".\/resnet_benchmark.sh"$/;"	f
+executable	test/input/tf_snow.json	/^      "executable": "python3 resnet\/resnet_imagenet_main.py",$/;"	f
+get_acc_type	src/opt_dsl_reader.py	/^    def get_acc_type(self):$/;"	m	class:opt_dsl_reader
+get_app_config	src/opt_dsl_reader.py	/^    def get_app_config(self):$/;"	m	class:opt_dsl_reader
+get_app_data	src/opt_dsl_reader.py	/^    def get_app_data(self):$/;"	m	class:opt_dsl_reader
+get_app_etl	src/opt_dsl_reader.py	/^    def get_app_etl(self):$/;"	m	class:opt_dsl_reader
+get_app_type	src/opt_dsl_reader.py	/^    def get_app_type(self):$/;"	m	class:opt_dsl_reader
+get_container	src/mapper.py	/^    def get_container(self, opt_dsl_code:str):$/;"	m	class:mapper
+get_cpu_type	src/opt_dsl_reader.py	/^    def get_cpu_type(self):$/;"	m	class:opt_dsl_reader
+get_decoded_opts	src/mapper.py	/^    def get_decoded_opts(self, opt_json_obj):$/;"	m	class:mapper
+get_json_nodes	src/mapper.py	/^    def get_json_nodes(self,target_str: str):$/;"	m	class:mapper
+get_opt_build	src/opt_dsl_reader.py	/^    def get_opt_build(self):$/;"	m	class:opt_dsl_reader
+get_opt_container_runtime	src/MODAK.py	/^    def get_opt_container_runtime(self, job_json_data):$/;"	m	class:MODAK
+get_opt_list	src/opt_dsl_reader.py	/^    def get_opt_list(self,app):$/;"	m	class:opt_dsl_reader
+get_optimisation	src/MODAK.py	/^    def get_optimisation(self, job_json_data):$/;"	m	class:MODAK
+get_opts	src/mapper.py	/^    def get_opts(self):$/;"	m	class:mapper
+get_opts_list	src/opt_dsl_reader.py	/^    def get_opts_list(self):$/;"	m	class:opt_dsl_reader
+get_sif_filename	src/jobfile_generator.py	/^    def get_sif_filename(self, container: str):$/;"	m	class:jobfile_generator
+get_tune_file	src/tuner.py	/^    def get_tune_file(self):$/;"	m	class:tuner
+get_tune_filename	src/tuner.py	/^    def get_tune_filename(self):$/;"	m	class:tuner
+get_tune_link	src/tuner.py	/^    def get_tune_link(self):$/;"	m	class:tuner
+get_tuner	src/opt_dsl_reader.py	/^    def get_tuner(self):$/;"	m	class:opt_dsl_reader
+get_tuner_input	src/opt_dsl_reader.py	/^    def get_tuner_input(self):$/;"	m	class:opt_dsl_reader
+getopt	src/MODAK.py	/^import sys, getopt$/;"	i
+glow	test/input/job_data.json	/^          "glow": true$/;"	f
+glow	test/input/optimisation_dsl.json	/^        "glow": true$/;"	f
+google	src/MODAK_gcloud.py	/^import google.cloud.exceptions$/;"	i
+hpc	test/input/mpi/solver_optimisation_dsl.json	/^		"hpc": {$/;"	f
+hpc	test/input/solver_optimisation_dsl.json	/^		"hpc": {$/;"	f
+image_hub	test/input/map_container.json	/^  "image_hub": "docker",$/;"	f
+image_type	test/input/map_container.json	/^  "image_type": "docker",$/;"	f
+index	app/app.py	/^def index():$/;"	f
+initialise	src/settings.py	/^    def initialise(cls, conf_file: str = '..\/conf\/iac-model.ini'):$/;"	m	class:settings
+input	app/pyMODAK/IO/tf_snow.json	/^        "input": "dsl text"$/;"	f
+input	test/input/aitraining/tf_optimisation_dsl.json	/^      "input": "Mandatory; DSL or input text for the autotuning tool"$/;"	f
+input	test/input/aitraining/tf_snow.json	/^        "input": "dsl text"$/;"	f
+input	test/input/job_data.json	/^        "input": "dsl text"$/;"	f
+input	test/input/mpi/mpi_solver.json	/^        "input": "dsl text"$/;"	f
+input	test/input/mpi/solver_optimisation_dsl.json	/^			"input": "path\/to\/autotuning.model"$/;"	f
+input	test/input/mpi_solver.json	/^        "input": "dsl text"$/;"	f
+input	test/input/optimisation_dsl.json	/^      "input": "dsl text"$/;"	f
+input	test/input/solver_optimisation_dsl.json	/^			"input": "path\/to\/autotuning.model"$/;"	f
+input	test/input/tf_optimisation_dsl.json	/^      "input": "Mandatory; DSL or input text for the autotuning tool"$/;"	f
+input	test/input/tf_snow.json	/^        "input": "dsl text"$/;"	f
+io	test/test_MODAK.py	/^import io$/;"	i
+job	app/pyMODAK/IO/tf_snow.json	/^  "job": {$/;"	f
+job	test/input/aitraining/tf_resnet.json	/^  "job": {$/;"	f
+job	test/input/aitraining/tf_snow.json	/^  "job": {$/;"	f
+job	test/input/job_data.json	/^  "job":{$/;"	f
+job	test/input/mpi/mpi_solver.json	/^  "job":{$/;"	f
+job	test/input/mpi/mpi_test.json	/^  "job":{$/;"	f
+job	test/input/mpi/mpi_test_cirrus.json	/^  "job":{$/;"	f
+job	test/input/mpi/mpi_test_daint.json	/^  "job":{$/;"	f
+job	test/input/mpi/mpi_test_egi.json	/^  "job":{$/;"	f
+job	test/input/mpi_solver.json	/^  "job":{$/;"	f
+job	test/input/mpi_test.json	/^  "job":{$/;"	f
+job	test/input/mpi_test_egi.json	/^  "job":{$/;"	f
+job	test/input/tf_resnet.json	/^  "job": {$/;"	f
+job	test/input/tf_snow.json	/^  "job": {$/;"	f
+job_array	test/input/job_data.json	/^      "job_array": "1,2,3,4",$/;"	f
+job_data	examples/example.py	/^    job_data = json.load(json_file)$/;"	v
+job_dependency	test/input/job_data.json	/^      "job_dependency": " ",$/;"	f
+job_header	src/MODAK.py	/^    def job_header(self, job_json_data):$/;"	m	class:MODAK
+job_name	app/pyMODAK/IO/tf_snow.json	/^      "job_name": "skyline-extraction-training",$/;"	f
+job_name	test/input/aitraining/tf_resnet.json	/^      "job_name": "resnet",$/;"	f
+job_name	test/input/aitraining/tf_snow.json	/^      "job_name": "skyline-extraction-training",$/;"	f
+job_name	test/input/job_data.json	/^      "job_name": "test",$/;"	f
+job_name	test/input/mpi/mpi_solver.json	/^      "job_name": "solver",$/;"	f
+job_name	test/input/mpi/mpi_test.json	/^      "job_name": "mpi_test",$/;"	f
+job_name	test/input/mpi/mpi_test_cirrus.json	/^      "job_name": "mpi_test_cirrus",$/;"	f
+job_name	test/input/mpi/mpi_test_daint.json	/^      "job_name": "mpi_test_daint",$/;"	f
+job_name	test/input/mpi/mpi_test_egi.json	/^      "job_name": "mpi_test_egi",$/;"	f
+job_name	test/input/mpi_solver.json	/^      "job_name": "solver",$/;"	f
+job_name	test/input/mpi_test.json	/^      "job_name": "mpi_test",$/;"	f
+job_name	test/input/mpi_test_egi.json	/^      "job_name": "mpi_test_egi",$/;"	f
+job_name	test/input/tf_resnet.json	/^      "job_name": "resnet",$/;"	f
+job_name	test/input/tf_snow.json	/^      "job_name": "skyline-extraction-training",$/;"	f
+job_options	app/pyMODAK/IO/tf_snow.json	/^    "job_options": {$/;"	f
+job_options	test/input/aitraining/tf_resnet.json	/^    "job_options": {$/;"	f
+job_options	test/input/aitraining/tf_snow.json	/^    "job_options": {$/;"	f
+job_options	test/input/job_data.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi/mpi_solver.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi/mpi_test.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi/mpi_test_cirrus.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi/mpi_test_daint.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi/mpi_test_egi.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi_solver.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi_test.json	/^    "job_options": {$/;"	f
+job_options	test/input/mpi_test_egi.json	/^    "job_options": {$/;"	f
+job_options	test/input/tf_resnet.json	/^    "job_options": {$/;"	f
+job_options	test/input/tf_snow.json	/^    "job_options": {$/;"	f
+job_scheduler_type	test/input/job_data.json	/^      "job_scheduler_type": "slurm"$/;"	f
+job_scheduler_type	test/input/mpi/mpi_test_cirrus.json	/^      "job_scheduler_type": "slurm"$/;"	f
+job_scheduler_type	test/input/mpi/mpi_test_daint.json	/^      "job_scheduler_type": "slurm"$/;"	f
+job_scheduler_type	test/input/mpi/mpi_test_egi.json	/^      "job_scheduler_type": "torque"$/;"	f
+job_scheduler_type	test/input/mpi_test_egi.json	/^      "job_scheduler_type": "torque"$/;"	f
+jobfile_generator	src/MODAK.py	/^from jobfile_generator import jobfile_generator$/;"	i
+jobfile_generator	src/jobfile_generator.py	/^class jobfile_generator():$/;"	c
+json	app/app.py	/^import json$/;"	i
+json	examples/example.py	/^import json$/;"	i
+json	src/MODAK.py	/^import json$/;"	i
+json	src/enforcer.py	/^import json$/;"	i
+json	src/jobfile_generator.py	/^import json$/;"	i
+json	src/mapper.py	/^import json$/;"	i
+json	src/opt_dsl_reader.py	/^import json$/;"	i
+json	test/test_MODAK.py	/^import json$/;"	i
+json	test/test_dsl_reader.py	/^import json$/;"	i
+json	test/test_mapper.py	/^import json$/;"	i
+jsonify	app/app.py	/^from flask import jsonify, make_response$/;"	i
+layers	test/input/aitraining/tf_optimisation_dsl.json	/^        "layers": 6,$/;"	f
+layers	test/input/job_data.json	/^          "layers": 6 ,$/;"	f
+layers	test/input/optimisation_dsl.json	/^        "layers": 6 ,$/;"	f
+layers	test/input/tf_optimisation_dsl.json	/^        "layers": 6,$/;"	f
+library	test/input/job_data.json	/^          "library": "mvapich\/openmpi\/mpich",$/;"	f
+library	test/input/mpi/mpi_solver.json	/^          "library": "mpich",$/;"	f
+library	test/input/mpi/mpi_test.json	/^          "library": "mpich",$/;"	f
+library	test/input/mpi/mpi_test_egi.json	/^          "library": "openmpi",$/;"	f
+library	test/input/mpi/solver_optimisation_dsl.json	/^				"library": "mpich"$/;"	f
+library	test/input/mpi_solver.json	/^          "library": "mpich",$/;"	f
+library	test/input/mpi_test.json	/^          "library": "mpich",$/;"	f
+library	test/input/mpi_test_egi.json	/^          "library": "openmpi",$/;"	f
+library	test/input/optimisation_dsl.json	/^        "library": "mvapch\/opnmpi",$/;"	f
+library	test/input/solver_optimisation_dsl.json	/^				"library": "mpich"$/;"	f
+link	examples/example.py	/^    link = m.optimise(job_data)$/;"	v
+location	test/input/aitraining/tf_optimisation_dsl.json	/^        "location": "\/some\/data",$/;"	f
+location	test/input/job_data.json	/^          "location": "\/some\/data" ,$/;"	f
+location	test/input/mpi/mpi_solver.json	/^          "location": "L1L2_NonLinear_prepared.tar.gz"$/;"	f
+location	test/input/mpi/solver_optimisation_dsl.json	/^				"location": "\/some\/data"$/;"	f
+location	test/input/mpi_solver.json	/^          "location": "L1L2_NonLinear_prepared.tar.gz"$/;"	f
+location	test/input/optimisation_dsl.json	/^        "location": "\/some\/data" ,$/;"	f
+location	test/input/optimisation_dsl.json	/^       "location": "\/some\/data" ,$/;"	f
+location	test/input/solver_optimisation_dsl.json	/^				"location": "\/some\/data"$/;"	f
+location	test/input/tf_optimisation_dsl.json	/^        "location": "\/some\/data",$/;"	f
+logging	src/MODAK.py	/^import logging$/;"	i
+logging	src/MODAK_driver.py	/^import logging$/;"	i
+logging	src/MODAK_gcloud.py	/^import logging$/;"	i
+logging	src/enforcer.py	/^import logging$/;"	i
+logging	src/jobfile_generator.py	/^import logging$/;"	i
+logging	src/mapper.py	/^import logging$/;"	i
+logging	src/scaler.py	/^import logging$/;"	i
+logging	src/settings.py	/^import logging$/;"	i
+logging	src/tuner.py	/^import logging$/;"	i
+login_dropbox	src/MODAK_dropbox.py	/^    def login_dropbox(self):$/;"	m	class:TransferData
+m	examples/example.py	/^m = MODAK()$/;"	v
+main	src/MODAK.py	/^def main(argv=None):$/;"	f
+main	src/MODAK_driver.py	/^def main():$/;"	f
+main	src/MODAK_dropbox.py	/^def main():$/;"	f
+main	src/MODAK_gcloud.py	/^def main():$/;"	f
+main	src/MODAK_sql.py	/^def main():$/;"	f
+main	src/enforcer.py	/^def main():$/;"	f
+main	src/jobfile_generator.py	/^def main():$/;"	f
+main	src/mapper.py	/^def main():$/;"	f
+main	src/opt_dsl_reader.py	/^def main():$/;"	f
+main	src/scaler.py	/^def main():$/;"	f
+main	src/tuner.py	/^def main():$/;"	f
+make_response	app/app.py	/^from flask import jsonify, make_response$/;"	i
+map_container	src/mapper.py	/^    def map_container(self, opt_json_obj):$/;"	m	class:mapper
+mapper	src/MODAK.py	/^from mapper import mapper$/;"	i
+mapper	src/mapper.py	/^class mapper():$/;"	c
+mapper	test/test_mapper.py	/^from mapper import mapper$/;"	i
+memory_limit	test/input/job_data.json	/^      "memory_limit": "",$/;"	f
+message_size	test/input/job_data.json	/^          "message_size": "small\/medium\/large"$/;"	f
+message_size	test/input/optimisation_dsl.json	/^        "message_size": "small\/medium\/large"$/;"	f
+minimum_memory_per_processor	test/input/job_data.json	/^      "minimum_memory_per_processor": "10 MB",$/;"	f
+modak_get_image	app/app.py	/^def modak_get_image():$/;"	f
+modak_get_job_content	app/app.py	/^def modak_get_job_content():$/;"	f
+modak_get_optimisation	app/app.py	/^def modak_get_optimisation():$/;"	f
+modak_optimise	app/app.py	/^def modak_optimise():$/;"	f
+mpi_ranks	test/input/job_data.json	/^      "mpi_ranks": 48,$/;"	f
+mpi_ranks	test/input/mpi/mpi_solver.json	/^      "mpi_ranks": 40,$/;"	f
+mpi_ranks	test/input/mpi/mpi_test.json	/^      "mpi_ranks": 80,$/;"	f
+mpi_ranks	test/input/mpi/mpi_test_cirrus.json	/^      "mpi_ranks": 4,$/;"	f
+mpi_ranks	test/input/mpi/mpi_test_daint.json	/^      "mpi_ranks": 24,$/;"	f
+mpi_ranks	test/input/mpi/mpi_test_egi.json	/^      "mpi_ranks": 4,$/;"	f
+mpi_ranks	test/input/mpi_solver.json	/^      "mpi_ranks": 40,$/;"	f
+mpi_ranks	test/input/mpi_test.json	/^      "mpi_ranks": 80,$/;"	f
+mpi_ranks	test/input/mpi_test_egi.json	/^      "mpi_ranks": 4,$/;"	f
+mpic++	test/input/map_container.json	/^    "mpic++": "true",$/;"	f
+mpicc	test/input/map_container.json	/^    "mpicc": "true",$/;"	f
+mpifort	test/input/map_container.json	/^    "mpifort": "true"$/;"	f
+mysql	src/MODAK_driver.py	/^import mysql.connector$/;"	i
+name	test/input/job_data.json	/^      "name": "hlrs_testbed",$/;"	f
+name	test/input/map_container.json	/^  "name": "mvapich_ub1804_cuda101_mpi22_osu",$/;"	f
+name	test/input/mpi/mpi_test_cirrus.json	/^      "name": "cirrus",$/;"	f
+name	test/input/mpi/mpi_test_daint.json	/^      "name": "daint",$/;"	f
+name	test/input/mpi/mpi_test_egi.json	/^      "name": "egi",$/;"	f
+name	test/input/mpi_test_egi.json	/^      "name": "egi",$/;"	f
+node_count	app/pyMODAK/IO/tf_snow.json	/^      "node_count": 1,$/;"	f
+node_count	test/input/aitraining/tf_resnet.json	/^      "node_count": 1,$/;"	f
+node_count	test/input/aitraining/tf_snow.json	/^      "node_count": 1,$/;"	f
+node_count	test/input/job_data.json	/^      "node_count": 4,$/;"	f
+node_count	test/input/mpi/mpi_solver.json	/^      "node_count": 2,$/;"	f
+node_count	test/input/mpi/mpi_test.json	/^      "node_count": 2,$/;"	f
+node_count	test/input/mpi/mpi_test_cirrus.json	/^      "node_count": 4,$/;"	f
+node_count	test/input/mpi/mpi_test_daint.json	/^      "node_count": 2,$/;"	f
+node_count	test/input/mpi/mpi_test_egi.json	/^      "node_count": 4,$/;"	f
+node_count	test/input/mpi_solver.json	/^      "node_count": 2,$/;"	f
+node_count	test/input/mpi_test.json	/^      "node_count": 2,$/;"	f
+node_count	test/input/mpi_test_egi.json	/^      "node_count": 4,$/;"	f
+node_count	test/input/tf_resnet.json	/^      "node_count": 1,$/;"	f
+node_count	test/input/tf_snow.json	/^      "node_count": 1,$/;"	f
+node_exclusive	test/input/job_data.json	/^      "node_exclusive": true$/;"	f
+node_exclusive	test/input/mpi/mpi_test_cirrus.json	/^      "node_exclusive": true,$/;"	f
+node_exclusive	test/input/mpi/mpi_test_daint.json	/^      "node_exclusive": true,$/;"	f
+number_of_acc	test/input/job_data.json	/^          "number_of_acc": 2$/;"	f
+number_of_acc	test/input/optimisation_dsl.json	/^        "number_of_acc": 2$/;"	f
+number_of_threads	test/input/job_data.json	/^          "number_of_threads": 2,$/;"	f
+number_of_threads	test/input/optimisation_dsl.json	/^        "number_of_threads": 2,$/;"	f
+opt_build	app/pyMODAK/IO/tf_snow.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/aitraining/tf_optimisation_dsl.json	/^    "opt_build": {$/;"	f
+opt_build	test/input/aitraining/tf_resnet.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/aitraining/tf_snow.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/job_data.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/mpi/mpi_solver.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/mpi/mpi_test.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/mpi/mpi_test_egi.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/mpi/solver_optimisation_dsl.json	/^		"opt_build": {$/;"	f
+opt_build	test/input/mpi_solver.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/mpi_test.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/mpi_test_egi.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/optimisation_dsl.json	/^    "opt_build": {$/;"	f
+opt_build	test/input/solver_optimisation_dsl.json	/^		"opt_build": {$/;"	f
+opt_build	test/input/tf_optimisation_dsl.json	/^    "opt_build": {$/;"	f
+opt_build	test/input/tf_resnet.json	/^      "opt_build": {$/;"	f
+opt_build	test/input/tf_snow.json	/^      "opt_build": {$/;"	f
+opt_container_runtime	src/MODAK.py	/^    def opt_container_runtime(self, job_json_data):$/;"	m	class:MODAK
+opt_dsl_reader	src/MODAK.py	/^from opt_dsl_reader import opt_dsl_reader$/;"	i
+opt_dsl_reader	src/enforcer.py	/^from opt_dsl_reader import opt_dsl_reader$/;"	i
+opt_dsl_reader	src/mapper.py	/^from opt_dsl_reader import opt_dsl_reader$/;"	i
+opt_dsl_reader	src/opt_dsl_reader.py	/^class opt_dsl_reader():$/;"	c
+opt_dsl_reader	src/tuner.py	/^from opt_dsl_reader import opt_dsl_reader$/;"	i
+opt_dsl_reader	test/test_dsl_reader.py	/^from opt_dsl_reader import opt_dsl_reader$/;"	i
+opt_dsl_reader	test/test_mapper.py	/^from opt_dsl_reader import opt_dsl_reader$/;"	i
+optimisation	app/pyMODAK/IO/tf_snow.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/aitraining/tf_optimisation_dsl.json	/^  "optimisation": {$/;"	f
+optimisation	test/input/aitraining/tf_resnet.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/aitraining/tf_snow.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/job_data.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/map_container.json	/^  "optimisation": {$/;"	f
+optimisation	test/input/mpi/mpi_solver.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/mpi/mpi_test.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/mpi/mpi_test_cirrus.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/mpi/mpi_test_daint.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/mpi/mpi_test_egi.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/mpi_solver.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/mpi_test.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/mpi_test_egi.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/optimisation_dsl.json	/^  "optimisation": {$/;"	f
+optimisation	test/input/tf_optimisation_dsl.json	/^  "optimisation": {$/;"	f
+optimisation	test/input/tf_resnet.json	/^    "optimisation": {$/;"	f
+optimisation	test/input/tf_snow.json	/^    "optimisation": {$/;"	f
+optimisations_exist	src/opt_dsl_reader.py	/^    def optimisations_exist(self):$/;"	m	class:opt_dsl_reader
+optimise	src/MODAK.py	/^    def optimise(self, job_json_data):$/;"	m	class:MODAK
+optimization	test/input/mpi/solver_optimisation_dsl.json	/^	"optimization": {$/;"	f
+optimization	test/input/solver_optimisation_dsl.json	/^	"optimization": {$/;"	f
+os	src/MODAK_dropbox.py	/^import os$/;"	i
+os	src/MODAK_gcloud.py	/^import os$/;"	i
+os	src/enforcer.py	/^import os,errno$/;"	i
+os	src/jobfile_generator.py	/^import os$/;"	i
+os	src/mapper.py	/^import os,errno$/;"	i
+os	src/scaler.py	/^import os,errno$/;"	i
+os	src/settings.py	/^import os$/;"	i
+os	src/tuner.py	/^import os,errno$/;"	i
+parallelisation	test/input/job_data.json	/^          "parallelisation":"mpi\/openmp\/opencc\/opencl"$/;"	f
+parallelisation	test/input/mpi/mpi_solver.json	/^          "parallelisation":"mpi"$/;"	f
+parallelisation	test/input/mpi/mpi_test.json	/^          "parallelisation":"mpi"$/;"	f
+parallelisation	test/input/mpi/mpi_test_egi.json	/^          "parallelisation":"mpi"$/;"	f
+parallelisation	test/input/mpi/solver_optimisation_dsl.json	/^				"parallelisation": [$/;"	f
+parallelisation	test/input/mpi_solver.json	/^          "parallelisation":"mpi"$/;"	f
+parallelisation	test/input/mpi_test.json	/^          "parallelisation":"mpi"$/;"	f
+parallelisation	test/input/mpi_test_egi.json	/^          "parallelisation":"mpi"$/;"	f
+parallelisation	test/input/optimisation_dsl.json	/^          "parallelisation":"mpi\/openmp\/opencc\/opencl"$/;"	f
+parallelisation	test/input/solver_optimisation_dsl.json	/^				"parallelisation": [$/;"	f
+parallelisation-mpi	test/input/job_data.json	/^        "parallelisation-mpi": {$/;"	f
+parallelisation-mpi	test/input/mpi/mpi_solver.json	/^        "parallelisation-mpi": {$/;"	f
+parallelisation-mpi	test/input/mpi/mpi_test.json	/^        "parallelisation-mpi": {$/;"	f
+parallelisation-mpi	test/input/mpi/mpi_test_egi.json	/^        "parallelisation-mpi": {$/;"	f
+parallelisation-mpi	test/input/mpi_solver.json	/^        "parallelisation-mpi": {$/;"	f
+parallelisation-mpi	test/input/mpi_test.json	/^        "parallelisation-mpi": {$/;"	f
+parallelisation-mpi	test/input/mpi_test_egi.json	/^        "parallelisation-mpi": {$/;"	f
+parallelisation-mpi	test/input/optimisation_dsl.json	/^      "parallelisation-mpi": {$/;"	f
+parallelisation-opencc	test/input/job_data.json	/^        "parallelisation-opencc": {$/;"	f
+parallelisation-opencc	test/input/optimisation_dsl.json	/^      "parallelisation-opencc": {$/;"	f
+parallelisation-opencl	test/input/job_data.json	/^        "parallelisation-opencl": {$/;"	f
+parallelisation-opencl	test/input/optimisation_dsl.json	/^      "parallelisation-opencl": {$/;"	f
+parallelisation-openmp	test/input/job_data.json	/^        "parallelisation-openmp": {$/;"	f
+parallelisation-openmp	test/input/optimisation_dsl.json	/^      "parallelisation-openmp": {$/;"	f
+parameters	test/input/aitraining/tf_optimisation_dsl.json	/^        "parameters": 872684236$/;"	f
+parameters	test/input/job_data.json	/^          "parameters": 872684236$/;"	f
+parameters	test/input/optimisation_dsl.json	/^        "parameters": 872684236$/;"	f
+parameters	test/input/tf_optimisation_dsl.json	/^        "parameters": 872684236$/;"	f
+pd	src/MODAK_driver.py	/^import pandas as pd$/;"	i
+post-execution	test/input/job_data.json	/^      "post-execution": "script to run after execution",$/;"	f
+pre-execution	test/input/job_data.json	/^      "pre-execution": "script to run before execution",$/;"	f
+prefetch	test/input/aitraining/tf_optimisation_dsl.json	/^          "prefetch": 100,$/;"	f
+prefetch	test/input/job_data.json	/^            "prefetch": 100,$/;"	f
+prefetch	test/input/job_data.json	/^            "prefetch": true,$/;"	f
+prefetch	test/input/mpi/solver_optimisation_dsl.json	/^					"prefetch": true$/;"	f
+prefetch	test/input/optimisation_dsl.json	/^          "prefetch": 100,$/;"	f
+prefetch	test/input/optimisation_dsl.json	/^          "prefetch": true,$/;"	f
+prefetch	test/input/solver_optimisation_dsl.json	/^					"prefetch": true$/;"	f
+prefetch	test/input/tf_optimisation_dsl.json	/^          "prefetch": 100,$/;"	f
+private_key	conf/modak-f305a35c96dc.json	/^  "private_key": "-----BEGIN PRIVATE KEY-----\\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC5IdW4WGJGah90\\nEFr6tmStUuTsLr14NhZO2V8nvSkdGbpNttC6bEsuAyTjsA8BAiXJjyIHP1Bkqrjl\\n6eMqDwQl118IT0DVNlWa2AyCdXXp249DAw1OlR9kVIRcHHUZ8A2ZEF+xcxa4tZcd\\nUJbsuHCFyM0Cn8t0rLvBMgrNgJTvopNdh6xxhzO6oqyMFdQO82Z9NhDUHBsSy3eM\\nxfCybpc9TGSar4REC9P0Rf7JATxWigy3Vq6IiplVj2FELTRuKFXgfUi8544x1eup\\nEkzavuLNppsy1GG8aWZruTwAzrXerdNAgDLw2kzpvQlFl+IBTtVqoHGRkxLSA6P2\\nLA0moKl5AgMBAAECggEAJ7I6FeuZsviJYwUoxO58GvAV1xDUnqSWVvTkIuy8FpnQ\\nKV7EVdznp+eTruCu7uvrd1MiHES2s8cpm17xzzBmFskd\/vWjdLRQWcHuuMB\/9pOW\\nHevXHBz8nLJEqU2OzG99Mu9gXXfMjPGfA\/GmUv7fXchnMSNbaFqrbasRxuvFw7YO\\nLfxZSAj5F4PjD9KV6M+C6XUcyQ3J6tRPx0sofWEDr7zog5m3sSyJSzh+3MqPeYhS\\ne4N7WVRmKykXC6o4aHOjNYmEikZi1uwBqP8ozmue5HBT8iqgU3I7W71JbNUYcSnl\\nSKEcJH7Ob0K+DL\/f7ej1KI7SbG78jSZ7Yp9\/6in0CQKBgQDwA2xh6ERD6Eu4fVUN\\n6TkMBvZRkEDZ50qD8hAauqkh+OWNhOjf7eiE1RanPno628HSLUlvXRHlTyaAYd+v\\nM7nkn0GqOL\/SYR7xxsnmPpUXMwsqaGxFYmMANRmXw4k2MwWJGVAGo0RcGlLmOCHA\\n6RDDqbAMmOA4Qb1dytis1HLWpQKBgQDFdptyGO2oqilc52\/rxKhxDVNROpwav05x\\nHsv0p4YKyCqb3ocH0tvzvRjg3iWJsH2gzj14gN7B0tmH9dFiv6ndWDXCynUee\/YL\\nEmzy0Zr3GM3gp5nc04Ze9p+MJ11bxwzZxP09yjPnrpxm9UUmBsPR+77C7qKap4ma\\n3n7zmw9jRQKBgQDJWOXcgOB7421aePIYeHXeDB0psY1l\/+14IWK3Oa5XjJjujvhZ\\nmxj8DlMxvG0H4YGI02sOnJI9v5e6DeF79jXVgHCy32a0k7tE8xI\/MHMcgjq0ueNS\\nlcYdz24H7ga2zDixmeWTm\/XmGkM\/VQmj7yGcM0c4WiuHpka5X0lEO\/mW7QKBgFgy\\nWcvkhoJHPqJYXQ0ZkYKtSQGHBCKOQCMWdlKYYK6AKUflZLqB2+xKEcqebnXJdtNU\\nSvB\/3v8DhlXL3fIVWXGb7KdMdnNfOs5HNJJgPK8RTSOCuJ6BfAr+bNTU4EYV6g96\\nhQIMRpK80u7JrlEFxIENyG6Y19fr7PJXXqzAHWdhAoGBAJChTVqZ2CWcogDOVrf3\\nidl3q+VKAXhqMJi7m7oMiJ8cVQWbfog+ZGf+ZMRHZkXqG3EfUprVh0MgUgHIq\/Bd\\nOYZspcsXWuTnSBvoRxpxKPBBGDqCj8t5DfGosM2Juy262+87zczGPrEJ\/W+R5QUs\\njtLut+HH34If09hET3gAo8Fj\\n-----END PRIVATE KEY-----\\n",$/;"	f
+private_key_id	conf/modak-f305a35c96dc.json	/^  "private_key_id": "dad9260e70fba52f2a30f6d383605f9365a015d1",$/;"	f
+process_count_per_node	test/input/aitraining/tf_resnet.json	/^      "process_count_per_node": 40,$/;"	f
+process_count_per_node	test/input/aitraining/tf_snow.json	/^      "process_count_per_node": 40,$/;"	f
+process_count_per_node	test/input/job_data.json	/^      "process_count_per_node": 24,$/;"	f
+process_count_per_node	test/input/mpi/mpi_solver.json	/^      "process_count_per_node": 40,$/;"	f
+process_count_per_node	test/input/mpi/mpi_test.json	/^      "process_count_per_node": 40,$/;"	f
+process_count_per_node	test/input/mpi/mpi_test_cirrus.json	/^      "process_count_per_node": 1,$/;"	f
+process_count_per_node	test/input/mpi/mpi_test_daint.json	/^      "process_count_per_node": 12,$/;"	f
+process_count_per_node	test/input/mpi/mpi_test_egi.json	/^      "process_count_per_node": 1,$/;"	f
+process_count_per_node	test/input/mpi_solver.json	/^      "process_count_per_node": 40,$/;"	f
+process_count_per_node	test/input/mpi_test.json	/^      "process_count_per_node": 40,$/;"	f
+process_count_per_node	test/input/mpi_test_egi.json	/^      "process_count_per_node": 1,$/;"	f
+process_count_per_node	test/input/tf_resnet.json	/^      "process_count_per_node": 40,$/;"	f
+process_count_per_node	test/input/tf_snow.json	/^      "process_count_per_node": 40,$/;"	f
+project_id	conf/modak-f305a35c96dc.json	/^  "project_id": "modak-284811",$/;"	f
+qos	test/input/mpi/mpi_test_cirrus.json	/^      "qos": "standard"$/;"	f
+queue	test/input/job_data.json	/^      "queue": "standard",$/;"	f
+queue	test/input/mpi/mpi_test_cirrus.json	/^      "queue": "standard",$/;"	f
+queue	test/input/mpi/mpi_test_daint.json	/^      "queue": "normal",$/;"	f
+re	src/MODAK_driver.py	/^import re$/;"	i
+redirect	app/app.py	/^from flask import Flask, render_template, redirect, url_for, request$/;"	i
+render_template	app/app.py	/^from flask import Flask, render_template, redirect, url_for, request$/;"	i
+request	app/app.py	/^from flask import Flask, render_template, redirect, url_for, request$/;"	i
+request_event_notification	app/pyMODAK/IO/tf_snow.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/aitraining/tf_resnet.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/aitraining/tf_snow.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/job_data.json	/^      "request_event_notification": "events",$/;"	f
+request_event_notification	test/input/mpi/mpi_solver.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/mpi/mpi_test.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/mpi/mpi_test_cirrus.json	/^      "request_event_notification": "ALL",$/;"	f
+request_event_notification	test/input/mpi/mpi_test_daint.json	/^      "request_event_notification": "ALL",$/;"	f
+request_event_notification	test/input/mpi/mpi_test_egi.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/mpi_solver.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/mpi_test.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/mpi_test_egi.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/tf_resnet.json	/^      "request_event_notification": "abe",$/;"	f
+request_event_notification	test/input/tf_snow.json	/^      "request_event_notification": "abe",$/;"	f
+request_gpus	app/pyMODAK/IO/tf_snow.json	/^      "request_gpus": 1,$/;"	f
+request_gpus	test/input/aitraining/tf_resnet.json	/^      "request_gpus": 1,$/;"	f
+request_gpus	test/input/aitraining/tf_snow.json	/^      "request_gpus": 1,$/;"	f
+request_gpus	test/input/job_data.json	/^      "request_gpus": 2,$/;"	f
+request_gpus	test/input/tf_resnet.json	/^      "request_gpus": 1,$/;"	f
+request_gpus	test/input/tf_snow.json	/^      "request_gpus": 1,$/;"	f
+request_specific_nodes	app/pyMODAK/IO/tf_snow.json	/^      "request_specific_nodes": "ssd",$/;"	f
+request_specific_nodes	test/input/aitraining/tf_snow.json	/^      "request_specific_nodes": "ssd",$/;"	f
+request_specific_nodes	test/input/job_data.json	/^      "request_specific_nodes": "BW20",$/;"	f
+request_specific_nodes	test/input/tf_snow.json	/^      "request_specific_nodes": "ssd",$/;"	f
+scaler	src/scaler.py	/^class scaler():$/;"	c
+scaling_efficiency	test/input/job_data.json	/^          "scaling_efficiency": 0.75,$/;"	f
+scaling_efficiency	test/input/optimisation_dsl.json	/^        "scaling_efficiency": 0.75,$/;"	f
+selectSQL	src/MODAK_driver.py	/^    def selectSQL(self, sqlstr):$/;"	m	class:MODAK_driver
+session	app/app.py	/^from flask import session$/;"	i
+setUp	test/test_MODAK.py	/^    def setUp(self):$/;"	m	class:test_MODAK
+setUp	test/test_MODAK_driver.py	/^    def setUp(self):$/;"	m	class:test_MODAK_driver
+setUp	test/test_dsl_reader.py	/^    def setUp(self):$/;"	m	class:test_dsl_reader
+setUp	test/test_mapper.py	/^    def setUp(self):$/;"	m	class:test_mapper
+settings	src/MODAK.py	/^from settings import settings$/;"	i
+settings	src/MODAK_driver.py	/^from settings import settings$/;"	i
+settings	src/settings.py	/^class settings:$/;"	c
+settings	test/test_MODAK_driver.py	/^from settings import settings$/;"	i
+size	test/input/aitraining/tf_optimisation_dsl.json	/^        "size": 67,$/;"	f
+size	test/input/job_data.json	/^          "size": 67 ,$/;"	f
+size	test/input/optimisation_dsl.json	/^        "size": 67 ,$/;"	f
+size	test/input/tf_optimisation_dsl.json	/^        "size": 67,$/;"	f
+src	test/input/job_data.json	/^        "src": "git:\/\/solver",$/;"	f
+src	test/input/map_container.json	/^  "src": "none",$/;"	f
+src	test/input/mpi/mpi_solver.json	/^        "src": "https:\/\/www.code-aster.org\/FICHIERS\/aster-full-src-14.4.0-1.noarch.tar.gz",$/;"	f
+src	test/input/mpi/mpi_test.json	/^        "src": "https:\/\/raw.githubusercontent.com\/olcf\/XC30-Training\/master\/affinity\/Xthi.c",$/;"	f
+src	test/input/mpi/mpi_test_daint.json	/^        "src": "https:\/\/raw.githubusercontent.com\/olcf\/XC30-Training\/master\/affinity\/Xthi.c",$/;"	f
+src	test/input/mpi/mpi_test_egi.json	/^        "src": "https:\/\/raw.githubusercontent.com\/olcf\/XC30-Training\/master\/affinity\/Xthi.c",$/;"	f
+src	test/input/mpi_solver.json	/^        "src": "https:\/\/www.code-aster.org\/FICHIERS\/aster-full-src-14.4.0-1.noarch.tar.gz",$/;"	f
+src	test/input/mpi_test.json	/^        "src": "https:\/\/raw.githubusercontent.com\/olcf\/XC30-Training\/master\/affinity\/Xthi.c",$/;"	f
+src	test/input/mpi_test_egi.json	/^        "src": "https:\/\/raw.githubusercontent.com\/olcf\/XC30-Training\/master\/affinity\/Xthi.c",$/;"	f
+ssl	test/test_MODAK.py	/^import ssl$/;"	i
+standard_error_file	app/pyMODAK/IO/tf_snow.json	/^      "standard_error_file": "skyline-extraction-training.err",$/;"	f
+standard_error_file	test/input/aitraining/tf_snow.json	/^      "standard_error_file": "skyline-extraction-training.err",$/;"	f
+standard_error_file	test/input/job_data.json	/^      "standard_error_file": "file path",$/;"	f
+standard_error_file	test/input/mpi/mpi_solver.json	/^      "standard_error_file": "file.err",$/;"	f
+standard_error_file	test/input/mpi/mpi_test.json	/^      "standard_error_file": "mpi_test.err",$/;"	f
+standard_error_file	test/input/mpi/mpi_test_cirrus.json	/^      "standard_error_file": "mpi_test.err",$/;"	f
+standard_error_file	test/input/mpi/mpi_test_daint.json	/^      "standard_error_file": "mpi_test.err",$/;"	f
+standard_error_file	test/input/mpi/mpi_test_egi.json	/^      "standard_error_file": "mpi_test.err",$/;"	f
+standard_error_file	test/input/mpi_solver.json	/^      "standard_error_file": "file.err",$/;"	f
+standard_error_file	test/input/mpi_test.json	/^      "standard_error_file": "mpi_test.err",$/;"	f
+standard_error_file	test/input/mpi_test_egi.json	/^      "standard_error_file": "mpi_test.err",$/;"	f
+standard_error_file	test/input/tf_snow.json	/^      "standard_error_file": "skyline-extraction-training.err",$/;"	f
+standard_output_file	app/pyMODAK/IO/tf_snow.json	/^      "standard_output_file": "skyline-extraction-training.out",$/;"	f
+standard_output_file	test/input/aitraining/tf_resnet.json	/^      "standard_output_file": "resnet.out",$/;"	f
+standard_output_file	test/input/aitraining/tf_snow.json	/^      "standard_output_file": "skyline-extraction-training.out",$/;"	f
+standard_output_file	test/input/job_data.json	/^      "standard_output_file": "output file path",$/;"	f
+standard_output_file	test/input/mpi/mpi_solver.json	/^      "standard_output_file": "file.out",$/;"	f
+standard_output_file	test/input/mpi/mpi_test.json	/^      "standard_output_file": "mpi_test.out",$/;"	f
+standard_output_file	test/input/mpi/mpi_test_cirrus.json	/^      "standard_output_file": "mpi_test.out",$/;"	f
+standard_output_file	test/input/mpi/mpi_test_daint.json	/^      "standard_output_file": "mpi_test.out",$/;"	f
+standard_output_file	test/input/mpi/mpi_test_egi.json	/^      "standard_output_file": "mpi_test.out",$/;"	f
+standard_output_file	test/input/mpi_solver.json	/^      "standard_output_file": "file.out",$/;"	f
+standard_output_file	test/input/mpi_test.json	/^      "standard_output_file": "mpi_test.out",$/;"	f
+standard_output_file	test/input/mpi_test_egi.json	/^      "standard_output_file": "mpi_test.out",$/;"	f
+standard_output_file	test/input/tf_resnet.json	/^      "standard_output_file": "resnet.out",$/;"	f
+standard_output_file	test/input/tf_snow.json	/^      "standard_output_file": "skyline-extraction-training.out",$/;"	f
+storage	src/MODAK_gcloud.py	/^from google.cloud import storage$/;"	i
+sys	examples/example.py	/^import sys$/;"	i
+sys	src/MODAK.py	/^import sys, getopt$/;"	i
+table_create_stmt	src/MODAK_sql.py	/^                         'mapper': CREATE_MAPPER_TABLE,$/;"	v	class:MODAK_sql
+tablelist	src/MODAK_driver.py	/^    tablelist = []$/;"	v	class:MODAK_driver
+target	test/input/job_data.json	/^    "target": {$/;"	f
+target	test/input/mpi/mpi_test_cirrus.json	/^    "target": {$/;"	f
+target	test/input/mpi/mpi_test_daint.json	/^    "target": {$/;"	f
+target	test/input/mpi/mpi_test_egi.json	/^    "target": {$/;"	f
+target	test/input/mpi_test_egi.json	/^    "target": {$/;"	f
+tearDown	test/test_MODAK.py	/^    def tearDown(self):$/;"	m	class:test_MODAK
+tearDown	test/test_MODAK_driver.py	/^    def tearDown(self):$/;"	m	class:test_MODAK_driver
+tearDown	test/test_dsl_reader.py	/^    def tearDown(self):$/;"	m	class:test_dsl_reader
+tearDown	test/test_mapper.py	/^    def tearDown(self):$/;"	m	class:test_mapper
+test_MODAK	test/test_MODAK.py	/^class test_MODAK(unittest.TestCase):$/;"	c
+test_MODAK_driver	test/test_MODAK_driver.py	/^class test_MODAK_driver(unittest.TestCase):$/;"	c
+test_add_container	test/test_mapper.py	/^    def test_add_container(self):$/;"	m	class:test_mapper
+test_add_opt	test/test_mapper.py	/^    def test_add_opt(self):$/;"	m	class:test_mapper
+test_driver	test/test_MODAK_driver.py	/^    def test_driver(self):$/;"	m	class:test_MODAK_driver
+test_dsl_reader	test/test_dsl_reader.py	/^class test_dsl_reader(unittest.TestCase):$/;"	c
+test_map_container_ai	test/test_mapper.py	/^    def test_map_container_ai(self):$/;"	m	class:test_mapper
+test_map_container_hpc	test/test_mapper.py	/^    def test_map_container_hpc(self):$/;"	m	class:test_mapper
+test_mapper	test/test_mapper.py	/^class test_mapper(unittest.TestCase):$/;"	c
+test_modak_ai	test/test_MODAK.py	/^    def test_modak_ai(self):$/;"	m	class:test_MODAK
+test_modak_egi_xthi	test/test_MODAK.py	/^    def test_modak_egi_xthi(self):$/;"	m	class:test_MODAK
+test_modak_hpc	test/test_MODAK.py	/^    def test_modak_hpc(self):$/;"	m	class:test_MODAK
+test_modak_resnet	test/test_MODAK.py	/^    def test_modak_resnet(self):$/;"	m	class:test_MODAK
+test_modak_xthi	test/test_MODAK.py	/^    def test_modak_xthi(self):$/;"	m	class:test_MODAK
+test_reader	test/test_dsl_reader.py	/^    def test_reader(self):$/;"	m	class:test_dsl_reader
+threads	test/input/job_data.json	/^      "threads": 2,$/;"	f
+threads	test/input/mpi/mpi_solver.json	/^      "threads": 1,$/;"	f
+threads	test/input/mpi/mpi_test.json	/^      "threads": 2,$/;"	f
+threads	test/input/mpi/mpi_test_cirrus.json	/^      "threads": 2$/;"	f
+threads	test/input/mpi/mpi_test_daint.json	/^      "threads": 2,$/;"	f
+threads	test/input/mpi/mpi_test_egi.json	/^      "threads": 2,$/;"	f
+threads	test/input/mpi_solver.json	/^      "threads": 1,$/;"	f
+threads	test/input/mpi_test.json	/^      "threads": 2,$/;"	f
+threads	test/input/mpi_test_egi.json	/^      "threads": 2,$/;"	f
+time	src/MODAK_dropbox.py	/^import time$/;"	i
+time	src/MODAK_gcloud.py	/^import time$/;"	i
+timedelta	src/MODAK_driver.py	/^from datetime import datetime, timedelta$/;"	i
+token_uri	conf/modak-f305a35c96dc.json	/^  "token_uri": "https:\/\/oauth2.googleapis.com\/token",$/;"	f
+tuner	app/pyMODAK/IO/tf_snow.json	/^        "tuner": "cresta",$/;"	f
+tuner	src/jobfile_generator.py	/^from tuner import tuner$/;"	i
+tuner	src/tuner.py	/^class tuner():$/;"	c
+tuner	test/input/aitraining/tf_optimisation_dsl.json	/^      "tuner": "cresta",$/;"	f
+tuner	test/input/aitraining/tf_snow.json	/^        "tuner": "cresta",$/;"	f
+tuner	test/input/job_data.json	/^        "tuner": "cresta",$/;"	f
+tuner	test/input/mpi/mpi_solver.json	/^        "tuner": "cresta",$/;"	f
+tuner	test/input/mpi/solver_optimisation_dsl.json	/^			"tuner": "cresta",$/;"	f
+tuner	test/input/mpi_solver.json	/^        "tuner": "cresta",$/;"	f
+tuner	test/input/optimisation_dsl.json	/^      "tuner": "cresta",$/;"	f
+tuner	test/input/solver_optimisation_dsl.json	/^			"tuner": "cresta",$/;"	f
+tuner	test/input/tf_optimisation_dsl.json	/^      "tuner": "cresta",$/;"	f
+tuner	test/input/tf_snow.json	/^        "tuner": "cresta",$/;"	f
+type	conf/modak-f305a35c96dc.json	/^  "type": "service_account",$/;"	f
+type	test/input/aitraining/tf_optimisation_dsl.json	/^        "type": "image_classification",$/;"	f
+type	test/input/job_data.json	/^          "type": "image_classification\/object_detection\/translation\/recommendation\/reinforncement_learning" ,$/;"	f
+type	test/input/optimisation_dsl.json	/^        "type": "image_classification\/object_detection\/translation\/recommendation\/reinforncement_learning" ,$/;"	f
+type	test/input/tf_optimisation_dsl.json	/^        "type": "image_classification",$/;"	f
+unittest	test/test_MODAK.py	/^import unittest$/;"	i
+unittest	test/test_MODAK_driver.py	/^import unittest$/;"	i
+unittest	test/test_dsl_reader.py	/^import unittest$/;"	i
+unittest	test/test_mapper.py	/^import unittest$/;"	i
+updateSQL	src/MODAK_driver.py	/^    def updateSQL(self, sqlstr):$/;"	m	class:MODAK_driver
+upload	src/MODAK_dropbox.py	/^    def upload(self, fullname, folder,  name, overwrite=False):$/;"	m	class:TransferData
+upload_file	src/MODAK_dropbox.py	/^    def upload_file(self, file_from=None, file_to=None):$/;"	m	class:TransferData
+upload_file	src/MODAK_gcloud.py	/^    def upload_file(self, file_from=None, file_to=None):$/;"	m	class:TransferData
+url_for	app/app.py	/^from flask import Flask, render_template, redirect, url_for, request$/;"	i
+version	app/pyMODAK/IO/tf_snow.json	/^          "version": "2.1",$/;"	f
+version	test/input/aitraining/tf_optimisation_dsl.json	/^        "version": "2.1",$/;"	f
+version	test/input/aitraining/tf_resnet.json	/^          "version": "2.1",$/;"	f
+version	test/input/aitraining/tf_snow.json	/^          "version": "2.1",$/;"	f
+version	test/input/job_data.json	/^          "version": "1.1",$/;"	f
+version	test/input/job_data.json	/^          "version": 1.1,$/;"	f
+version	test/input/map_container.json	/^    "version": "2.2",$/;"	f
+version	test/input/map_container.json	/^  "version": "2.2",$/;"	f
+version	test/input/mpi/mpi_solver.json	/^          "version": "3.1.4"$/;"	f
+version	test/input/mpi/mpi_test.json	/^          "version": "3.1.4"$/;"	f
+version	test/input/mpi/mpi_test_cirrus.json	/^        "version":"3.1.3"$/;"	f
+version	test/input/mpi/mpi_test_daint.json	/^        "version":"3.1.3"$/;"	f
+version	test/input/mpi/mpi_test_egi.json	/^          "version": "1.10"$/;"	f
+version	test/input/mpi_solver.json	/^          "version": "3.1.4"$/;"	f
+version	test/input/mpi_test.json	/^          "version": "3.1.4"$/;"	f
+version	test/input/mpi_test_egi.json	/^          "version": "1.10"$/;"	f
+version	test/input/optimisation_dsl.json	/^        "version": "1.1",$/;"	f
+version	test/input/optimisation_dsl.json	/^        "version": 1.1,$/;"	f
+version	test/input/tf_optimisation_dsl.json	/^        "version": "2.1",$/;"	f
+version	test/input/tf_resnet.json	/^          "version": "2.1",$/;"	f
+version	test/input/tf_snow.json	/^          "version": "2.1",$/;"	f
+wall_time_limit	app/pyMODAK/IO/tf_snow.json	/^      "wall_time_limit": "12:00:00 ",$/;"	f
+wall_time_limit	test/input/aitraining/tf_resnet.json	/^      "wall_time_limit": "12:00:00 ",$/;"	f
+wall_time_limit	test/input/aitraining/tf_snow.json	/^      "wall_time_limit": "12:00:00 ",$/;"	f
+wall_time_limit	test/input/job_data.json	/^      "wall_time_limit": "12:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi/mpi_solver.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi/mpi_test.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi/mpi_test_cirrus.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi/mpi_test_daint.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi/mpi_test_egi.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi_solver.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi_test.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/mpi_test_egi.json	/^      "wall_time_limit": "1:00:00 ",$/;"	f
+wall_time_limit	test/input/tf_resnet.json	/^      "wall_time_limit": "12:00:00 ",$/;"	f
+wall_time_limit	test/input/tf_snow.json	/^      "wall_time_limit": "12:00:00 ",$/;"	f
+wget	test/test_MODAK.py	/^import wget$/;"	i
+xla	app/pyMODAK/IO/tf_snow.json	/^          "xla": true$/;"	f
+xla	test/input/aitraining/tf_optimisation_dsl.json	/^        "xla": true$/;"	f
+xla	test/input/aitraining/tf_resnet.json	/^          "xla": true$/;"	f
+xla	test/input/aitraining/tf_snow.json	/^          "xla": true$/;"	f
+xla	test/input/job_data.json	/^          "xla": true$/;"	f
+xla	test/input/optimisation_dsl.json	/^        "xla": true$/;"	f
+xla	test/input/tf_optimisation_dsl.json	/^        "xla": true$/;"	f
+xla	test/input/tf_resnet.json	/^          "xla": true$/;"	f
+xla	test/input/tf_snow.json	/^          "xla": true$/;"	f
