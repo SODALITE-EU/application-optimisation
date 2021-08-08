@@ -1,14 +1,8 @@
-import json
-
-from flask import (
+from flask import (  # redirect,; render_template,; session,; url_for,
     Flask,
     jsonify,
     make_response,
-    redirect,
-    render_template,
     request,
-    session,
-    url_for,
 )
 
 from MODAK import MODAK
