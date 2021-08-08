@@ -41,7 +41,8 @@ class Tuner:
     #                t.close()
     #
     #            tune_file_to = "{}/{}".format('/modak', basename)
-    #            self._tune_input_link = self._drop.upload_file(file_from=self._tune_input_file, file_to=tune_file_to)
+    #            self._tune_input_link = self._drop.upload_file(
+    #                file_from=self._tune_input_file, file_to=tune_file_to)
     #
     #            self._tune_script_file = jobname[0] + '_tune.sh'
     #            basescript = os.path.basename(self._tune_script_file)
@@ -51,7 +52,8 @@ class Tuner:
     #                f.write('\n')
     #                f.write('## START OF TUNER ##')
     #                f.write('\n')
-    #                f.write('wget --no-check-certificate https://www.dropbox.com/s/iaivd8wujhctpl5/cresta.tar.gz')
+    #                f.write('wget --no-check-certificate'
+    #                        'https://www.dropbox.com/s/iaivd8wujhctpl5/cresta.tar.gz')
     #                f.write('\n')
     #                f.write('tar -xvf cresta.tar.gz')
     #                f.write('\n')
@@ -66,7 +68,8 @@ class Tuner:
     #                f.close()
     #
     #            tune_script_to = "{}/{}".format('/modak', basescript)
-    #            self._tune_script_link = self._drop.upload_file(file_from=self._tune_script_file, file_to=tune_script_to)
+    #            self._tune_script_link = self._drop.upload_file(
+    #                file_from=self._tune_script_file, file_to=tune_script_to)
     #            logging.info("Successfully encoded tuner")
     #            return True
     #        else:

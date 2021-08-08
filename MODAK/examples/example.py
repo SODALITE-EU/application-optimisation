@@ -5,7 +5,7 @@ import sys
 
 sys.path.append("../src")
 
-from MODAK import MODAK
+from MODAK import MODAK  # noqa:E402
 
 m = MODAK()
 dsl_file = "../test/input/mpi_test.json"

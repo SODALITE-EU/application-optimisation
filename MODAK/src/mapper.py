@@ -59,7 +59,8 @@ class Mapper:
     ):
         logging.info('Adding container to mapper ')
         stmt = (
-            "INSERT INTO `mapper`(`map_id`,`opt_dsl_code`,`container_file`,`image_type`,`image_hub`,`src`) VALUES"
+            "INSERT INTO `mapper`"
+            "(`map_id`,`opt_dsl_code`,`container_file`,`image_type`,`image_hub`,`src`) VALUES"
             "(NULL,'{opt_dsl_code}','{container_file}','{image_type}','{image_hub}','{src}')"
         )
         logging.info(
@@ -100,7 +101,8 @@ class Mapper:
         logging.info('Target string: ' + target_str)
         logging.info('Opt string: ' + opt_str)
         stmt = (
-            "INSERT INTO `optimisation`(`opt_dsl_code`,`app_name`,`target`,`optimisation`,`version`) VALUES "
+            "INSERT INTO `optimisation`"
+            "(`opt_dsl_code`,`app_name`,`target`,`optimisation`,`version`) VALUES "
             "('{opt_dsl_code}','{app_name}','{target}','{optimisation}','{version}')"
         )
 
@@ -283,7 +285,8 @@ def main():
 
     # target_string = u'{"enable_opt_build":"false","cpu_type":"x86","acc_type":"nvidia"}'
     # opt_string = u'{"version":"3.1.3","mpicc":"true","mpic++":"true","mpifort":"true"}'
-    # m.add_optimisation('ethcscs_openmpi_3.1.3', 'hpc_mpi', json.loads(target_string), json.loads(opt_string))
+    # m.add_optimisation('ethcscs_openmpi_3.1.3', 'hpc_mpi',
+    #                    json.loads(target_string), json.loads(opt_string))
 
     # m.add_container('ethcscs_openmpi_3.1.3', 'ethcscs/openmpi:3.1.3')
 

@@ -73,8 +73,9 @@ class test_mapper(unittest.TestCase):
             self.assertEqual(dsl_code, 'mpich_ub1804_cuda101_mpi314_gnugprof')
 
     # def test_add_container(self):
-    #     map_id = self.m.add_container('TF_PIP_XLA', 'AI/containers/tensorflow/tensorflow_pip_xla')
-    #     df = self.driver.applySQL("select opt_dsl_code from mapper where map_id = {}".format(str(map_id)))
+    #     map_id = self.m.add_container('TF_PIP_XLA',
+    #                                   'AI/containers/tensorflow/tensorflow_pip_xla')
+    #     df = self.driver.applySQL(f"select opt_dsl_code from mapper where map_id = {map_id}")
     #     self.assertEqual(df.count(), 1)
     #     self.assertEqual(df.select('opt_dsl_code').collect()[0][0], 'TF_PIP_XLA')
 

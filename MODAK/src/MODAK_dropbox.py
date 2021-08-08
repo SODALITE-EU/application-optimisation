@@ -85,7 +85,8 @@ class TransferData:
     def upload_file(self, file_from=None, file_to=None):
         """upload a file to Dropbox using API v2"""
 
-        # files_upload(f, path, mode=WriteMode('add', None), autorename=False, client_modified=None, mute=False)
+        # files_upload(f, path, mode=WriteMode('add', None),
+        #              autorename=False, client_modified=None, mute=False)
 
         with open(file_from, 'rb') as f:
             self.dbx.files_upload(f.read(), file_to)
@@ -111,14 +112,17 @@ def main():
     # transferData.login_dropbox()
 
     file_from = 'scripts/set_default_cirrus.sh'
-    file_to = '/scripts/set_default_cirrus.sh'  # The full path to upload the file to, including the file name
+    # The full path to upload the file to, including the file name:
+    file_to = '/scripts/set_default_cirrus.sh'
     link = transferData.upload_file(file_from, file_to)
     print(link)
 
     # API v2
     # link = transferData.upload_file(file_from=file_from, file_to=file_to)
     # print(link)
-    # link = transferData.upload(file_from , 'test','torque_{}.pbs'.format(datetime.now().strftime('%Y%m%d%H%M%S')))
+    # link = transferData.upload(
+    #     file_from , 'test',
+    #     'torque_{}.pbs'.format(datetime.now().strftime('%Y%m%d%H%M%S')))
     # print(link)
     #
     # print(transferData.download('test', 'torque_20200720123826.pbs'))

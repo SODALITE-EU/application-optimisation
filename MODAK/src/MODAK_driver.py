@@ -1,5 +1,5 @@
-#! /bin/python
-print("This is the MODAK driver program")
+#!/usr/bin/env python3
+
 import logging
 import re
 from datetime import datetime
@@ -9,6 +9,8 @@ import pandas as pd
 
 # from MODAK_sql import MODAK_sql
 from settings import settings
+
+print("This is the MODAK driver program")
 
 
 class MODAK_driver:
@@ -77,14 +79,15 @@ class MODAK_driver:
     #         self.applySQL("use {}".format(self.dbname))
 
     def applySQL(self, sqlstr):
-        re.sub("\s\s+", " ", sqlstr)
+        re.sub(r"\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
                 logging.info("Executing : {}".format(sqlstr))
                 # cur = self.cnx.cursor()
                 # cur.execute(sqlstr)
                 # # Put it all to a data frame
-                # sql_data = pd.DataFrame(data=cur.fetchall(), index=None, columns=cur.column_names)
+                # sql_data = pd.DataFrame(data=cur.fetchall(), index=None,
+                #                         columns=cur.column_names)
                 sql_data = pd.read_sql(sqlstr, self.cnx)
                 logging.info('Successfully executed SQL')
                 return sql_data
@@ -103,14 +106,15 @@ class MODAK_driver:
             raise ValueError("Empty or invalid SQL statement")
 
     def selectSQL(self, sqlstr):
-        re.sub("\s\s+", " ", sqlstr)
+        re.sub(r"\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
                 logging.info("Selecting : {}".format(sqlstr))
                 # cur = self.cnx.cursor()
                 # cur.execute(sqlstr)
                 # # Put it all to a data frame
-                # sql_data = pd.DataFrame(data=cur.fetchall(), index=None, columns=cur.column_names)
+                # sql_data = pd.DataFrame(data=cur.fetchall(), index=None,
+                #                         columns=cur.column_names)
                 sql_data = pd.read_sql(sqlstr, self.cnx)
                 logging.info('Successfully selected SQL')
                 return sql_data
@@ -129,7 +133,7 @@ class MODAK_driver:
             raise ValueError("Empty or invalid SQL statement")
 
     def updateSQL(self, sqlstr):
-        re.sub("\s\s+", " ", sqlstr)
+        re.sub(r"\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
                 logging.info("Updating : {}".format(sqlstr))

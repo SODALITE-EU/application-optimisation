@@ -17,7 +17,8 @@ class jobfile_generator:
         self.singularity_exec = 'singularity exec'
         self.current_dir = './'
         # TODO: scheduler type should be derived based on the infrastructure target name
-        # TODO: there shall be an entry in the database where scheduler type is specified in the infrastructure target
+        # TODO: there shall be an entry in the database where scheduler type
+        #       is specified in the infrastructure target
         self.scheduler = (
             scheduler
             if scheduler

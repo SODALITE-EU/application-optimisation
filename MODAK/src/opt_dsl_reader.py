@@ -32,7 +32,7 @@ class opt_dsl_reader:
             acc_type = self.opt_node.get('opt_build').get('acc_type')
             return (
                 ""
-                if (acc_type == None or acc_type == "None" or acc_type == "none")
+                if (acc_type is None or acc_type == "None" or acc_type == "none")
                 else acc_type
             )
 
@@ -45,9 +45,6 @@ class opt_dsl_reader:
         if self.enable_autotuning():
             tuner = self.opt_node.get('autotuning').get('input')
             return tuner
-
-    def get_app_type(self):
-        return self.opt_node.get('app_type')
 
     def get_app_config(self):
         app_type = self.opt_node.get('app_type')
