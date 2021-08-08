@@ -33,14 +33,14 @@ class TransferData:
         try:
             oauth_result = auth_flow.finish(auth_code)
         except Exception as e:
-            print("Error: %s" % (e,))
+            print(f"Error: {e}")
         return oauth_result
 
     def download(self, folder, name):
         """Download a file.
         Return the bytes of the file, or None if it doesn't exist.
         """
-        path = "/%s/%s" % (folder, name)
+        path = f"/{folder}/{name}"
         while "//" in path:
             path = path.replace("//", "/")
         try:
@@ -56,7 +56,7 @@ class TransferData:
         """Upload a file.
         Return the request response, or None in case of error.
         """
-        path = "/%s/%s" % (folder, name)
+        path = f"/{folder}/{name}"
         while "//" in path:
             path = path.replace("//", "/")
         mode = (
