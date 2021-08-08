@@ -11,11 +11,11 @@ class jobfile_generator:
         logging.info("Initialising job file generator")
         self.batch_file = batch_file
         self.job_json_obj = job_json_obj
-        self.job_data = job_json_obj.get('job').get('job_options', {})
-        self.app_data = job_json_obj.get('job').get('application', {})
-        self.opt_data = job_json_obj.get('job').get('optimisation', {})
-        self.singularity_exec = 'singularity exec'
-        self.current_dir = './'
+        self.job_data = job_json_obj.get("job").get("job_options", {})
+        self.app_data = job_json_obj.get("job").get("application", {})
+        self.opt_data = job_json_obj.get("job").get("optimisation", {})
+        self.singularity_exec = "singularity exec"
+        self.current_dir = "./"
         # TODO: scheduler type should be derived based on the infrastructure target name
         # TODO: there shall be an entry in the database where scheduler type
         #       is specified in the infrastructure target
@@ -39,10 +39,10 @@ class jobfile_generator:
     def _generate_torque_header(self):
         logging.info("Generating torque header")
         filename = self.batch_file
-        DIRECTIVE = '#PBS'
-        with open(filename, 'w') as fhandle:
+        DIRECTIVE = "#PBS"
+        with open(filename, "w") as fhandle:
             fhandle.write(f"{DIRECTIVE} -S /bin/bash\n")
-            fhandle.write('## START OF HEADER ##\n')
+            fhandle.write("## START OF HEADER ##\n")
             if "job_name" in self.job_data:
                 fhandle.write(f"{DIRECTIVE} -N {self.job_data['job_name']}\n")
             if "account" in self.job_data:
@@ -59,7 +59,7 @@ class jobfile_generator:
                     fhandle.write(f":ppn={self.job_data['process_count_per_node']}")
                 if "request_gpus" in self.job_data:
                     fhandle.write(f":gpus={self.job_data['request_gpus']}")
-                    self.singularity_exec = self.singularity_exec + ' --nv '
+                    self.singularity_exec = self.singularity_exec + " --nv "
                 # secific to torque with default scheduler
                 if "queue" in self.job_data:
                     fhandle.write(f":{self.job_data['queue']}")
@@ -113,19 +113,19 @@ class jobfile_generator:
             if "node_exclusive" in self.job_data:
                 fhandle.write(f"{DIRECTIVE} -l naccesspolicy=singlejob\n")
 
-            fhandle.write('## END OF HEADER ##\n')
-            fhandle.write('cd $PBS_O_WORKDIR\n')
-            self.current_dir = '$PBS_O_WORKDIR/'
-            fhandle.write('export PATH=$PBS_O_WORKDIR:$PATH\n')
+            fhandle.write("## END OF HEADER ##\n")
+            fhandle.write("cd $PBS_O_WORKDIR\n")
+            self.current_dir = "$PBS_O_WORKDIR/"
+            fhandle.write("export PATH=$PBS_O_WORKDIR:$PATH\n")
 
     def _generate_slurm_header(self):
         logging.info("Generating slurm header")
         filename = self.batch_file
-        DIRECTIVE = '#SBATCH'
+        DIRECTIVE = "#SBATCH"
 
-        with open(filename, 'w') as fhandle:
-            fhandle.write('#!/bin/bash\n')
-            fhandle.write('## START OF HEADER ##\n')
+        with open(filename, "w") as fhandle:
+            fhandle.write("#!/bin/bash\n")
+            fhandle.write("## START OF HEADER ##\n")
             if "job_name" in self.job_data:
                 fhandle.write(f"{DIRECTIVE} -J {self.job_data['job_name']}\n")
             if "account" in self.job_data:
@@ -159,7 +159,7 @@ class jobfile_generator:
                 fhandle.write(
                     f"{DIRECTIVE} --gres=gpu:{self.job_data['request_gpus']}\n"
                 )
-                self.singularity_exec = self.singularity_exec + ' --nv '
+                self.singularity_exec = self.singularity_exec + " --nv "
             if "request_specific_nodes" in self.job_data:
                 fhandle.write(
                     f"{DIRECTIVE} --nodelist={self.job_data['request_specific_nodes']}\n"
@@ -203,21 +203,21 @@ class jobfile_generator:
             if "node_exclusive" in self.job_data:
                 fhandle.write(f"{DIRECTIVE} --exclusive\n")
 
-            fhandle.write('## END OF HEADER ##\n')
-            fhandle.write('cd $SLURM_SUBMIT_DIR\n')
-            self.current_dir = '$SLURM_SUBMIT_DIR/'
-            fhandle.write('export PATH=$SLURM_SUBMIT_DIR:$PATH\n')
+            fhandle.write("## END OF HEADER ##\n")
+            fhandle.write("cd $SLURM_SUBMIT_DIR\n")
+            self.current_dir = "$SLURM_SUBMIT_DIR/"
+            fhandle.write("export PATH=$SLURM_SUBMIT_DIR:$PATH\n")
 
     def _generate_bash_header(self):
         logging.info("Generating bash header")
         filename = self.batch_file
-        with open(filename, 'w') as fhandle:
-            fhandle.write('#!/bin/bash\n\n')
+        with open(filename, "w") as fhandle:
+            fhandle.write("#!/bin/bash\n\n")
 
     def add_job_header(self):
-        if self.job_data and self.scheduler == 'torque':
+        if self.job_data and self.scheduler == "torque":
             self._generate_torque_header()
-        elif self.job_data and self.scheduler == 'slurm':
+        elif self.job_data and self.scheduler == "slurm":
             self._generate_slurm_header()
         else:
             self._generate_bash_header()
@@ -230,114 +230,114 @@ class jobfile_generator:
             return None
 
         logging.info("Adding tuner" + str(tuner))
-        with open(self.batch_file, 'a') as f:
+        with open(self.batch_file, "a") as f:
             f.seek(0, os.SEEK_END)
-            f.write('\n')
-            f.write('## START OF TUNER ##')
-            f.write('\n')
-            f.write('file=' + tuner.get_tune_filename())
-            f.write('\n')
-            f.write('if [ -f $file ] ; then rm $file; fi')
-            f.write('\n')
-            f.write('wget --no-check-certificate ' + tuner.get_tune_link())
-            f.write('\n')
-            f.write('chmod 755 ' + tuner.get_tune_filename())
-            f.write('\n')
+            f.write("\n")
+            f.write("## START OF TUNER ##")
+            f.write("\n")
+            f.write("file=" + tuner.get_tune_filename())
+            f.write("\n")
+            f.write("if [ -f $file ] ; then rm $file; fi")
+            f.write("\n")
+            f.write("wget --no-check-certificate " + tuner.get_tune_link())
+            f.write("\n")
+            f.write("chmod 755 " + tuner.get_tune_filename())
+            f.write("\n")
             if "container_runtime" in self.app_data:
-                cont = self.app_data['container_runtime']
+                cont = self.app_data["container_runtime"]
                 f.write(
-                    '\n{} {} {}'.format(
+                    "\n{} {} {}".format(
                         self.singularity_exec,
                         self.get_sif_filename(cont),
                         tuner.get_tune_filename(),
                     )
                 )
-                f.write('\n')
+                f.write("\n")
             else:
-                f.write('source ' + tuner.get_tune_filename())
-                f.write('\n')
-            f.write('## END OF TUNER ##')
-            f.write('\n')
+                f.write("source " + tuner.get_tune_filename())
+                f.write("\n")
+            f.write("## END OF TUNER ##")
+            f.write("\n")
             f.close()
             logging.info("Successfully added tuner")
 
     def add_optscript(self, scriptfile, scriptlink):
         logging.info("Adding optimisations " + scriptfile)
-        with open(self.batch_file, 'a') as f:
+        with open(self.batch_file, "a") as f:
             f.seek(0, os.SEEK_END)
-            f.write('\n')
-            f.write('file=' + scriptfile)
-            f.write('\n')
-            f.write('if [ -f $file ] ; then rm $file; fi')
-            f.write('\n')
-            f.write('wget --no-check-certificate ' + scriptlink)
-            f.write('\n')
-            f.write('chmod 755 ' + scriptfile)
-            f.write('\n')
-            f.write('source ' + scriptfile)
-            f.write('\n')
+            f.write("\n")
+            f.write("file=" + scriptfile)
+            f.write("\n")
+            f.write("if [ -f $file ] ; then rm $file; fi")
+            f.write("\n")
+            f.write("wget --no-check-certificate " + scriptlink)
+            f.write("\n")
+            f.write("chmod 755 " + scriptfile)
+            f.write("\n")
+            f.write("source " + scriptfile)
+            f.write("\n")
             f.close()
             logging.info("Successfully added optimisation")
 
     def add_apprun(self):
         logging.info("Adding app run")
-        with open(self.batch_file, 'a') as f:
+        with open(self.batch_file, "a") as f:
             f.seek(0, os.SEEK_END)
-            exe = '{} {}'.format(
-                self.app_data.get('executable', ""), self.app_data.get('arguments', "")
+            exe = "{} {}".format(
+                self.app_data.get("executable", ""), self.app_data.get("arguments", "")
             )
-            cont = self.app_data.get('container_runtime', "")
+            cont = self.app_data.get("container_runtime", "")
             cont_exec_command = (
-                '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont))
+                "{} {} ".format(self.singularity_exec, self.get_sif_filename(cont))
                 if cont
                 else ""
             )
-            app_type = self.app_data.get('app_type')
+            app_type = self.app_data.get("app_type")
 
             if "build" in self.app_data:
-                src = self.app_data['build'].get('src')
-                build_command = self.app_data['build'].get('build_command')
-                if src[-4:] == '.git':
-                    f.write('\ngit clone {}\n'.format(src))
+                src = self.app_data["build"].get("src")
+                build_command = self.app_data["build"].get("build_command")
+                if src[-4:] == ".git":
+                    f.write("\ngit clone {}\n".format(src))
                 else:
-                    f.write('\nwget --no-check-certificate {}\n'.format(src))
-                f.write('\n{} {}\n'.format(cont_exec_command, build_command))
+                    f.write("\nwget --no-check-certificate {}\n".format(src))
+                f.write("\n{} {}\n".format(cont_exec_command, build_command))
 
-            if app_type == 'mpi' or app_type == 'hpc':
+            if app_type == "mpi" or app_type == "hpc":
                 mpi_ranks = self.app_data.get("mpi_ranks", 1)
                 threads = self.app_data.get("threads", 1)
-                f.write('\nexport OMP_NUM_THREADS={}\n'.format(threads))
-                if self.scheduler == 'torque' and 'openmpi:1.10' in cont:
+                f.write("\nexport OMP_NUM_THREADS={}\n".format(threads))
+                if self.scheduler == "torque" and "openmpi:1.10" in cont:
                     f.write(
-                        '{} mpirun -np {} {}\n'.format(
+                        "{} mpirun -np {} {}\n".format(
                             cont_exec_command, mpi_ranks, exe
                         )
                     )
-                elif self.scheduler == 'torque':
+                elif self.scheduler == "torque":
                     f.write(
-                        'mpirun -np {} {} {}\n'.format(
+                        "mpirun -np {} {} {}\n".format(
                             mpi_ranks, cont_exec_command, exe
                         )
                     )
-                elif self.scheduler == 'slurm':
+                elif self.scheduler == "slurm":
                     f.write(
-                        'srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe)
+                        "srun -n {} {} {}\n".format(mpi_ranks, cont_exec_command, exe)
                     )
                 else:
                     f.write(
-                        'mpirun -np {} {} {}\n'.format(
+                        "mpirun -np {} {} {}\n".format(
                             mpi_ranks, cont_exec_command, exe
                         )
                     )
             else:  # other app types, e.g. python
-                f.write('{} {}\n'.format(cont_exec_command, exe))
+                f.write("{} {}\n".format(cont_exec_command, exe))
 
             f.close()
             logging.info("Successfully added app run")
 
     def get_sif_filename(self, container: str):
-        words = container.split('/')
-        return '$SINGULARITY_DIR/' + words[-1].replace(':', '_') + '.sif'
+        words = container.split("/")
+        return "$SINGULARITY_DIR/" + words[-1].replace(":", "_") + ".sif"
 
 
 def main():
@@ -349,8 +349,8 @@ def main():
         gen_t.add_apprun()
         gen_s.add_apprun()
 
-    print(gen_t.get_sif_filename('shub://sodalite-hpe/modak:pytorch-1.5-cpu-pi'))
+    print(gen_t.get_sif_filename("shub://sodalite-hpe/modak:pytorch-1.5-cpu-pi"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

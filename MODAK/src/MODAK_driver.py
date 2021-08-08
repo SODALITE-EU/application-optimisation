@@ -20,21 +20,21 @@ class MODAK_driver:
     tablelist = []
     db_dir = ""
     logging.basicConfig(
-        filename='../log/MODAK{}.log'.format(
+        filename="../log/MODAK{}.log".format(
             datetime.now().strftime("%b_%d_%Y_%H_%M_%S")
         ),
-        filemode='w',
+        filemode="w",
         level=logging.DEBUG,
     )
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
-    def __init__(self, conf_file='../conf/iac-model.ini', install=False):
-        logging.info('Intialising driver')
+    def __init__(self, conf_file="../conf/iac-model.ini", install=False):
+        logging.info("Intialising driver")
         settings.initialise(conf_file)
         self.dbname = settings.DB_NAME
         logging.info("selected DB : {}".format(self.dbname))
         # Provide your Spark-master node below
-        logging.info('Connecting to model repo')
+        logging.info("Connecting to model repo")
         try:
             self.cnx = mysql.connector.connect(
                 user=settings.USER,
@@ -44,13 +44,13 @@ class MODAK_driver:
                 database=settings.DB_NAME,
             )
         except mysql.connector.Error as err:
-            logging.error('Error connecting to modak repo')
+            logging.error("Error connecting to modak repo")
             logging.error(err)
 
         # self.__init_IaC_modelrepo(install)
         if settings.QUITE_SERVER_LOGS:
             self._quiet_logs()
-        logging.info('Successfully initialised driver')
+        logging.info("Successfully initialised driver")
 
     def __del__(self):
         try:
@@ -89,13 +89,13 @@ class MODAK_driver:
                 # sql_data = pd.DataFrame(data=cur.fetchall(), index=None,
                 #                         columns=cur.column_names)
                 sql_data = pd.read_sql(sqlstr, self.cnx)
-                logging.info('Successfully executed SQL')
+                logging.info("Successfully executed SQL")
                 return sql_data
             except AttributeError:
                 logging.warning("No connected database")
                 return pd.DataFrame()
             except mysql.connector.Error as err:
-                logging.error('Error executing sql')
+                logging.error("Error executing sql")
                 logging.error(err)
                 raise RuntimeError(err)
             except Exception as excpt:
@@ -116,13 +116,13 @@ class MODAK_driver:
                 # sql_data = pd.DataFrame(data=cur.fetchall(), index=None,
                 #                         columns=cur.column_names)
                 sql_data = pd.read_sql(sqlstr, self.cnx)
-                logging.info('Successfully selected SQL')
+                logging.info("Successfully selected SQL")
                 return sql_data
             except AttributeError:
                 logging.warning("No connected database")
                 return pd.DataFrame()
             except mysql.connector.Error as err:
-                logging.error('Error executing sql')
+                logging.error("Error executing sql")
                 logging.error(err)
                 raise RuntimeError(err)
             except Exception as excpt:
@@ -141,13 +141,13 @@ class MODAK_driver:
                 cur.execute(sqlstr)
                 # # Put it all to a data frame
                 self.cnx.commit()
-                logging.info('Successfully updated SQL')
+                logging.info("Successfully updated SQL")
                 return True
             except AttributeError:
                 logging.warning("No connected database")
                 return False
             except mysql.connector.Error as err:
-                logging.error('Error executing sql')
+                logging.error("Error executing sql")
                 logging.error(err)
                 raise RuntimeError(err)
             except Exception as excpt:
@@ -162,11 +162,11 @@ class MODAK_driver:
 
 
 def main():
-    print('Test MODAK driver')
+    print("Test MODAK driver")
     driver = MODAK_driver()
     df = driver.applySQL("select * from optimisation")
-    print(df['app_name'])
+    print(df["app_name"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

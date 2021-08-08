@@ -8,8 +8,8 @@ class Scaler:
 
 def main():
     Scaler()
-    print('Test scaler main')
+    print("Test scaler main")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
