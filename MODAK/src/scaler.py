@@ -1,6 +1,4 @@
-import errno
 import logging
-import os
 
 
 class Scaler:

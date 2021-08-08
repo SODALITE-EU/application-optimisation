@@ -2,12 +2,12 @@
 print("This is the MODAK driver program")
 import logging
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import mysql.connector
 import pandas as pd
 
-from MODAK_sql import MODAK_sql
+# from MODAK_sql import MODAK_sql
 from settings import settings
 
 

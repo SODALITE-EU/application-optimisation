@@ -1,7 +1,5 @@
-import errno
 import json
 import logging
-import os
 
 from MODAK_driver import MODAK_driver
 from opt_dsl_reader import opt_dsl_reader

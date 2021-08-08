@@ -1,9 +1,6 @@
-import errno
 import logging
 import os
-from datetime import datetime
 
-from MODAK_driver import MODAK_driver
 from MODAK_gcloud import TransferData
 from opt_dsl_reader import opt_dsl_reader
 
