@@ -1,14 +1,19 @@
 import configparser
 import logging
 import os
+import pathlib
 from configparser import ConfigParser
+
+DEFAULT_SETTINGS_DIR = pathlib.Path(__file__).parent.resolve().parent / "conf"
 
 
 class Settings:
     """All setting for MODAK will be stored here. Change it make it tasty"""
 
     @classmethod
-    def initialise(cls, conf_file: str = "../conf/iac-model.ini"):
+    def initialise(
+        cls, conf_file: pathlib.Path = DEFAULT_SETTINGS_DIR / "iac-model.ini"
+    ):
         my_conf_file = os.environ.get("MODAK_CONFIG", conf_file)
         database_user = os.environ.get("MODAK_DATABASE_USER")
         database_password = os.environ.get("MODAK_DATABASE_PASSWORD")

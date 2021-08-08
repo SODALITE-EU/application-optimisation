@@ -8,7 +8,7 @@ import mysql.connector
 import pandas as pd
 
 # from MODAK_sql import MODAK_sql
-from settings import Settings
+from settings import DEFAULT_SETTINGS_DIR, Settings
 
 print("This is the MODAK driver program")
 
@@ -26,7 +26,7 @@ class MODAK_driver:
     )
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
-    def __init__(self, conf_file="../conf/iac-model.ini", install=False):
+    def __init__(self, conf_file=DEFAULT_SETTINGS_DIR / "iac-model.ini", install=False):
         logging.info("Intialising driver")
         Settings.initialise(conf_file)
         self.dbname = Settings.DB_NAME
