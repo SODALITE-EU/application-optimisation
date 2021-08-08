@@ -31,7 +31,7 @@ class MODAK:
         logging.info("Processing job data" + str(job_json_data))
         logging.info("Mapping to optimal container")
         new_container = self._map.map_container(job_json_data)
-        logging.info("Optimal container: {}".format(new_container))
+        logging.info(f"Optimal container: {new_container}")
 
         if new_container is not None:
             application = job_json_data.get("job").get("application")
@@ -62,9 +62,7 @@ class MODAK:
         gen_t.add_apprun()
 
         if self._upload:
-            file_to = "{}/{}_{}.sh".format(
-                "/modak", job_name, datetime.now().strftime("%Y%m%d%H%M%S")
-            )
+            file_to = f"/modak/{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
             self._job_link = self._drop.upload_file(file_from=job_file, file_to=file_to)
         else:
             self._job_link = job_file
@@ -82,9 +80,7 @@ class MODAK:
         )
         jobfile_generator(job_json_data, job_file, "torque")
 
-        file_to = "{}/{}_{}.sh".format(
-            "/modak", job_name, datetime.now().strftime("%Y%m%d%H%M%S")
-        )
+        file_to = f"/modak/{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         if self._upload:
             self._job_link = self._drop.upload_file(file_from=job_file, file_to=file_to)
         logging.info("Job script link: " + self._job_link)
@@ -94,7 +90,7 @@ class MODAK:
         logging.info("Mapping optimal container for job data")
         logging.info("Processing job data" + str(job_json_data))
         new_container = self._map.map_container(job_json_data)
-        logging.info("Optimal container: {}".format(new_container))
+        logging.info(f"Optimal container: {new_container}")
 
         if new_container is not None:
             application = job_json_data.get("job").get("application")
@@ -108,7 +104,7 @@ class MODAK:
         new_container = ""
         if opt_reader.optimisations_exist():
             new_container = self._map.map_container(job_json_data)
-        logging.info("Optimal container: {}".format(new_container))
+        logging.info(f"Optimal container: {new_container}")
         return new_container if new_container else ""
 
     def get_optimisation(self, job_json_data):

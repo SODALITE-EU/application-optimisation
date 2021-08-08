@@ -21,7 +21,7 @@ class TransferData:
         try:
             blob = self.bucket.blob(file_to)
             blob.upload_from_filename(file_from)
-            logging.info("Added {} to storage : {}".format(file_from, blob.public_url))
+            logging.info(f"Added {file_from} to storage : {blob.public_url}")
             # returns a public url
             return blob.public_url
         except google.cloud.exceptions as err:

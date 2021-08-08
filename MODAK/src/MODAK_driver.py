@@ -20,9 +20,7 @@ class MODAK_driver:
     tablelist = []
     db_dir = ""
     logging.basicConfig(
-        filename="../log/MODAK{}.log".format(
-            datetime.now().strftime("%b_%d_%Y_%H_%M_%S")
-        ),
+        filename=f"../log/MODAK{datetime.now().strftime('%b_%d_%Y_%H_%M_%S')}.log",
         filemode="w",
         level=logging.DEBUG,
     )
@@ -32,7 +30,7 @@ class MODAK_driver:
         logging.info("Intialising driver")
         settings.initialise(conf_file)
         self.dbname = settings.DB_NAME
-        logging.info("selected DB : {}".format(self.dbname))
+        logging.info(f"selected DB : {self.dbname}")
         # Provide your Spark-master node below
         logging.info("Connecting to model repo")
         try:
@@ -82,7 +80,7 @@ class MODAK_driver:
         re.sub(r"\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
-                logging.info("Executing : {}".format(sqlstr))
+                logging.info(f"Executing : {sqlstr}")
                 # cur = self.cnx.cursor()
                 # cur.execute(sqlstr)
                 # # Put it all to a data frame
@@ -109,7 +107,7 @@ class MODAK_driver:
         re.sub(r"\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
-                logging.info("Selecting : {}".format(sqlstr))
+                logging.info(f"Selecting : {sqlstr}")
                 # cur = self.cnx.cursor()
                 # cur.execute(sqlstr)
                 # # Put it all to a data frame
@@ -136,7 +134,7 @@ class MODAK_driver:
         re.sub(r"\s\s+", " ", sqlstr)
         if sqlstr != "":
             try:
-                logging.info("Updating : {}".format(sqlstr))
+                logging.info(f"Updating : {sqlstr}")
                 cur = self.cnx.cursor()
                 cur.execute(sqlstr)
                 # # Put it all to a data frame

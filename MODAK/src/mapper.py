@@ -20,7 +20,7 @@ class Mapper:
         if opt_json_obj["job"].get("target") is not None:
             if opt_json_obj["job"].get("target").get("name") is not None:
                 target_name = opt_json_obj["job"].get("target").get("name").strip()
-                self.opts.append("{}:true".format(target_name))
+                self.opts.append(f"{target_name}:true")
 
         if app_type == "ai_training":
             logging.info("Decoding AI training application")
@@ -177,13 +177,11 @@ class Mapper:
         # TODO: this changes original values from the request
         opts.pop("library")
 
-        sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(
-            app_name
-        )
+        sqlstr = f"select opt_dsl_code from optimisation where app_name = '{app_name}'"
 
         target_nodes = self.get_json_nodes(json.dumps(target))
         for t in target_nodes:
-            targetstr = " and target like '%{}%'".format(t)
+            targetstr = f" and target like '%{t}%'"
             sqlstr = sqlstr + targetstr
             logging.info("Adding target query " + targetstr)
 
@@ -194,7 +192,7 @@ class Mapper:
 
         opt_nodes = self.get_json_nodes(json.dumps(opts))
         for t in opt_nodes:
-            optstr = " and optimisation like '%{}%'".format(t)
+            optstr = f" and optimisation like '%{t}%'"
             sqlstr = sqlstr + optstr
             logging.info("Adding opt query " + optstr)
             self.opts.append(t)
@@ -204,7 +202,7 @@ class Mapper:
             dsl_code = df["opt_dsl_code"][0]
         else:
             dsl_code = None
-        logging.info("Decoded dsl code :  {}".format(dsl_code))
+        logging.info(f"Decoded dsl code :  {dsl_code}")
         return dsl_code
 
     def decode_ai_training_opt(self, opt_dsl: opt_dsl_reader):
@@ -231,7 +229,7 @@ class Mapper:
 
         target_nodes = self.get_json_nodes(json.dumps(target))
         for t in target_nodes:
-            targetstr = " and target like '%{}%'".format(t)
+            targetstr = f" and target like '%{t}%'"
             sqlstr = sqlstr + targetstr
             logging.info("Adding target query " + targetstr)
 
@@ -243,7 +241,7 @@ class Mapper:
         opt_nodes = self.get_json_nodes(json.dumps(optimisation))
         logging.info("Optimisations : " + str(opt_nodes))
         for t in opt_nodes:
-            optstr = " and optimisation like '%{}%'".format(t)
+            optstr = f" and optimisation like '%{t}%'"
             sqlstr = sqlstr + optstr
             logging.info("Adding opt query " + optstr)
             self.opts.append(t)
@@ -265,7 +263,7 @@ class Mapper:
         try:
             target_name = opt_json_obj["job"]["target"]["name"].strip()
             if target_name:
-                opts.append("{}:true".format(target_name))
+                opts.append(f"{target_name}:true")
         except KeyError:
             pass
 

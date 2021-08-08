@@ -288,7 +288,7 @@ class jobfile_generator:
             )
             cont = self.app_data.get("container_runtime", "")
             cont_exec_command = (
-                "{} {} ".format(self.singularity_exec, self.get_sif_filename(cont))
+                f"{self.singularity_exec} {self.get_sif_filename(cont)} "
                 if cont
                 else ""
             )
@@ -298,39 +298,25 @@ class jobfile_generator:
                 src = self.app_data["build"].get("src")
                 build_command = self.app_data["build"].get("build_command")
                 if src[-4:] == ".git":
-                    f.write("\ngit clone {}\n".format(src))
+                    f.write(f"\ngit clone {src}\n")
                 else:
-                    f.write("\nwget --no-check-certificate {}\n".format(src))
-                f.write("\n{} {}\n".format(cont_exec_command, build_command))
+                    f.write(f"\nwget --no-check-certificate {src}\n")
+                f.write(f"\n{cont_exec_command} {build_command}\n")
 
             if app_type == "mpi" or app_type == "hpc":
                 mpi_ranks = self.app_data.get("mpi_ranks", 1)
                 threads = self.app_data.get("threads", 1)
-                f.write("\nexport OMP_NUM_THREADS={}\n".format(threads))
+                f.write(f"\nexport OMP_NUM_THREADS={threads}\n")
                 if self.scheduler == "torque" and "openmpi:1.10" in cont:
-                    f.write(
-                        "{} mpirun -np {} {}\n".format(
-                            cont_exec_command, mpi_ranks, exe
-                        )
-                    )
+                    f.write(f"{cont_exec_command} mpirun -np {mpi_ranks} {exe}\n")
                 elif self.scheduler == "torque":
-                    f.write(
-                        "mpirun -np {} {} {}\n".format(
-                            mpi_ranks, cont_exec_command, exe
-                        )
-                    )
+                    f.write(f"mpirun -np {mpi_ranks} {cont_exec_command} {exe}\n")
                 elif self.scheduler == "slurm":
-                    f.write(
-                        "srun -n {} {} {}\n".format(mpi_ranks, cont_exec_command, exe)
-                    )
+                    f.write(f"srun -n {mpi_ranks} {cont_exec_command} {exe}\n")
                 else:
-                    f.write(
-                        "mpirun -np {} {} {}\n".format(
-                            mpi_ranks, cont_exec_command, exe
-                        )
-                    )
+                    f.write(f"mpirun -np {mpi_ranks} {cont_exec_command} {exe}\n")
             else:  # other app types, e.g. python
-                f.write("{} {}\n".format(cont_exec_command, exe))
+                f.write(f"{cont_exec_command} {exe}\n")
 
             f.close()
             logging.info("Successfully added app run")

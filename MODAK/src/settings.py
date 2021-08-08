@@ -14,7 +14,7 @@ class settings:
         database_password = os.environ.get("MODAK_DATABASE_PASSWORD")
         database_host = os.environ.get("MODAK_DATABASE_HOST")
         database_port = os.environ.get("MODAK_DATABASE_PORT")
-        logging.info("Reading ini file : {}".format(my_conf_file))
+        logging.info(f"Reading ini file : {my_conf_file}")
         try:
             config = ConfigParser()
             config.read(my_conf_file)
@@ -26,7 +26,7 @@ class settings:
             cls.PRODUCTION = False
             if cls.MODE == "prod":
                 cls.PRODUCTION = True
-            logging.info("Reading section {} of ini file ".format(section))
+            logging.info(f"Reading section {section} of ini file ")
             cls.DB_NAME = config.get(section, "db_name")
             logging.info("db name :" + cls.DB_NAME)
             cls.DB_DIR = config.get(section, "db_dir")
