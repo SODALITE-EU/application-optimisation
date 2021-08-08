@@ -7,10 +7,10 @@ from MODAK_driver import MODAK_driver
 from opt_dsl_reader import opt_dsl_reader
 
 
-class enforcer:
-    def __init__(self, __driver):
+class Enforcer:
+    def __init__(self, driver):
         logging.info("Initialised MODAK enforcer")
-        self.driver = __driver
+        self._driver = driver
 
     def enforce_opt(self, opts):
         logging.info('Enforcing opts ' + str(opts))
@@ -23,7 +23,7 @@ class enforcer:
             else:
                 opt_code = opt.split(':')
                 if 'true' in opt_code[1]:
-                    df = self.driver.applySQL(
+                    df = self._driver.applySQL(
                         "select script_name, script_loc, stage from optscript "
                         "where opt_code = '{}' ".format(opt_code[0])
                     )
@@ -33,7 +33,7 @@ class enforcer:
 
 def main():
     driver = MODAK_driver()
-    e = enforcer(driver)
+    e = Enforcer(driver)
     print('Test enforcer main')
     opts = ['version:2.1', 'xla:true']
     df = e.enforce_opt(opts)

@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from mapper import mapper
+from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from opt_dsl_reader import opt_dsl_reader
 
@@ -9,7 +9,7 @@ from opt_dsl_reader import opt_dsl_reader
 class test_mapper(unittest.TestCase):
     def setUp(self):
         self.driver = MODAK_driver()
-        self.m = mapper(self.driver)
+        self.m = Mapper(self.driver)
 
     def tearDown(self):
         pass

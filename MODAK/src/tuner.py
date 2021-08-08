@@ -8,17 +8,17 @@ from MODAK_gcloud import TransferData
 from opt_dsl_reader import opt_dsl_reader
 
 
-class tuner:
+class Tuner:
     def __init__(self, upload=True):
         """Tuner class."""
         logging.info("Initialised MODAK tuner")
-        self.__tune_input_file = ''
-        self.__tune_script_file = ''
-        self.__tune_input_link = ''
-        self.__tune_script_link = ''
-        self.__upload = upload
-        if self.__upload:
-            self.__drop = TransferData()
+        self._tune_input_file = ''
+        self._tune_script_file = ''
+        self._tune_input_link = ''
+        self._tune_script_link = ''
+        self._upload = upload
+        if self._upload:
+            self._drop = TransferData()
 
     def encode_tune(self, opt_json_obj, jobfile: str):
         logging.warning("Tuning not yet supported")
@@ -37,18 +37,18 @@ class tuner:
     #
     #        if tuner == 'cresta':
     #            jobname = jobfile.split('.')
-    #            self.__tune_input_file = jobname[0] + '.tune'
-    #            basename = os.path.basename(self.__tune_input_file)
-    #            with open(self.__tune_input_file, 'w') as t:
+    #            self._tune_input_file = jobname[0] + '.tune'
+    #            basename = os.path.basename(self._tune_input_file)
+    #            with open(self._tune_input_file, 'w') as t:
     #                t.write(tuner_input)
     #                t.close()
     #
     #            tune_file_to = "{}/{}".format('/modak', basename)
-    #            self.__tune_input_link = self.__drop.upload_file(file_from=self.__tune_input_file, file_to=tune_file_to)
+    #            self._tune_input_link = self._drop.upload_file(file_from=self._tune_input_file, file_to=tune_file_to)
     #
-    #            self.__tune_script_file = jobname[0] + '_tune.sh'
-    #            basescript = os.path.basename(self.__tune_script_file)
-    #            with open(self.__tune_script_file, 'w') as f:
+    #            self._tune_script_file = jobname[0] + '_tune.sh'
+    #            basescript = os.path.basename(self._tune_script_file)
+    #            with open(self._tune_script_file, 'w') as f:
     #                f.write('#!/bin/bash')
     #                f.write('\n')
     #                f.write('\n')
@@ -60,7 +60,7 @@ class tuner:
     #                f.write('\n')
     #                f.write('export PATH=$PATH:$(pwd)/cresta')
     #                f.write('\n')
-    #                f.write('wget --no-check-certificate ' + self.__tune_input_link)
+    #                f.write('wget --no-check-certificate ' + self._tune_input_link)
     #                f.write('\n')
     #                f.write('tune ' + basename)
     #                f.write('\n')
@@ -69,7 +69,7 @@ class tuner:
     #                f.close()
     #
     #            tune_script_to = "{}/{}".format('/modak', basescript)
-    #            self.__tune_script_link = self.__drop.upload_file(file_from=self.__tune_script_file, file_to=tune_script_to)
+    #            self._tune_script_link = self._drop.upload_file(file_from=self._tune_script_file, file_to=tune_script_to)
     #            logging.info("Successfully encoded tuner")
     #            return True
     #        else:
@@ -77,17 +77,17 @@ class tuner:
     #            return False
 
     def get_tune_link(self):
-        return self.__tune_script_link
+        return self._tune_script_link
 
     def get_tune_file(self):
-        return self.__tune_script_file
+        return self._tune_script_file
 
     def get_tune_filename(self):
-        return os.path.basename(self.__tune_script_file)
+        return os.path.basename(self._tune_script_file)
 
 
 def main():
-    t = tuner()
+    t = Tuner()
     reader = opt_dsl_reader('../conf/tf_optimisation_dsl.json')
     t.encode_tune(reader, '../test/job.pbs')
     print('Test tuner main')
