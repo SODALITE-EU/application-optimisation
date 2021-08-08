@@ -3,7 +3,7 @@ import unittest
 
 from mapper import Mapper
 from MODAK_driver import MODAK_driver
-from opt_dsl_reader import opt_dsl_reader
+from opt_dsl_reader import OptDSLReader
 
 
 class test_mapper(unittest.TestCase):
@@ -68,7 +68,7 @@ class test_mapper(unittest.TestCase):
     def test_map_container_hpc(self):
         with open("../test/input/mpi_solver.json") as json_file:
             job_data = json.load(json_file)
-            reader = opt_dsl_reader(job_data["job"])
+            reader = OptDSLReader(job_data["job"])
             dsl_code = self.m.decode_hpc_opt(reader)
             self.assertEqual(dsl_code, "mpich_ub1804_cuda101_mpi314_gnugprof")
 

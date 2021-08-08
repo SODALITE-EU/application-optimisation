@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from opt_dsl_reader import opt_dsl_reader
+from opt_dsl_reader import OptDSLReader
 
 
 class test_dsl_reader(unittest.TestCase):
@@ -12,7 +12,7 @@ class test_dsl_reader(unittest.TestCase):
         with open(dsl_file) as json_file:
             opt_json_obj = json.load(json_file)
             print(opt_json_obj)
-            self.reader = opt_dsl_reader(opt_json_obj["job"])
+            self.reader = OptDSLReader(opt_json_obj["job"])
 
     def tearDown(self):
         pass

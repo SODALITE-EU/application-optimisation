@@ -8,7 +8,7 @@ import mysql.connector
 import pandas as pd
 
 # from MODAK_sql import MODAK_sql
-from settings import settings
+from settings import Settings
 
 print("This is the MODAK driver program")
 
@@ -28,25 +28,25 @@ class MODAK_driver:
 
     def __init__(self, conf_file="../conf/iac-model.ini", install=False):
         logging.info("Intialising driver")
-        settings.initialise(conf_file)
-        self.dbname = settings.DB_NAME
+        Settings.initialise(conf_file)
+        self.dbname = Settings.DB_NAME
         logging.info(f"selected DB : {self.dbname}")
         # Provide your Spark-master node below
         logging.info("Connecting to model repo")
         try:
             self.cnx = mysql.connector.connect(
-                user=settings.USER,
-                password=settings.PASSWORD,
-                host=settings.HOST,
-                port=settings.PORT,
-                database=settings.DB_NAME,
+                user=Settings.USER,
+                password=Settings.PASSWORD,
+                host=Settings.HOST,
+                port=Settings.PORT,
+                database=Settings.DB_NAME,
             )
         except mysql.connector.Error as err:
             logging.error("Error connecting to modak repo")
             logging.error(err)
 
         # self.__init_IaC_modelrepo(install)
-        if settings.QUITE_SERVER_LOGS:
+        if Settings.QUITE_SERVER_LOGS:
             self._quiet_logs()
         logging.info("Successfully initialised driver")
 
@@ -62,8 +62,8 @@ class MODAK_driver:
     #         self.applySQL('create database ' + self.dbname)
     #         for table in MODAK_sql.table_create_stmt.keys():
     #             self.applySQL("drop table " + table)
-    #             logging.info(MODAK_sql.table_create_stmt[table].format(settings.DB_DIR))
-    #             self.applySQL(MODAK_sql.table_create_stmt[table].format(settings.DB_DIR))
+    #             logging.info(MODAK_sql.table_create_stmt[table].format(Settings.DB_DIR))
+    #             self.applySQL(MODAK_sql.table_create_stmt[table].format(Settings.DB_DIR))
     #
     #     dfdb = self.sqlContextHive.sql('show databases')
     #     dfdb.show()

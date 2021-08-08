@@ -2,7 +2,7 @@ import json
 import logging
 
 from MODAK_driver import MODAK_driver
-from opt_dsl_reader import opt_dsl_reader
+from opt_dsl_reader import OptDSLReader
 
 
 class Mapper:
@@ -14,7 +14,7 @@ class Mapper:
     def map_container(self, opt_json_obj):
         logging.info("Mapping to optimal container")
         logging.info(str(opt_json_obj.get("job").get("optimisation")))
-        reader = opt_dsl_reader(opt_json_obj["job"])
+        reader = OptDSLReader(opt_json_obj["job"])
         app_type = reader.get_app_type()
         dsl_code = None
         if opt_json_obj["job"].get("target") is not None:
@@ -156,7 +156,7 @@ class Mapper:
         target_nodes = target_str.split(",")
         return target_nodes
 
-    def decode_hpc_opt(self, opt_dsl: opt_dsl_reader):
+    def decode_hpc_opt(self, opt_dsl: OptDSLReader):
         logging.info("Decoding HPC optimisation")
         app_type = opt_dsl.get_app_type()
         if not app_type == "hpc":
@@ -205,7 +205,7 @@ class Mapper:
         logging.info(f"Decoded dsl code :  {dsl_code}")
         return dsl_code
 
-    def decode_ai_training_opt(self, opt_dsl: opt_dsl_reader):
+    def decode_ai_training_opt(self, opt_dsl: OptDSLReader):
         logging.info("Decoding AI training optimisation")
         app_type = opt_dsl.get_app_type()
         if not app_type == "ai_training":
@@ -267,7 +267,7 @@ class Mapper:
         except KeyError:
             pass
 
-        reader = opt_dsl_reader(opt_json_obj["job"])
+        reader = OptDSLReader(opt_json_obj["job"])
         opts_list = reader.get_opts_list()
         if opts_list:
             opt_nodes = self.get_json_nodes(json.dumps(opts_list))
@@ -296,7 +296,7 @@ def main():
     with open("../test/input/mpi_solver.json") as json_file:
         job_data = json.load(json_file)
         print(job_data)
-        reader = opt_dsl_reader(job_data["job"])
+        reader = OptDSLReader(job_data["job"])
         dsl_code = m.decode_hpc_opt(reader)
         print(dsl_code)
 

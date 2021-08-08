@@ -1,7 +1,7 @@
 import json
 
 
-class opt_dsl_reader:
+class OptDSLReader:
     def __init__(self, opt_dsl_obj):
         self.opt_node = opt_dsl_obj.get("optimisation", {})
 
@@ -92,7 +92,7 @@ def main():
     dsl_file = "../test/mpi_solver.json"
     with open(dsl_file) as json_file:
         obj = json.load(json_file)
-        reader = opt_dsl_reader(obj["job"])
+        reader = OptDSLReader(obj["job"])
         print(reader.get_cpu_type())
         print(reader.get_acc_type())
         print(reader.get_tuner())
