@@ -3,13 +3,13 @@ import logging
 import os
 
 
-class scaler:
+class Scaler:
     def __init__(self):
         logging.info("Initialised MODAK scaler")
 
 
 def main():
-    s = scaler()
+    s = Scaler()
     print('Test scaler main')
 
 

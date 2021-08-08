@@ -7,7 +7,7 @@ from MODAK_driver import MODAK_driver
 from opt_dsl_reader import opt_dsl_reader
 
 
-class mapper:
+class Mapper:
     def __init__(self, driver: MODAK_driver):
         logging.info("Initialised MODAK mapper")
         self.driver = driver
@@ -280,7 +280,7 @@ class mapper:
 
 def main():
     driver = MODAK_driver()
-    m = mapper(driver)
+    m = Mapper(driver)
     print('Test mapper main')
 
     # target_string = u'{"enable_opt_build":"false","cpu_type":"x86","acc_type":"nvidia"}'

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from tuner import tuner
+from tuner import Tuner
 
 
 class jobfile_generator:
@@ -35,7 +35,7 @@ class jobfile_generator:
 
     # Based on https://kb.northwestern.edu/page.php?id=89454
 
-    def __generate_torque_header(self):
+    def _generate_torque_header(self):
         logging.info("Generating torque header")
         filename = self.batch_file
         DIRECTIVE = '#PBS'
@@ -131,7 +131,7 @@ class jobfile_generator:
         f.write('\n')
         f.close()
 
-    def __generate_slurm_header(self):
+    def _generate_slurm_header(self):
         logging.info("Generating slurm header")
         filename = self.batch_file
         DIRECTIVE = '#SBATCH'
@@ -243,7 +243,7 @@ class jobfile_generator:
 
         f.close()
 
-    def __generate_bash_header(self):
+    def _generate_bash_header(self):
         logging.info("Generating bash header")
         filename = self.batch_file
         f = open(filename, 'w')
@@ -252,32 +252,32 @@ class jobfile_generator:
 
     def add_job_header(self):
         if self.job_data and self.scheduler == 'torque':
-            self.__generate_torque_header()
+            self._generate_torque_header()
         elif self.job_data and self.scheduler == 'slurm':
-            self.__generate_slurm_header()
+            self._generate_slurm_header()
         else:
-            self.__generate_bash_header()
+            self._generate_bash_header()
 
     def add_tuner(self, upload=True):
-        __tuner = tuner(upload)
-        res = __tuner.encode_tune(self.job_json_obj, self.batch_file)
+        tuner = Tuner(upload)
+        res = tuner.encode_tune(self.job_json_obj, self.batch_file)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")
             return None
 
-        logging.info("Adding tuner" + str(__tuner))
+        logging.info("Adding tuner" + str(tuner))
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
             f.write('\n')
             f.write('## START OF TUNER ##')
             f.write('\n')
-            f.write('file=' + __tuner.get_tune_filename())
+            f.write('file=' + tuner.get_tune_filename())
             f.write('\n')
             f.write('if [ -f $file ] ; then rm $file; fi')
             f.write('\n')
-            f.write('wget --no-check-certificate ' + __tuner.get_tune_link())
+            f.write('wget --no-check-certificate ' + tuner.get_tune_link())
             f.write('\n')
-            f.write('chmod 755 ' + __tuner.get_tune_filename())
+            f.write('chmod 755 ' + tuner.get_tune_filename())
             f.write('\n')
             if "container_runtime" in self.app_data:
                 cont = self.app_data['container_runtime']
@@ -285,12 +285,12 @@ class jobfile_generator:
                     '\n{} {} {}'.format(
                         self.singularity_exec,
                         self.get_sif_filename(cont),
-                        __tuner.get_tune_filename(),
+                        tuner.get_tune_filename(),
                     )
                 )
                 f.write('\n')
             else:
-                f.write('source ' + __tuner.get_tune_filename())
+                f.write('source ' + tuner.get_tune_filename())
                 f.write('\n')
             f.write('## END OF TUNER ##')
             f.write('\n')
