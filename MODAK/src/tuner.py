@@ -9,10 +9,10 @@ class Tuner:
     def __init__(self, upload=True):
         """Tuner class."""
         logging.info("Initialised MODAK tuner")
-        self._tune_input_file = ''
-        self._tune_script_file = ''
-        self._tune_input_link = ''
-        self._tune_script_link = ''
+        self._tune_input_file = ""
+        self._tune_script_file = ""
+        self._tune_input_link = ""
+        self._tune_script_link = ""
         self._upload = upload
         if self._upload:
             self._drop = TransferData()
@@ -88,10 +88,10 @@ class Tuner:
 
 def main():
     t = Tuner()
-    reader = opt_dsl_reader('../conf/tf_optimisation_dsl.json')
-    t.encode_tune(reader, '../test/job.pbs')
-    print('Test tuner main')
+    reader = opt_dsl_reader("../conf/tf_optimisation_dsl.json")
+    t.encode_tune(reader, "../test/job.pbs")
+    print("Test tuner main")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
