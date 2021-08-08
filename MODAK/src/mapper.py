@@ -1,12 +1,14 @@
-import os,errno
-from MODAK_driver import MODAK_driver
-import logging
+import errno
 import json
+import logging
+import os
+
+from MODAK_driver import MODAK_driver
 from opt_dsl_reader import opt_dsl_reader
 
-class mapper():
 
-    def __init__(self, driver:MODAK_driver):
+class mapper:
+    def __init__(self, driver: MODAK_driver):
         logging.info("Initialised MODAK mapper")
         self.driver = driver
         self.opts = []
@@ -35,56 +37,114 @@ class mapper():
 
     def add_optcontainer(self, map_obj):
         logging.info('Adding optimal container ' + str(map_obj))
-        self.add_optimisation(map_obj.get('name'), map_obj.get('app_name'), map_obj.get('build'),map_obj.get('optimisation'))
-        self.add_container(map_obj.get('name'), map_obj.get('container_file'), map_obj.get('image_hub'),
-                           map_obj.get('image_type'), map_obj.get('src'))
+        self.add_optimisation(
+            map_obj.get('name'),
+            map_obj.get('app_name'),
+            map_obj.get('build'),
+            map_obj.get('optimisation'),
+        )
+        self.add_container(
+            map_obj.get('name'),
+            map_obj.get('container_file'),
+            map_obj.get('image_hub'),
+            map_obj.get('image_type'),
+            map_obj.get('src'),
+        )
 
-
-    def add_container(self, opt_dsl_code:str, container_file:str, image_hub:str='docker', image_type:str='docker', src: str=''):
+    def add_container(
+        self,
+        opt_dsl_code: str,
+        container_file: str,
+        image_hub: str = 'docker',
+        image_type: str = 'docker',
+        src: str = '',
+    ):
         logging.info('Adding container to mapper ')
-        stmt = "INSERT INTO `mapper`(`map_id`,`opt_dsl_code`,`container_file`,`image_type`,`image_hub`,`src`) VALUES" \
-               "(NULL,'{opt_dsl_code}','{container_file}','{image_type}','{image_hub}','{src}')"
-        logging.info(stmt.format( opt_dsl_code=opt_dsl_code, container_file=container_file,
-                           image_type=image_type, image_hub=image_hub, src=src))
-        self.driver.updateSQL(stmt.format( opt_dsl_code=opt_dsl_code, container_file=container_file,
-                                          image_type=image_type, image_hub=image_hub, src=src))
+        stmt = (
+            "INSERT INTO `mapper`(`map_id`,`opt_dsl_code`,`container_file`,`image_type`,`image_hub`,`src`) VALUES"
+            "(NULL,'{opt_dsl_code}','{container_file}','{image_type}','{image_hub}','{src}')"
+        )
+        logging.info(
+            stmt.format(
+                opt_dsl_code=opt_dsl_code,
+                container_file=container_file,
+                image_type=image_type,
+                image_hub=image_hub,
+                src=src,
+            )
+        )
+        self.driver.updateSQL(
+            stmt.format(
+                opt_dsl_code=opt_dsl_code,
+                container_file=container_file,
+                image_type=image_type,
+                image_hub=image_hub,
+                src=src,
+            )
+        )
         return True
 
-    def add_optimisation(self, opt_dsl_code: str, app_name: str,  target: dict, optimisation: dict):
+    def add_optimisation(
+        self, opt_dsl_code: str, app_name: str, target: dict, optimisation: dict
+    ):
         logging.info('Adding dsl code to Optimisation ')
         target_str = ""
         for key in target:
-            target_str = target_str + str(key).lower() + ":" + str(target[key]).lower() + ","
+            target_str = (
+                target_str + str(key).lower() + ":" + str(target[key]).lower() + ","
+            )
         opt_str = ""
         for key in optimisation:
-            opt_str = opt_str + str(key).lower() + ":" + str(optimisation[key]).lower() + ","
+            opt_str = (
+                opt_str + str(key).lower() + ":" + str(optimisation[key]).lower() + ","
+            )
 
         logging.info('Target string: ' + target_str)
         logging.info('Opt string: ' + opt_str)
-        stmt = "INSERT INTO `optimisation`(`opt_dsl_code`,`app_name`,`target`,`optimisation`,`version`) VALUES " \
-               "('{opt_dsl_code}','{app_name}','{target}','{optimisation}','{version}')"
+        stmt = (
+            "INSERT INTO `optimisation`(`opt_dsl_code`,`app_name`,`target`,`optimisation`,`version`) VALUES "
+            "('{opt_dsl_code}','{app_name}','{target}','{optimisation}','{version}')"
+        )
 
-        logging.info((stmt.format(opt_dsl_code=opt_dsl_code, app_name=app_name,
-                          target=target_str, optimisation=opt_str, version='')))
-        self.driver.updateSQL(stmt.format(opt_dsl_code=opt_dsl_code, app_name=app_name,
-                                         target=target_str, optimisation=opt_str, version=''))
+        logging.info(
+            (
+                stmt.format(
+                    opt_dsl_code=opt_dsl_code,
+                    app_name=app_name,
+                    target=target_str,
+                    optimisation=opt_str,
+                    version='',
+                )
+            )
+        )
+        self.driver.updateSQL(
+            stmt.format(
+                opt_dsl_code=opt_dsl_code,
+                app_name=app_name,
+                target=target_str,
+                optimisation=opt_str,
+                version='',
+            )
+        )
         return True
 
-    def get_container(self, opt_dsl_code:str):
-        logging.info('Get container for opt code: ' +  str(opt_dsl_code))
+    def get_container(self, opt_dsl_code: str):
+        logging.info('Get container for opt code: ' + str(opt_dsl_code))
         stmt = "select container_file, image_type, image_hub from mapper \
                 where opt_dsl_code='{}' order by map_id desc limit 1"
         df = self.driver.applySQL(stmt.format(opt_dsl_code))
         if df.size > 0:
             container_file = df['container_file'][0]
             image_hub = df['image_hub'][0]
-            logging.info('Container link: ' + str(image_hub) + str('://')+str(container_file))
-            return str(image_hub) + str('://')+str(container_file)
+            logging.info(
+                'Container link: ' + str(image_hub) + str('://') + str(container_file)
+            )
+            return str(image_hub) + str('://') + str(container_file)
         else:
             logging.warning('No optimal container found')
             return None
 
-    def get_json_nodes(self,target_str: str):
+    def get_json_nodes(self, target_str: str):
         target_str = target_str.replace('{', '')
         target_str = target_str.replace('}', '')
         target_str = target_str.replace('"', '')
@@ -108,16 +168,18 @@ class mapper():
             target = u'{}'
 
         config = opt_dsl.get_app_config()
-        logging.info('Config section: ' +  str(config))
+        logging.info('Config section: ' + str(config))
         parallel = config['parallelisation']
         logging.info('Parallelisation' + str(parallel))
         opts = opt_dsl.get_opt_list(parallel)
-        logging.info('optimisations: ' +  str(opts))
+        logging.info('optimisations: ' + str(opts))
         app_name = opts.get('library')
         # TODO: this changes original values from the request
         opts.pop('library')
 
-        sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(app_name)
+        sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(
+            app_name
+        )
 
         target_nodes = self.get_json_nodes(json.dumps(target))
         for t in target_nodes:
@@ -145,7 +207,7 @@ class mapper():
         logging.info('Decoded dsl code :  {}'.format(dsl_code))
         return dsl_code
 
-    def decode_ai_training_opt(self,opt_dsl:opt_dsl_reader):
+    def decode_ai_training_opt(self, opt_dsl: opt_dsl_reader):
         logging.info('Decoding AI training optimisation')
         app_type = opt_dsl.get_app_type()
         if not app_type == 'ai_training':
@@ -163,7 +225,9 @@ class mapper():
 
         optimisation = opt_dsl.get_opt_list(ai_framework)
 
-        sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(ai_framework)
+        sqlstr = "select opt_dsl_code from optimisation where app_name = '{}'".format(
+            ai_framework
+        )
 
         target_nodes = self.get_json_nodes(json.dumps(target))
         for t in target_nodes:
@@ -213,6 +277,7 @@ class mapper():
 
         return opts
 
+
 def main():
     driver = MODAK_driver()
     m = mapper(driver)
@@ -235,6 +300,7 @@ def main():
         reader = opt_dsl_reader(job_data['job'])
         dsl_code = m.decode_hpc_opt(reader)
         print(dsl_code)
+
 
 if __name__ == '__main__':
     main()

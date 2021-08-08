@@ -1,21 +1,29 @@
 #! /bin/python
 print("This is the MODAK driver program")
-import pandas as pd
-import mysql.connector
-from datetime import datetime, timedelta
-from settings import settings
-from MODAK_sql import MODAK_sql
 import logging
 import re
+from datetime import datetime, timedelta
+
+import mysql.connector
+import pandas as pd
+
+from MODAK_sql import MODAK_sql
+from settings import settings
 
 
-class MODAK_driver():
-    """This is the driver program that will drive the MODAK """
+class MODAK_driver:
+    """This is the driver program that will drive the MODAK"""
+
     dblist = []
     tablelist = []
     db_dir = ""
-    logging.basicConfig(filename='../log/MODAK{}.log'.format(datetime.now().strftime("%b_%d_%Y_%H_%M_%S")), \
-                        filemode='w', level=logging.DEBUG)
+    logging.basicConfig(
+        filename='../log/MODAK{}.log'.format(
+            datetime.now().strftime("%b_%d_%Y_%H_%M_%S")
+        ),
+        filemode='w',
+        level=logging.DEBUG,
+    )
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
     def __init__(self, conf_file='../conf/iac-model.ini', install=False):
@@ -26,9 +34,13 @@ class MODAK_driver():
         # Provide your Spark-master node below
         logging.info('Connecting to model repo')
         try:
-            self.cnx = mysql.connector.connect(user=settings.USER, password=settings.PASSWORD,
-                                       host=settings.HOST, port= settings.PORT,
-                                       database=settings.DB_NAME)
+            self.cnx = mysql.connector.connect(
+                user=settings.USER,
+                password=settings.PASSWORD,
+                host=settings.HOST,
+                port=settings.PORT,
+                database=settings.DB_NAME,
+            )
         except mysql.connector.Error as err:
             logging.error('Error connecting to modak repo')
             logging.error(err)
@@ -90,7 +102,6 @@ class MODAK_driver():
             logging.error("Empty or invalid sql string")
             raise ValueError("Empty or invalid SQL statement")
 
-
     def selectSQL(self, sqlstr):
         re.sub("\s\s+", " ", sqlstr)
         if sqlstr != "":
@@ -145,11 +156,13 @@ class MODAK_driver():
     def _quiet_logs(self):
         pass
 
+
 def main():
     print('Test MODAK driver')
     driver = MODAK_driver()
     df = driver.applySQL("select * from optimisation")
     print(df['app_name'])
+
 
 if __name__ == '__main__':
     main()

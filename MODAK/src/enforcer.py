@@ -1,11 +1,13 @@
-import os,errno
-import logging
-from MODAK_driver import MODAK_driver
+import errno
 import json
+import logging
+import os
+
+from MODAK_driver import MODAK_driver
 from opt_dsl_reader import opt_dsl_reader
 
-class enforcer():
 
+class enforcer:
     def __init__(self, __driver):
         logging.info("Initialised MODAK enforcer")
         self.driver = __driver
@@ -21,11 +23,12 @@ class enforcer():
             else:
                 opt_code = opt.split(':')
                 if 'true' in opt_code[1]:
-                    df = self.driver.applySQL("select script_name, script_loc, stage from optscript "
-                                         "where opt_code = '{}' ". format(opt_code[0]))
+                    df = self.driver.applySQL(
+                        "select script_name, script_loc, stage from optscript "
+                        "where opt_code = '{}' ".format(opt_code[0])
+                    )
                     dfs.append(df)
         return dfs
-
 
 
 def main():
@@ -38,6 +41,7 @@ def main():
     for i in range(0, df.shape[0]):
         print(df['script_name'][i])
         print(df['script_loc'][i])
+
 
 if __name__ == '__main__':
     main()

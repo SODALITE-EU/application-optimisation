@@ -1,9 +1,10 @@
-from datetime import datetime
+import logging
 import os
 import time
-from google.cloud import storage
+from datetime import datetime
+
 import google.cloud.exceptions
-import logging
+from google.cloud import storage
 
 
 class TransferData:
@@ -12,16 +13,14 @@ class TransferData:
         # file.
         logging.info('Initialising gcloud storage')
         try:
-            self.storage_client = storage.Client.from_service_account_json(
-                google_cred)
+            self.storage_client = storage.Client.from_service_account_json(google_cred)
             self.bucket = self.storage_client.get_bucket('modak-bucket')
         except google.cloud.exceptions as err:
             logging.error(str(err))
             raise RuntimeError(str(err))
 
-
     def upload_file(self, file_from=None, file_to=None):
-        """ Upload data to a bucket"""
+        """Upload data to a bucket"""
         try:
             blob = self.bucket.blob(file_to)
             blob.upload_from_filename(file_from)
@@ -35,7 +34,7 @@ class TransferData:
 
 def main():
     transferData = TransferData()
-    link = transferData.upload_file('scripts/enable_xla.sh','test/enable_xla.sh' )
+    link = transferData.upload_file('scripts/enable_xla.sh', 'test/enable_xla.sh')
     print(link)
 
 

@@ -1,6 +1,8 @@
-import unittest
-from opt_dsl_reader import opt_dsl_reader
 import json
+import unittest
+
+from opt_dsl_reader import opt_dsl_reader
+
 
 class test_dsl_reader(unittest.TestCase):
     def setUp(self):
@@ -19,10 +21,10 @@ class test_dsl_reader(unittest.TestCase):
         self.assertEqual(self.reader.get_cpu_type(), 'x86')
         self.assertEqual(self.reader.get_acc_type(), 'nvidia')
         self.assertEqual(self.reader.get_tuner(), 'cresta')
-        self.assertEqual(self.reader.get_tuner_input(),'dsl text')
-        self.assertEqual(self.reader.get_app_type(),'ai_training')
+        self.assertEqual(self.reader.get_tuner_input(), 'dsl text')
+        self.assertEqual(self.reader.get_app_type(), 'ai_training')
         keras_opt = self.reader.get_opt_list('tensorflow')
-        self.assertEqual(keras_opt['version'],'2.1')
+        self.assertEqual(keras_opt['version'], '2.1')
 
 
 if __name__ == '__main__':

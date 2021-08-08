@@ -1,18 +1,21 @@
 #!/usr/bin/python3
-import sys, getopt
-from MODAK_driver import MODAK_driver
-from settings import settings
+import getopt
+import json
+import logging
+import sys
+from datetime import datetime
+
+from enforcer import enforcer
 from jobfile_generator import jobfile_generator
 from mapper import mapper
+from MODAK_driver import MODAK_driver
 from MODAK_gcloud import TransferData
-from datetime import datetime
-from enforcer import enforcer
 from opt_dsl_reader import opt_dsl_reader
-import logging
-import json
+from settings import settings
 
-class MODAK():
-    def __init__(self, conf_file:str = '../conf/iac-model.ini', upload=False):
+
+class MODAK:
+    def __init__(self, conf_file: str = '../conf/iac-model.ini', upload=False):
         """General MODAK class."""
         logging.info('Intialising MODAK')
         self.__driver = MODAK_driver(conf_file)
@@ -41,7 +44,9 @@ class MODAK():
         # job_json_data.get('job').get('application').get('container_runtime')
 
         logging.info('Generating job file header')
-        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+        job_file = "{}/{}_{}.sh".format(
+            settings.OUT_DIR, job_name, datetime.now().strftime('%Y%m%d%H%M%S')
+        )
         gen_t = jobfile_generator(job_json_data, job_file, "torque")
 
         logging.info('Adding autotuning scripts')
@@ -57,8 +62,12 @@ class MODAK():
         gen_t.add_apprun()
 
         if self.__upload:
-            file_to = "{}/{}_{}.sh".format('/modak',job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
-            self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
+            file_to = "{}/{}_{}.sh".format(
+                '/modak', job_name, datetime.now().strftime('%Y%m%d%H%M%S')
+            )
+            self.__job_link = self.__drop.upload_file(
+                file_from=job_file, file_to=file_to
+            )
         else:
             self.__job_link = job_file
         logging.info('Job script link: ' + self.__job_link)
@@ -70,17 +79,23 @@ class MODAK():
         job_name = job_json_data.get('job').get('job_options').get('job_name')
         if job_name is None:
             job_name = 'job'
-        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR, job_name, datetime.now().strftime('%Y%m%d%H%M%S'))
+        job_file = "{}/{}_{}.sh".format(
+            settings.OUT_DIR, job_name, datetime.now().strftime('%Y%m%d%H%M%S')
+        )
         gen_t = jobfile_generator(job_json_data, job_file, "torque")
 
-        file_to = "{}/{}_{}.sh".format('/modak', job_name, datetime.now().strftime('%Y%m%d%H%M%S'))
+        file_to = "{}/{}_{}.sh".format(
+            '/modak', job_name, datetime.now().strftime('%Y%m%d%H%M%S')
+        )
         if self.__upload:
-            self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
+            self.__job_link = self.__drop.upload_file(
+                file_from=job_file, file_to=file_to
+            )
         logging.info('Job script link: ' + self.__job_link)
         return self.__job_link
 
     def opt_container_runtime(self, job_json_data):
-        logging.info('Mapping optimal container for job data' )
+        logging.info('Mapping optimal container for job data')
         logging.info('Processing job data' + str(job_json_data))
         new_container = self.__map.map_container(job_json_data)
         logging.info('Optimal container: {}'.format(new_container))
@@ -112,12 +127,18 @@ class MODAK():
             application['container_runtime'] = new_container
             logging.info('Successfully updated container runtime')
 
-        job_name = job_json_data.get('job').get('job_options', {}).get('job_name', "job")
+        job_name = (
+            job_json_data.get('job').get('job_options', {}).get('job_name', "job")
+        )
         if job_name is None:
-            job_name = job_json_data.get('job').get('application', {}).get('app_tag', "job")
+            job_name = (
+                job_json_data.get('job').get('application', {}).get('app_tag', "job")
+            )
 
         logging.info('Generating job file header')
-        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+        job_file = "{}/{}_{}.sh".format(
+            settings.OUT_DIR, job_name, datetime.now().strftime('%Y%m%d%H%M%S')
+        )
         gen_t = jobfile_generator(job_json_data, job_file)
 
         logging.info('Adding job header')
@@ -130,7 +151,9 @@ class MODAK():
             logging.info('Adding autotuning scripts')
             gen_t.add_tuner(self.__upload)
 
-        logging.info('Applying optimisations ' + str(self.__map.get_decoded_opts(job_json_data)))
+        logging.info(
+            'Applying optimisations ' + str(self.__map.get_decoded_opts(job_json_data))
+        )
         opts = self.__enf.enforce_opt(self.__map.get_decoded_opts(job_json_data))
         for opt in opts:
             for i in range(0, opt.shape[0]):
@@ -143,7 +166,8 @@ class MODAK():
         job_script_content = f.read()
 
         logging.info('Job script content: ' + job_script_content)
-        return ( new_container, job_script_content )
+        return (new_container, job_script_content)
+
 
 def main(argv=None):
     if argv is None:
@@ -175,6 +199,7 @@ def main(argv=None):
     job_data['job'].update({'job_script': link})
     with open(outputfile, 'w') as fp:
         json.dump(job_data, fp)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
