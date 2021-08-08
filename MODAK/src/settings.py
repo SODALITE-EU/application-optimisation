@@ -4,7 +4,7 @@ import os
 from configparser import ConfigParser
 
 
-class settings:
+class Settings:
     """All setting for MODAK will be stored here. Change it make it tasty"""
 
     @classmethod

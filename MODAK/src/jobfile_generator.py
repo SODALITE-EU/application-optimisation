@@ -5,7 +5,7 @@ import os
 from tuner import Tuner
 
 
-class jobfile_generator:
+class JobfileGenerator:
     def __init__(self, job_json_obj, batch_file: str, scheduler: str = None):
         """Generates the job files, e.g. PBS and SLURM."""
         logging.info("Initialising job file generator")
@@ -330,8 +330,8 @@ def main():
     dsl_file = "../test/input/tf_snow.json"
     with open(dsl_file) as json_file:
         obj = json.load(json_file)
-        gen_t = jobfile_generator(obj, "../test/torque.pbs", "torque")
-        gen_s = jobfile_generator(obj, "../test/slurm.batch", "slurm")
+        gen_t = JobfileGenerator(obj, "../test/torque.pbs", "torque")
+        gen_s = JobfileGenerator(obj, "../test/slurm.batch", "slurm")
         gen_t.add_apprun()
         gen_s.add_apprun()
 

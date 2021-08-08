@@ -2,7 +2,7 @@ import logging
 import os
 
 from MODAK_gcloud import TransferData
-from opt_dsl_reader import opt_dsl_reader
+from opt_dsl_reader import OptDSLReader
 
 
 class Tuner:
@@ -22,7 +22,7 @@ class Tuner:
         return False
 
     #        logging.info("Encoding tuner")
-    #        reader = opt_dsl_reader(opt_json_obj['job'])
+    #        reader = OptDSLReader(opt_json_obj['job'])
     #        if not reader.enable_autotuning() or reader.enable_autotuning() is None:
     #            logging.info("Disabled tuning")
     #            return False
@@ -88,7 +88,7 @@ class Tuner:
 
 def main():
     t = Tuner()
-    reader = opt_dsl_reader("../conf/tf_optimisation_dsl.json")
+    reader = OptDSLReader("../conf/tf_optimisation_dsl.json")
     t.encode_tune(reader, "../test/job.pbs")
     print("Test tuner main")
 

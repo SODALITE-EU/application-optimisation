@@ -6,12 +6,12 @@ import sys
 from datetime import datetime
 
 from enforcer import Enforcer
-from jobfile_generator import jobfile_generator
+from jobfile_generator import JobfileGenerator
 from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from MODAK_gcloud import TransferData
-from opt_dsl_reader import opt_dsl_reader
-from settings import settings
+from opt_dsl_reader import OptDSLReader
+from settings import Settings
 
 
 class MODAK:
@@ -45,9 +45,9 @@ class MODAK:
 
         logging.info("Generating job file header")
         job_file = "{}/{}_{}.sh".format(
-            settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
         )
-        gen_t = jobfile_generator(job_json_data, job_file, "torque")
+        gen_t = JobfileGenerator(job_json_data, job_file, "torque")
 
         logging.info("Adding autotuning scripts")
         gen_t.add_tuner(upload=self._upload)
@@ -76,9 +76,9 @@ class MODAK:
         if job_name is None:
             job_name = "job"
         job_file = "{}/{}_{}.sh".format(
-            settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
         )
-        jobfile_generator(job_json_data, job_file, "torque")
+        JobfileGenerator(job_json_data, job_file, "torque")
 
         file_to = f"/modak/{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         if self._upload:
@@ -100,7 +100,7 @@ class MODAK:
     def get_opt_container_runtime(self, job_json_data):
         logging.info("Mapping optimal container for job data")
         logging.info("Processing job data" + str(job_json_data))
-        opt_reader = opt_dsl_reader(job_json_data["job"])
+        opt_reader = OptDSLReader(job_json_data["job"])
         new_container = ""
         if opt_reader.optimisations_exist():
             new_container = self._map.map_container(job_json_data)
@@ -129,14 +129,14 @@ class MODAK:
 
         logging.info("Generating job file header")
         job_file = "{}/{}_{}.sh".format(
-            settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
         )
-        gen_t = jobfile_generator(job_json_data, job_file)
+        gen_t = JobfileGenerator(job_json_data, job_file)
 
         logging.info("Adding job header")
         gen_t.add_job_header()
 
-        opt_reader = opt_dsl_reader(job_json_data["job"])
+        opt_reader = OptDSLReader(job_json_data["job"])
 
         # TODO: support for autotuning
         if opt_reader.enable_autotuning():
