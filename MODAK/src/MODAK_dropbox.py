@@ -1,15 +1,17 @@
-import dropbox
-from datetime import datetime
 import os
 import time
-from dropbox import DropboxOAuth2FlowNoRedirect
+from datetime import datetime
 
+import dropbox
+from dropbox import DropboxOAuth2FlowNoRedirect
 
 
 class TransferData:
     def __init__(self, access_token=''):
         if access_token == '':
-            self.access_token = access_token = 'uIdLbZ5c1OAAAAAAAAAAbyk8y7dUYKwD4BlLXa7m7lOosadXk1GAZPyr760SCrr-'
+            self.access_token = (
+                access_token
+            ) = 'uIdLbZ5c1OAAAAAAAAAAbyk8y7dUYKwD4BlLXa7m7lOosadXk1GAZPyr760SCrr-'
         self.access_token = access_token
         self.dbx = dropbox.Dropbox(self.access_token)
 
@@ -38,7 +40,7 @@ class TransferData:
         """Download a file.
         Return the bytes of the file, or None if it doesn't exist.
         """
-        path = '/%s/%s' % (folder,  name)
+        path = '/%s/%s' % (folder, name)
         while '//' in path:
             path = path.replace('//', '/')
         try:
@@ -50,25 +52,30 @@ class TransferData:
         print(len(data), 'bytes; md:', md)
         return data
 
-    def upload(self, fullname, folder,  name, overwrite=False):
+    def upload(self, fullname, folder, name, overwrite=False):
         """Upload a file.
         Return the request response, or None in case of error.
         """
         path = '/%s/%s' % (folder, name)
         while '//' in path:
             path = path.replace('//', '/')
-        mode = (dropbox.files.WriteMode.overwrite
-                if overwrite
-                else dropbox.files.WriteMode.add)
+        mode = (
+            dropbox.files.WriteMode.overwrite
+            if overwrite
+            else dropbox.files.WriteMode.add
+        )
         mtime = os.path.getmtime(fullname)
         with open(fullname, 'rb') as f:
             data = f.read()
 
         try:
             res = self.dbx.files_upload(
-            data, path, mode,
-            client_modified=datetime(*time.gmtime(mtime)[:6]),
-                 mute=True)
+                data,
+                path,
+                mode,
+                client_modified=datetime(*time.gmtime(mtime)[:6]),
+                mute=True,
+            )
         except dropbox.exceptions.ApiError as err:
             print('*** API error', err)
             return None
@@ -76,8 +83,7 @@ class TransferData:
         return res
 
     def upload_file(self, file_from=None, file_to=None):
-        """upload a file to Dropbox using API v2
-        """
+        """upload a file to Dropbox using API v2"""
 
         # files_upload(f, path, mode=WriteMode('add', None), autorename=False, client_modified=None, mute=False)
 
@@ -105,7 +111,7 @@ def main():
     # transferData.login_dropbox()
 
     file_from = 'scripts/set_default_cirrus.sh'
-    file_to = '/scripts/set_default_cirrus.sh' # The full path to upload the file to, including the file name
+    file_to = '/scripts/set_default_cirrus.sh'  # The full path to upload the file to, including the file name
     link = transferData.upload_file(file_from, file_to)
     print(link)
 
@@ -116,7 +122,6 @@ def main():
     # print(link)
     #
     # print(transferData.download('test', 'torque_20200720123826.pbs'))
-
 
 
 if __name__ == '__main__':

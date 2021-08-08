@@ -1,7 +1,7 @@
 import json
 
-class opt_dsl_reader():
 
+class opt_dsl_reader:
     def __init__(self, opt_dsl_obj):
         self.opt_node = opt_dsl_obj.get('optimisation', {})
 
@@ -19,10 +19,7 @@ class opt_dsl_reader():
 
     def get_opt_build(self):
         if self.enable_opt_build():
-            return {
-                "cpu_type": self.get_cpu_type(),
-                "acc_type": self.get_acc_type()
-            }
+            return {"cpu_type": self.get_cpu_type(), "acc_type": self.get_acc_type()}
             # return self.opt_node.get('opt_build')
 
     def get_cpu_type(self):
@@ -33,7 +30,11 @@ class opt_dsl_reader():
     def get_acc_type(self):
         if self.enable_opt_build():
             acc_type = self.opt_node.get('opt_build').get('acc_type')
-            return "" if (acc_type == None or acc_type == "None" or acc_type == "none") else acc_type
+            return (
+                ""
+                if (acc_type == None or acc_type == "None" or acc_type == "none")
+                else acc_type
+            )
 
     def get_tuner(self):
         if self.enable_autotuning():
@@ -50,22 +51,24 @@ class opt_dsl_reader():
 
     def get_app_config(self):
         app_type = self.opt_node.get('app_type')
-        return self.opt_node.get('app_type-'+app_type).get('config')
+        return self.opt_node.get('app_type-' + app_type).get('config')
 
     def get_app_data(self):
         app_type = self.opt_node.get('app_type')
-        return self.opt_node.get('app_type-'+app_type).get('data')
+        return self.opt_node.get('app_type-' + app_type).get('data')
 
     def get_app_etl(self):
         app_type = self.opt_node.get('app_type')
-        return self.opt_node.get('app_type-'+app_type).get('data').get('etl')
+        return self.opt_node.get('app_type-' + app_type).get('data').get('etl')
 
-    def get_opt_list(self,app):
+    def get_opt_list(self, app):
         app_type = self.opt_node.get('app_type')
         if app_type == 'ai_training':
-            return self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
+            return self.opt_node.get('app_type-' + app_type).get('ai_framework-' + app)
         if app_type == 'hpc':
-            return self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
+            return self.opt_node.get('app_type-' + app_type).get(
+                'parallelisation-' + app
+            )
 
     def get_opts_list(self):
         opts = []
@@ -74,13 +77,18 @@ class opt_dsl_reader():
             config = self.get_app_config()
             if app_type == 'ai_training':
                 app = config['ai_framework']
-                opts = self.opt_node.get('app_type-'+app_type).get('ai_framework-' + app)
+                opts = self.opt_node.get('app_type-' + app_type).get(
+                    'ai_framework-' + app
+                )
             elif app_type == 'hpc':
                 app = config['parallelisation']
-                opts = self.opt_node.get('app_type-' + app_type).get('parallelisation-' + app)
+                opts = self.opt_node.get('app_type-' + app_type).get(
+                    'parallelisation-' + app
+                )
                 if 'library' in opts:
                     opts.pop('library')
         return opts
+
 
 def main():
     print('Test opt dsl reader driver')
@@ -99,8 +107,6 @@ def main():
         keras_opt = reader.get_opt_list('tensorflow')
         print(keras_opt)
 
+
 if __name__ == '__main__':
     main()
-
-
-

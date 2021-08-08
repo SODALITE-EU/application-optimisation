@@ -1,9 +1,12 @@
-import unittest
-from MODAK import MODAK
-import json
-import wget
-import ssl
 import io
+import json
+import ssl
+import unittest
+
+import wget
+
+from MODAK import MODAK
+
 
 class test_MODAK(unittest.TestCase):
     def setUp(self):
@@ -28,7 +31,6 @@ class test_MODAK(unittest.TestCase):
             if '2020' not in mylist[i] and '##' not in mylist[i]:
                 self.assertEqual(mylist[i].strip(), testlist[i].strip())
 
-
     def test_modak_ai(self):
         print('Test MODAK')
         m = MODAK()
@@ -43,7 +45,7 @@ class test_MODAK(unittest.TestCase):
         testlist = list(io.open(filename))
         self.assertEqual(len(mylist), len(testlist))
 
-        for i in range(0,(len(mylist))):
+        for i in range(0, (len(mylist))):
             if '2020' not in mylist[i] and '##' not in mylist[i]:
                 self.assertEqual(mylist[i].strip(), testlist[i].strip())
 
@@ -60,10 +62,9 @@ class test_MODAK(unittest.TestCase):
         testlist = list(io.open(filename))
         self.assertEqual(len(mylist), len(testlist))
 
-        for i in range(0,(len(mylist))):
+        for i in range(0, (len(mylist))):
             if '2020' not in mylist[i] and '##' not in mylist[i]:
                 self.assertEqual(mylist[i].strip(), testlist[i].strip())
-
 
     def test_modak_xthi(self):
         print('Test MODAK')
@@ -78,7 +79,7 @@ class test_MODAK(unittest.TestCase):
         testlist = list(io.open(filename))
         self.assertEqual(len(mylist), len(testlist))
 
-        for i in range(0,(len(mylist))):
+        for i in range(0, (len(mylist))):
             if '2020' not in mylist[i] and '##' not in mylist[i]:
                 self.assertEqual(mylist[i].strip(), testlist[i].strip())
 
@@ -95,9 +96,10 @@ class test_MODAK(unittest.TestCase):
         testlist = list(io.open(filename))
         self.assertEqual(len(mylist), len(testlist))
 
-        for i in range(0,(len(mylist))):
+        for i in range(0, (len(mylist))):
             if '2020' not in mylist[i] and '##' not in mylist[i]:
                 self.assertEqual(mylist[i].strip(), testlist[i].strip())
+
 
 if __name__ == '__main__':
     unittest.main()

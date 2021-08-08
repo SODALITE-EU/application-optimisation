@@ -1,8 +1,9 @@
-import os,errno
+import errno
 import logging
+import os
 
-class scaler():
 
+class scaler:
     def __init__(self):
         logging.info("Initialised MODAK scaler")
 
@@ -10,6 +11,7 @@ class scaler():
 def main():
     s = scaler()
     print('Test scaler main')
+
 
 if __name__ == '__main__':
     main()

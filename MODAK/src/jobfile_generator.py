@@ -1,10 +1,12 @@
 import json
-import os
-from tuner import tuner
 import logging
+import os
 
-class jobfile_generator():
-    def __init__(self, job_json_obj, batch_file:str, scheduler:str = None):
+from tuner import tuner
+
+
+class jobfile_generator:
+    def __init__(self, job_json_obj, batch_file: str, scheduler: str = None):
         """Generates the job files, e.g. PBS and SLURM."""
         logging.info("Initialising job file generator")
         self.batch_file = batch_file
@@ -16,8 +18,16 @@ class jobfile_generator():
         self.current_dir = './'
         # TODO: scheduler type should be derived based on the infrastructure target name
         # TODO: there shall be an entry in the database where scheduler type is specified in the infrastructure target
-        self.scheduler = scheduler if scheduler else self.job_json_obj.get("job", {}).get("target", {}).get("job_scheduler_type")
-        self.target_name = self.job_json_obj.get("job", {}).get("target", {}).get("name")
+        self.scheduler = (
+            scheduler
+            if scheduler
+            else self.job_json_obj.get("job", {})
+            .get("target", {})
+            .get("job_scheduler_type")
+        )
+        self.target_name = (
+            self.job_json_obj.get("job", {}).get("target", {}).get("name")
+        )
         if self.target_name == "egi":
             self.scheduler = "torque"
         elif self.target_name == "hlrs_testbed":
@@ -66,7 +76,9 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' -l mem=' + self.job_data['memory_limit'])
             f.write('\n')
         if "minimum_memory_per_processor" in self.job_data:
-            f.write(DIRECTIVE + ' -l pmem=' + self.job_data['minimum_memory_per_processor'])
+            f.write(
+                DIRECTIVE + ' -l pmem=' + self.job_data['minimum_memory_per_processor']
+            )
             f.write('\n')
         if "request_specific_nodes" in self.job_data:
             f.write(DIRECTIVE + ' -l nodes=' + self.job_data['request_specific_nodes'])
@@ -84,7 +96,9 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' -j oe')
             f.write('\n')
         if "architecture_constraint" in self.job_data:
-            f.write(DIRECTIVE + ' -l partition=' + self.job_data['architecture_constraint'])
+            f.write(
+                DIRECTIVE + ' -l partition=' + self.job_data['architecture_constraint']
+            )
             f.write('\n')
         if "copy_environment" in self.job_data:
             f.write(DIRECTIVE + ' -V ')
@@ -145,23 +159,37 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' -n ' + str(self.job_data['core_count']))
             f.write('\n')
         if "process_count_per_node" in self.job_data:
-            f.write(DIRECTIVE + ' --ntasks-per-node=' + str(self.job_data['process_count_per_node']))
+            f.write(
+                DIRECTIVE
+                + ' --ntasks-per-node='
+                + str(self.job_data['process_count_per_node'])
+            )
             f.write('\n')
         if "core_count_per_process" in self.job_data:
-            f.write(DIRECTIVE + ' ----cpus-per-task=' + str(self.job_data['core_count_per_process']))
+            f.write(
+                DIRECTIVE
+                + ' ----cpus-per-task='
+                + str(self.job_data['core_count_per_process'])
+            )
             f.write('\n')
         if "memory_limit" in self.job_data:
             f.write(DIRECTIVE + ' --mem=' + self.job_data['memory_limit'])
             f.write('\n')
         if "minimum_memory_per_processor" in self.job_data:
-            f.write(DIRECTIVE + ' --mem-per-cpu=' + self.job_data['minimum_memory_per_processor'])
+            f.write(
+                DIRECTIVE
+                + ' --mem-per-cpu='
+                + self.job_data['minimum_memory_per_processor']
+            )
             f.write('\n')
         if "request_gpus" in self.job_data:
             f.write(DIRECTIVE + ' --gres=gpu:' + str(self.job_data['request_gpus']))
             f.write('\n')
             self.singularity_exec = self.singularity_exec + ' --nv '
         if "request_specific_nodes" in self.job_data:
-            f.write(DIRECTIVE + ' --nodelist=' + self.job_data['request_specific_nodes'])
+            f.write(
+                DIRECTIVE + ' --nodelist=' + self.job_data['request_specific_nodes']
+            )
             f.write('\n')
         if "job_array" in self.job_data:
             f.write(DIRECTIVE + ' -a ' + self.job_data['job_array'])
@@ -181,13 +209,19 @@ class jobfile_generator():
             f.write(DIRECTIVE + ' --export=ALL ')
             f.write('\n')
         if "copy_environment_variable" in self.job_data:
-            f.write(DIRECTIVE + ' --export=' + self.job_data['copy_environment_variable'])
+            f.write(
+                DIRECTIVE + ' --export=' + self.job_data['copy_environment_variable']
+            )
             f.write('\n')
         if "job_dependency" in self.job_data:
             f.write(DIRECTIVE + ' --dependency=' + self.job_data['job_dependency'])
             f.write('\n')
         if "request_event_notification" in self.job_data:
-            f.write(DIRECTIVE + ' --mail-type=' + self.job_data['request_event_notification'])
+            f.write(
+                DIRECTIVE
+                + ' --mail-type='
+                + self.job_data['request_event_notification']
+            )
             f.write('\n')
         if "email_address" in self.job_data:
             f.write(DIRECTIVE + ' --mail-user=' + self.job_data['email_address'])
@@ -224,7 +258,6 @@ class jobfile_generator():
         else:
             self.__generate_bash_header()
 
-
     def add_tuner(self, upload=True):
         __tuner = tuner(upload)
         res = __tuner.encode_tune(self.job_json_obj, self.batch_file)
@@ -238,7 +271,7 @@ class jobfile_generator():
             f.write('\n')
             f.write('## START OF TUNER ##')
             f.write('\n')
-            f.write('file='+__tuner.get_tune_filename())
+            f.write('file=' + __tuner.get_tune_filename())
             f.write('\n')
             f.write('if [ -f $file ] ; then rm $file; fi')
             f.write('\n')
@@ -248,7 +281,13 @@ class jobfile_generator():
             f.write('\n')
             if "container_runtime" in self.app_data:
                 cont = self.app_data['container_runtime']
-                f.write('\n{} {} {}'.format(self.singularity_exec, self.get_sif_filename(cont), __tuner.get_tune_filename()))
+                f.write(
+                    '\n{} {} {}'.format(
+                        self.singularity_exec,
+                        self.get_sif_filename(cont),
+                        __tuner.get_tune_filename(),
+                    )
+                )
                 f.write('\n')
             else:
                 f.write('source ' + __tuner.get_tune_filename())
@@ -276,14 +315,19 @@ class jobfile_generator():
             f.close()
             logging.info("Successfully added optimisation")
 
-
     def add_apprun(self):
         logging.info("Adding app run")
         with open(self.batch_file, 'a') as f:
             f.seek(0, os.SEEK_END)
-            exe = '{} {}'.format(self.app_data.get('executable', ""), self.app_data.get('arguments', ""))
+            exe = '{} {}'.format(
+                self.app_data.get('executable', ""), self.app_data.get('arguments', "")
+            )
             cont = self.app_data.get('container_runtime', "")
-            cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)) if cont else ""
+            cont_exec_command = (
+                '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont))
+                if cont
+                else ""
+            )
             app_type = self.app_data.get('app_type')
 
             if "build" in self.app_data:
@@ -300,14 +344,28 @@ class jobfile_generator():
                 threads = self.app_data.get("threads", 1)
                 f.write('\nexport OMP_NUM_THREADS={}\n'.format(threads))
                 if self.scheduler == 'torque' and 'openmpi:1.10' in cont:
-                    f.write('{} mpirun -np {} {}\n'.format(cont_exec_command, mpi_ranks, exe))
+                    f.write(
+                        '{} mpirun -np {} {}\n'.format(
+                            cont_exec_command, mpi_ranks, exe
+                        )
+                    )
                 elif self.scheduler == 'torque':
-                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                    f.write(
+                        'mpirun -np {} {} {}\n'.format(
+                            mpi_ranks, cont_exec_command, exe
+                        )
+                    )
                 elif self.scheduler == 'slurm':
-                    f.write('srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
+                    f.write(
+                        'srun -n {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe)
+                    )
                 else:
-                    f.write('mpirun -np {} {} {}\n'.format(mpi_ranks, cont_exec_command, exe))
-            else: # other app types, e.g. python
+                    f.write(
+                        'mpirun -np {} {} {}\n'.format(
+                            mpi_ranks, cont_exec_command, exe
+                        )
+                    )
+            else:  # other app types, e.g. python
                 f.write('{} {}\n'.format(cont_exec_command, exe))
 
             f.close()
@@ -317,16 +375,18 @@ class jobfile_generator():
         words = container.split('/')
         return '$SINGULARITY_DIR/' + words[-1].replace(':', '_') + '.sif'
 
+
 def main():
     dsl_file = "../test/input/tf_snow.json"
     with open(dsl_file) as json_file:
         obj = json.load(json_file)
-        gen_t = jobfile_generator(obj, "../test/torque.pbs","torque")
+        gen_t = jobfile_generator(obj, "../test/torque.pbs", "torque")
         gen_s = jobfile_generator(obj, "../test/slurm.batch", "slurm")
         gen_t.add_apprun()
         gen_s.add_apprun()
 
     print(gen_t.get_sif_filename('shub://sodalite-hpe/modak:pytorch-1.5-cpu-pi'))
+
 
 if __name__ == '__main__':
     main()
