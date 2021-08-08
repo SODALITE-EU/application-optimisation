@@ -1,15 +1,19 @@
 import json
+import pathlib
 import unittest
 
 from opt_dsl_reader import OptDSLReader
+
+# The current files' directory
+SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
 
 class test_dsl_reader(unittest.TestCase):
     def setUp(self):
         print("Test opt dsl reader driver")
-        dsl_file = "../test/input/tf_snow.json"
+        dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
         # dsl_file = "../test/input/mpi_solver.json"
-        with open(dsl_file) as json_file:
+        with dsl_file.open() as json_file:
             opt_json_obj = json.load(json_file)
             print(opt_json_obj)
             self.reader = OptDSLReader(opt_json_obj["job"])

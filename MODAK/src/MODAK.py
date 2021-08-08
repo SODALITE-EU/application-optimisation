@@ -2,6 +2,7 @@
 import getopt
 import json
 import logging
+import pathlib
 import sys
 from datetime import datetime
 
@@ -11,11 +12,15 @@ from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from MODAK_gcloud import TransferData
 from opt_dsl_reader import OptDSLReader
-from settings import Settings
+from settings import DEFAULT_SETTINGS_DIR, Settings
 
 
 class MODAK:
-    def __init__(self, conf_file: str = "../conf/iac-model.ini", upload=False):
+    def __init__(
+        self,
+        conf_file: pathlib.Path = DEFAULT_SETTINGS_DIR / "iac-model.ini",
+        upload=False,
+    ):
         """General MODAK class."""
         logging.info("Intialising MODAK")
         self._driver = MODAK_driver(conf_file)

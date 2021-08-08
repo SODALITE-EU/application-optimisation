@@ -1,9 +1,12 @@
 import json
+import pathlib
 import unittest
 
 from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from opt_dsl_reader import OptDSLReader
+
+SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
 
 class test_mapper(unittest.TestCase):
@@ -56,9 +59,9 @@ class test_mapper(unittest.TestCase):
         )
 
     def test_map_container_ai(self):
-        dsl_file = "../test/input/tf_snow.json"
+        dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
         # dsl_file = "../test/input/mpi_solver.json"
-        with open(dsl_file) as json_file:
+        with dsl_file.open() as json_file:
             opt_json_obj = json.load(json_file)
             new_container = self.m.map_container(opt_json_obj)
             self.assertEqual(
@@ -66,7 +69,7 @@ class test_mapper(unittest.TestCase):
             )
 
     def test_map_container_hpc(self):
-        with open("../test/input/mpi_solver.json") as json_file:
+        with SCRIPT_DIR.joinpath("input/mpi_solver.json").open() as json_file:
             job_data = json.load(json_file)
             reader = OptDSLReader(job_data["job"])
             dsl_code = self.m.decode_hpc_opt(reader)
