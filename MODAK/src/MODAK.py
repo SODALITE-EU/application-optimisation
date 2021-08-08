@@ -80,7 +80,7 @@ class MODAK:
         job_file = "{}/{}_{}.sh".format(
             settings.OUT_DIR, job_name, datetime.now().strftime('%Y%m%d%H%M%S')
         )
-        gen_t = jobfile_generator(job_json_data, job_file, "torque")
+        jobfile_generator(job_json_data, job_file, "torque")
 
         file_to = "{}/{}_{}.sh".format(
             '/modak', job_name, datetime.now().strftime('%Y%m%d%H%M%S')

@@ -7,7 +7,7 @@ class Scaler:
 
 
 def main():
-    s = Scaler()
+    Scaler()
     print('Test scaler main')
 
 
