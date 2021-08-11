@@ -44,6 +44,10 @@ class MODAK():
         job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
         gen_t = jobfile_generator(job_json_data, job_file, "torque")
 
+        logging.info('Generating build file')
+        build_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name + "_build",datetime.now().strftime('%Y%m%d%H%M%S'))
+        gen_t.get_buildjob(job_json_data, build_file)
+
         logging.info('Adding autotuning scripts')
         gen_t.add_tuner()
 
@@ -57,9 +61,12 @@ class MODAK():
         gen_t.add_apprun()
 
         file_to = "{}/{}_{}.sh".format('/modak',job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+        build_file_to = "{}/{}_{}.sh".format('/modak',job_name + "_build",datetime.now().strftime('%Y%m%d%H%M%S'))
         self.__job_link = self.__drop.upload_file(file_from=job_file, file_to=file_to)
+        self.__build_link = self.__drop.upload_file(file_from=job_file, file_to=build_file_to)
         logging.info('Job script link: ' + self.__job_link)
-        return self.__job_link
+        logging.info('Job build link: ' + self.__build_link)
+        return (self.__job_link, self.__build_link)
 
     def job_header(self, job_json_data):
         logging.info('Generating job file header')
@@ -95,6 +102,59 @@ class MODAK():
             new_container = self.__map.map_container(job_json_data)
         logging.info('Optimal container: {}'.format(new_container))
         return new_container if new_container else ""
+    
+    def get_buildjob(self, job_json_data):
+        logging.info('Creating build script for job')
+        logging.info('Processing job data' + str(job_json_data))
+
+        job_name = job_json_data.get('job').get('job_options', {}).get('job_name', "job")
+        if job_name is None:
+            job_name = job_json_data.get('job').get('application', {}).get('app_tag', "job")
+        job_name += "_build"
+        
+        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+
+        # patch in the build job as the job task
+        # First, figure out what we're patching in:
+        buildsrc = job_json_data["job"]["application"]["build"]["src"]
+        buildcmd = job_json_data["job"]["application"]["build"]["build_command"]
+        final_build = ""
+        if buildsrc[-4:] == ".git":
+            final_build = f"git clone {buildsrc}\n"
+        else:
+            final_build = f"wget --no-check-certificate {buildsrc}\n"
+        final_build += buildcmd
+
+        mod_jobdata = {
+            "job": {
+                "job_options": {
+                    "job_name": job_json_data["job"]["job_options"]["job_name"] + "_build",
+                    "node_count": 1,
+                    "process_count_per_node": 1,
+                    "standard_output_file": "build-" + job_json_data["job"]["job_options"]["standard_output_file"],
+                    "standard_error_file": "build-" + job_json_data["job"]["job_options"]["standard_error_file"],
+                    "combine_stdout_stderr": job_json_data["job"]["job_options"]["combine_stdout_stderr"],
+                    "copy_environment": job_json_data["job"]["job_options"]["copy_environment"],
+                },
+                "application": {
+                    "executable": final_build,
+                },
+                "target": job_json_data["job"]["target"],
+            }
+        }
+
+        logging.warning(mod_jobdata)
+        
+        gen = jobfile_generator(mod_jobdata, job_file)
+
+        gen.add_job_header()
+        gen.add_apprun()
+
+        f = open(job_file, "r")
+        build_content = f.read()
+
+        logging.info('Job build content: ' + build_content)
+        return build_content
 
     def get_optimisation(self, job_json_data):
         if not job_json_data.get('job').get('application'):
@@ -168,7 +228,8 @@ def main(argv=None):
         link = m.optimise(job_data)
 
     print(link)
-    job_data['job'].update({'job_script': link})
+    job_data['job'].update({'job_script': link[0]})
+    job_data['job'].update({'build_script': link[1]})
     with open(outputfile, 'w') as fp:
         json.dump(job_data, fp)
 

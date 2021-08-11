@@ -90,8 +90,6 @@ class ArgumentConverter():
         # (Also, if notifications are invalid this leaves them intact/unmodified)
         return notifications
 
-
-
 class jobfile_generator():
     def __init__(self, job_json_obj, batch_file:str, scheduler:str = None):
         """Generates the job files, e.g. PBS and SLURM."""
@@ -371,7 +369,6 @@ source {scriptfile}
 """, scriptfile=scriptfile, scriptlink=scriptlink))
         logging.info("Successfully added optimisation")
 
-
     def add_apprun(self):
         logging.info("Adding app run")
         with open(self.batch_file, 'a') as f:
@@ -380,15 +377,6 @@ source {scriptfile}
             cont = self.app_data.get('container_runtime', "")
             cont_exec_command = '{} {} '.format(self.singularity_exec, self.get_sif_filename(cont)) if cont else ""
             app_type = self.app_data.get('app_type')
-
-            if "build" in self.app_data:
-                src = self.app_data['build'].get('src')
-                build_command = self.app_data['build'].get('build_command')
-                if src[-4:] == '.git':
-                    f.write('\ngit clone {}\n'.format(src))
-                else:
-                    f.write('\nwget --no-check-certificate {}\n'.format(src))
-                f.write('\n{} {}\n'.format(cont_exec_command, build_command))
 
             if app_type == 'mpi' or app_type == 'hpc':
                 mpi_ranks = self.app_data.get("mpi_ranks", 1)
