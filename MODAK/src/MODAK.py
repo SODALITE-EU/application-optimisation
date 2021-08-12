@@ -8,6 +8,7 @@ from MODAK_gcloud import TransferData
 from datetime import datetime
 from enforcer import enforcer
 from opt_dsl_reader import opt_dsl_reader
+from copy import deepcopy
 import logging
 import json
 
@@ -116,7 +117,11 @@ class MODAK():
 
         # patch in the build job as the job task
         # First, figure out what we're patching in:
-        buildsrc = job_json_data["job"]["application"]["build"]["src"]
+        try:
+            buildsrc = job_json_data["job"]["application"]["build"]["src"]
+        except KeyError:
+            logging.info("No job.application.build.src section, returning empty response")
+            return ""
         buildcmd = job_json_data["job"]["application"]["build"]["build_command"]
         final_build = ""
         if buildsrc[-4:] == ".git":
@@ -125,9 +130,8 @@ class MODAK():
             final_build = f"wget --no-check-certificate {buildsrc}\n"
         final_build += buildcmd
 
-        mod_jobdata = {
-            "job": {
-                "job_options": {
+        mod_jobdata = deepcopy(job_json_data)
+        mod_jobdata["job"]["job_options"] = {
                     "job_name": job_json_data["job"]["job_options"]["job_name"] + "_build",
                     "node_count": 1,
                     "process_count_per_node": 1,
@@ -135,20 +139,17 @@ class MODAK():
                     "standard_error_file": "build-" + job_json_data["job"]["job_options"]["standard_error_file"],
                     "combine_stdout_stderr": job_json_data["job"]["job_options"]["combine_stdout_stderr"],
                     "copy_environment": job_json_data["job"]["job_options"]["copy_environment"],
-                },
-                "application": {
-                    "executable": final_build,
-                },
-                "target": job_json_data["job"]["target"],
-            }
-        }
+                }
+        mod_jobdata["job"]["application"]["exeutable"] = final_build
 
         logging.warning(mod_jobdata)
         
-        gen = jobfile_generator(mod_jobdata, job_file)
+        #gen = jobfile_generator(mod_jobdata, job_file)
 
-        gen.add_job_header()
-        gen.add_apprun()
+        #gen.add_job_header()
+        #gen.add_apprun()
+        return self.get_optimisation(mod_jobdata)[1]
+
 
         f = open(job_file, "r")
         build_content = f.read()
