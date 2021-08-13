@@ -20,7 +20,10 @@ class MODAK_driver:
     tablelist = []
     db_dir = ""
     logging.basicConfig(
-        filename=f"../log/MODAK{datetime.now().strftime('%b_%d_%Y_%H_%M_%S')}.log",
+        filename=DEFAULT_SETTINGS_DIR
+        / ".."
+        / "log"
+        / f"MODAK{datetime.now().strftime('%b_%d_%Y_%H_%M_%S')}.log",
         filemode="w",
         level=logging.DEBUG,
     )
