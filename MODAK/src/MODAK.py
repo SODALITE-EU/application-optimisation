@@ -12,7 +12,6 @@ from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from MODAK_gcloud import TransferData
 from datetime import datetime
-from enforcer import enforcer
 from copy import deepcopy
 import logging
 import json
@@ -134,7 +133,7 @@ class MODAK:
             job_name = job_json_data.get('job').get('application', {}).get('app_tag', "job")
         job_name += "_build"
         
-        job_file = "{}/{}_{}.sh".format(settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+        job_file = "{}/{}_{}.sh".format(Settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
 
         # patch in the build job as the job task
         # First, figure out what we're patching in:
