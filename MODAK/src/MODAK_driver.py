@@ -27,7 +27,7 @@ class MODAK_driver:
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
     def __init__(self, conf_file=DEFAULT_SETTINGS_DIR / "iac-model.ini", install=False):
-        logging.info("Intialising driver")
+        logging.info("Initialising driver")
         Settings.initialise(conf_file)
         self.dbname = Settings.DB_NAME
         logging.info(f"selected DB : {self.dbname}")
