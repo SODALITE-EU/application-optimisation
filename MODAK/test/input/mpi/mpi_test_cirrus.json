@@ -1,0 +1,44 @@
+{
+  "job":{
+    "job_options": {
+      "job_name": "mpi_test_cirrus",
+      "account": "dc117",
+      "wall_time_limit": "1:00:00 ",
+      "node_count": 4,
+      "process_count_per_node": 1,
+      "standard_output_file": "mpi_test.out",
+      "standard_error_file": "mpi_test.err",
+      "combine_stdout_stderr": true,
+      "request_event_notification": "ALL",
+      "email_address": "kartshy@gmail.com",
+      "node_exclusive": true,
+      "queue": "standard",
+      "qos": "standard"
+    },
+    "target": {
+      "name": "cirrus",
+      "job_scheduler_type": "slurm"
+    },
+    "application": {
+      "app_tag": "mpi_test",
+      "container_runtime": "",
+      "app_type": "hpc",
+      "executable": "./xthi",
+      "arguments": "",
+      "mpi_ranks": 4,
+      "threads": 2
+    },
+    "optimisation": {
+      "enable_opt_build": true,
+      "enable_autotuning":false,
+      "app_type":"hpc",
+      "app_name":"openmpi",
+      "arch_build": {
+        "cpu_type": "x86"
+      },
+      "app_build": {
+        "version":"3.1.3"
+      }
+    }
+  }
+}

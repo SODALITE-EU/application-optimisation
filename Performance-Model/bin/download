@@ -29,14 +29,23 @@ fi
 
 . ${SODALITEROOT}/config/${GITLAB_SECRETS}
 
+echo "Download ${SODALITE_IMAGE_NAME}"
+
 # Delete previous archive image
 rm -f ${SODALITE_IMAGE_NAME}
 
 # Download the image in the current directory
-curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -o ${SODALITE_IMAGE_NAME} ${SODALITE_IMAGE_URL}
+curl --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" -o ${SODALITE_IMAGE_BASENAME}.${SODALITE_IMAGE_EXT} ${SODALITE_IMAGE_URL}
 
-# Check archive and take name
-dir_name=`tar tf ${SODALITE_IMAGE_NAME}`
+if test -n "$USE_SB"; then
+    # Check archive and take name
+    dir_name=`tar tf ${SODALITE_IMAGE_BASENAME}.${SODALITE_IMAGE_EXT}`
+elif test `command -v singularity` > /dev/null; then
+    unset SINGULARITY_BIND
+    testout=`singularity inspect -r ${SODALITE_IMAGE_BASENAME}.${SODALITE_IMAGE_EXT}`
+else
+    echo "WARNING: Unable to test downloaded image."
+fi
 if test $? -ne 0; then
     echo
     echo "Check that your Gitlab PRIVATE-TOKEN reported in the file"
@@ -46,17 +55,19 @@ if test $? -ne 0; then
     exit -1
 fi
 
-dir_name=`echo $dir_name | head -1 | cut -f1 -d"/"`
+if test -n "$USE_SB"; then
+    dir_name=`echo $dir_name | head -1 | cut -f1 -d"/"`
 
-# Delete previous image
-rm -rf ${dir_name}
+    # Delete previous image
+    rm -rf ${dir_name}
 
-# Unpack
-tar -xvf ${SODALITE_IMAGE_NAME} 2>&1 |
+    # Unpack
+    tar -xvf ${SODALITE_IMAGE_BASENAME}.${SODALITE_IMAGE_EXT} 2>&1 |
     while read line; do
         x=$((x+1))
         echo -en "$x extracted"'\r'
     done
 
-# Remove archive image
-rm -rf ${SODALITE_IMAGE_NAME}
+    # Remove archive image
+    rm -rf ${SODALITE_IMAGE_BASENAME}.${SODALITE_IMAGE_EXT}
+fi

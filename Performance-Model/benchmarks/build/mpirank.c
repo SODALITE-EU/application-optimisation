@@ -15,5 +15,9 @@ int main( int argc, char *argv[])
 
   printf("%d:%d\n",myrank, nranks);
 
+#ifdef OMPI_MAJOR_VERSION
+  MPI_Finalize();
+#endif
+
   return 0;
 }

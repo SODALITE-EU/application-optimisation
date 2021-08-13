@@ -1,4 +1,4 @@
-class MODAK_sql():
+class MODAK_sql:
 
     CREATE_INFRA_TABLE = "create external table          \
             infrastructure(infra_id  int,                \
@@ -106,21 +106,24 @@ class MODAK_sql():
             stored as parquet location                   \
             '{}/mapper'"
 
-    table_create_stmt = {'infrastructure': CREATE_INFRA_TABLE, \
-                         'queue': CREATE_QUEUE_TABLE, \
-                         'benchmark': CREATE_BENCH_TABLE, \
-                         'model': CREATE_MODEL_TABLE, \
-                         'appmodel': CREATE_APPMODEL_TABLE, \
-                         'application': CREATE_APP_TABLE, \
-                         'audit_log': CREATE_AUDIT_TABLE, \
-                         'optimisation': CREATE_OPT_TABLE, \
-                         'mapper': CREATE_MAPPER_TABLE,
-                         }
+    table_create_stmt = {
+        "infrastructure": CREATE_INFRA_TABLE,
+        "queue": CREATE_QUEUE_TABLE,
+        "benchmark": CREATE_BENCH_TABLE,
+        "model": CREATE_MODEL_TABLE,
+        "appmodel": CREATE_APPMODEL_TABLE,
+        "application": CREATE_APP_TABLE,
+        "audit_log": CREATE_AUDIT_TABLE,
+        "optimisation": CREATE_OPT_TABLE,
+        "mapper": CREATE_MAPPER_TABLE,
+    }
+
 
 def main():
-    print('Test MODAK sql')
-    print(MODAK_sql.CREATE_APP_TABLE.format('dir'))
-    print(MODAK_sql.table_create_stmt['mapper'].format('dir'))
+    print("Test MODAK sql")
+    print(MODAK_sql.CREATE_APP_TABLE.format("dir"))
+    print(MODAK_sql.table_create_stmt["mapper"].format("dir"))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,0 +1,21 @@
+P actions make_env
+P debug debug
+P memjob 2097152
+P memory_limit 2048.0
+P mode interactif
+P mpi_nbcpu 1
+P mpi_nbnoeud 1
+P nomjob RunCase_1_Stage_1
+P origine AsterStudy 0.11
+P rep_trav /tmp/hpcralf-numschneider-interactif_25293-0001-zeus
+P studyid 25293-0001-zeus
+P time_limit 3600.0
+P tpsjob 61
+P version stable
+A memjeveux 256.0
+A tpmax 3600.0
+F comm /tmp/asterstudy_workdir_hpcralf/hpcralf-zeus-Di-26-101116.519/RunCase_1_Stage_1.comm D  1
+F libr /tmp/asterstudy_workdir_hpcralf/hpcralf-zeus-Di-26-101116.519/_ExportedFromSalomeObject_0_1_1_19.med D  2
+F libr /tmp/asterstudy_workdir_hpcralf/hpcralf-zeus-Di-26-101116.519/L2_and_IVB_NonLinear R  80
+F mess /tmp/asterstudy_workdir_hpcralf/hpcralf-zeus-Di-26-101116.519/message R  6
+R base /tmp/asterstudy_workdir_hpcralf/hpcralf-zeus-Di-26-101116.519/base-stage1 RC 0
