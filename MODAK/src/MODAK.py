@@ -49,8 +49,9 @@ class MODAK:
         # job_json_data.get('job').get('application').get('container_runtime')
 
         logging.info("Generating job file header")
-        job_file = "{}/{}_{}.sh".format(
-            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+        job_file = (
+            Settings.OUT_DIR
+            / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         gen_t = JobfileGenerator(job_json_data, job_file, "torque")
 
@@ -71,7 +72,7 @@ class MODAK:
             self._job_link = self._drop.upload_file(file_from=job_file, file_to=file_to)
         else:
             self._job_link = job_file
-        logging.info("Job script link: " + self._job_link)
+        logging.info(f"Job script link: {self._job_link}")
         return self._job_link
 
     def job_header(self, job_json_data):
@@ -80,8 +81,9 @@ class MODAK:
         job_name = job_json_data.get("job").get("job_options").get("job_name")
         if job_name is None:
             job_name = "job"
-        job_file = "{}/{}_{}.sh".format(
-            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+        job_file = (
+            Settings.OUT_DIR
+            / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         JobfileGenerator(job_json_data, job_file, "torque")
 
@@ -133,8 +135,8 @@ class MODAK:
             )
 
         logging.info("Generating job file header")
-        job_file = "{}/{}_{}.sh".format(
-            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+        job_file = (
+            Settings.OUT_DIR / "{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         gen_t = JobfileGenerator(job_json_data, job_file)
 
