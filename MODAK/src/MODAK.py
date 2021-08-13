@@ -144,18 +144,7 @@ class MODAK():
 
         logging.warning(mod_jobdata)
         
-        #gen = jobfile_generator(mod_jobdata, job_file)
-
-        #gen.add_job_header()
-        #gen.add_apprun()
         return self.get_optimisation(mod_jobdata)[1]
-
-
-        f = open(job_file, "r")
-        build_content = f.read()
-
-        logging.info('Job build content: ' + build_content)
-        return build_content
 
     def get_optimisation(self, job_json_data):
         if not job_json_data.get('job').get('application'):

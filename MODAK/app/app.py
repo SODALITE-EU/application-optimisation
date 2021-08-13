@@ -90,7 +90,6 @@ def modak_get_build():
         job_data["job"]["build_script"] = build_content
 
         res = make_response(jsonify(job_data), 200)
-        print(res)
         return res
 
 @app.route("/get_optimisation", methods=["POST"])
