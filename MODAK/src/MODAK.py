@@ -154,14 +154,12 @@ class MODAK:
         )
 
         mod_jobdata = deepcopy(job_json_data)
-        mod_jobdata["job"]["job_options"] = {
-                    "job_name": job_json_data["job"]["job_options"]["job_name"] + "_build",
-                    "node_count": 1,
-                    "process_count_per_node": process_per_node,
-                    "standard_output_file": "build-" + job_json_data["job"]["job_options"]["standard_output_file"],
-                    "standard_error_file": "build-" + job_json_data["job"]["job_options"]["standard_error_file"],
-                    "combine_stdout_stderr": job_json_data["job"]["job_options"]["combine_stdout_stderr"],
-                }
+        mod_jobdata["job"]["job_options"]["job_name"] = job_json_data["job"]["job_options"]["job_name"] + "_build"
+        mod_jobdata["job"]["job_options"]["node_count"] = 1
+        mod_jobdata["job"]["job_options"]["process_count_per_node"] = process_per_node
+        mod_jobdata["job"]["job_options"]["standard_output_file"] = "build-" + job_json_data["job"]["job_options"]["standard_output_file"]
+        mod_jobdata["job"]["job_options"]["standard_error_file"] = "build-" + job_json_data["job"]["job_options"]["standard_error_file"]
+        mod_jobdata["job"]["job_options"]["combine_stdout_stderr"] = job_json_data["job"]["job_options"]["combine_stdout_stderr"]
         if "copy_environment" in job_json_data["job"]["job_options"]:
             mod_jobdata["job"]["job_options"]["copy_environment"] = \
                 job_json_data["job"]["job_options"]["copy_environment"]
