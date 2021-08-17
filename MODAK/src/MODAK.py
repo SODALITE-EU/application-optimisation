@@ -4,6 +4,7 @@ import json
 import logging
 import pathlib
 import sys
+import re
 from datetime import datetime
 
 from enforcer import Enforcer
@@ -59,8 +60,7 @@ class MODAK:
         gen_t = JobfileGenerator(job_json_data, job_file, "torque")
 
         logging.info('Generating build file')
-        build_file = "{}/{}_{}.sh".format(Settings.DEFAULT_OUT_DIR,job_name + "_build",datetime.now().strftime('%Y%m%d%H%M%S'))
-        gen_t.get_buildjob(job_json_data, build_file)
+        buildjob = self.get_buildjob(job_json_data)
 
         logging.info("Adding autotuning scripts")
         gen_t.add_tuner(upload=self._upload)
@@ -126,14 +126,7 @@ class MODAK:
     
     def get_buildjob(self, job_json_data):
         logging.info('Creating build script for job')
-        logging.info('Processing job data' + str(job_json_data))
-
-        job_name = job_json_data.get('job').get('job_options', {}).get('job_name', "job")
-        if job_name is None:
-            job_name = job_json_data.get('job').get('application', {}).get('app_tag', "job")
-        job_name += "_build"
-        
-        job_file = "{}/{}_{}.sh".format(Settings.OUT_DIR,job_name,datetime.now().strftime('%Y%m%d%H%M%S'))
+        logging.info('Processing build data' + str(job_json_data))
 
         # patch in the build job as the job task
         # First, figure out what we're patching in:
@@ -148,21 +141,31 @@ class MODAK:
             final_build = f"git clone {buildsrc}\n"
         else:
             final_build = f"wget --no-check-certificate {buildsrc}\n"
-        final_build += buildcmd
+        
+        process_per_node=1
+        try:
+            process_per_node = job_json_data["job"]["application"]["build"]["build_parallelism"]
+        except KeyError:
+            pass
+        final_build += re.sub(
+            pattern="\{\{BUILD_PARALLELISM\}\}",
+            repl=str(process_per_node),
+            string=buildcmd
+        )
 
         mod_jobdata = deepcopy(job_json_data)
         mod_jobdata["job"]["job_options"] = {
                     "job_name": job_json_data["job"]["job_options"]["job_name"] + "_build",
                     "node_count": 1,
-                    "process_count_per_node": 1,
+                    "process_count_per_node": process_per_node,
                     "standard_output_file": "build-" + job_json_data["job"]["job_options"]["standard_output_file"],
                     "standard_error_file": "build-" + job_json_data["job"]["job_options"]["standard_error_file"],
                     "combine_stdout_stderr": job_json_data["job"]["job_options"]["combine_stdout_stderr"],
-                    "copy_environment": job_json_data["job"]["job_options"]["copy_environment"],
                 }
-        mod_jobdata["job"]["application"]["exeutable"] = final_build
-
-        logging.warning(mod_jobdata)
+        if "copy_environment" in job_json_data["job"]["job_options"]:
+            mod_jobdata["job"]["job_options"]["copy_environment"] = \
+                job_json_data["job"]["job_options"]["copy_environment"]
+        mod_jobdata["job"]["application"]["executable"] = final_build
         
         return self.get_optimisation(mod_jobdata)[1]
 
