@@ -159,10 +159,6 @@ class MODAK:
         mod_jobdata["job"]["job_options"]["process_count_per_node"] = process_per_node
         mod_jobdata["job"]["job_options"]["standard_output_file"] = "build-" + job_json_data["job"]["job_options"]["standard_output_file"]
         mod_jobdata["job"]["job_options"]["standard_error_file"] = "build-" + job_json_data["job"]["job_options"]["standard_error_file"]
-        mod_jobdata["job"]["job_options"]["combine_stdout_stderr"] = job_json_data["job"]["job_options"]["combine_stdout_stderr"]
-        if "copy_environment" in job_json_data["job"]["job_options"]:
-            mod_jobdata["job"]["job_options"]["copy_environment"] = \
-                job_json_data["job"]["job_options"]["copy_environment"]
         mod_jobdata["job"]["application"]["executable"] = final_build
         
         return self.get_optimisation(mod_jobdata)[1]
