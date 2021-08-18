@@ -262,7 +262,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
                     },
                     "application": {
                         "build": {
-                            "build_command": "sleep {{BUILD_PARALLELISM}}",
+                            "build_command": "sleep {{BUILD_PARALLELISM }}",
                             "src": "http://example/tar.gz",
                             "build_parallelism": 4,
                         }

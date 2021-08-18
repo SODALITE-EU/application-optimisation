@@ -148,7 +148,7 @@ class MODAK:
         except KeyError:
             pass
         final_build += re.sub(
-            pattern="\{\{BUILD_PARALLELISM\}\}",
+            pattern="\{\{[\s]*BUILD_PARALLELISM[\s]*\}\}",
             repl=str(process_per_node),
             string=buildcmd
         )
