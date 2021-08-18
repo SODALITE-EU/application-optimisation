@@ -1,0 +1,37 @@
+	"optimization": {
+		"enable_opt_build": true,
+		"enable_autotuning": true,
+		"app_type":"HPC",
+		"opt_build": {
+			"cpu_type": "arm",
+			"acc_type": "nvidia"
+		},
+		"autotuning": {
+			"tuner": "cresta",
+			"input": "path/to/autotuning.model"
+		},
+		"hpc": {
+			"config":{
+				"parallelisation": [
+					"MPI"
+				]
+			},
+			"data":{
+				"location": "/some/data"
+				,"basedata": "RESTART"
+				,"size": 67
+				,"count": 4389
+				,"etl": {
+					"prefetch": true
+					,"cache": true
+				}
+			}
+			,"mpi": {
+				"library": "mpich"
+				,"version": "3.2"
+				,"scaling_efficiency": 0.75
+				,"core_subscription": 1
+				,"message_size": "small"
+			}
+		}
+	}

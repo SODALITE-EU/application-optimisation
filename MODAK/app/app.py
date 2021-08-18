@@ -1,17 +1,21 @@
-from flask import Flask
-from MODAK import MODAK
-from flask import jsonify, make_response
-from flask import Flask, render_template, redirect, url_for, request
-from flask import session
+from flask import (  # redirect,; render_template,; session,; url_for,
+    Flask,
+    jsonify,
+    make_response,
+    request,
+)
 
-import json
+from MODAK import MODAK
+
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     file = "../app/modak.html"
     with open(file) as modak_html:
         return str(modak_html.read())
+
 
 # # Route for handling the login page logic
 # @app.route('/login', methods=['GET', 'POST'])
@@ -31,6 +35,7 @@ def index():
 #     session.pop('logged_in', None)
 #     return redirect(url_for('home'))
 
+
 @app.route("/optimise", methods=["POST"])
 def modak_optimise():
     if request.is_json:
@@ -38,13 +43,14 @@ def modak_optimise():
         req = request.get_json()
         # Print the dictionary
         print(req)
-        m = MODAK('../conf/iac-model.ini')
+        m = MODAK("../conf/iac-model.ini")
         job_data = req
         link = m.optimise(job_data)
 
-        job_data['job'].update({'job_script': link})
+        job_data["job"].update({"job_script": link})
         res = make_response(jsonify(job_data), 200)
         return res
+
 
 @app.route("/get_image", methods=["POST"])
 def modak_get_image():
@@ -53,13 +59,14 @@ def modak_get_image():
         req = request.get_json()
         # Print the dictionary
         print(req)
-        m = MODAK('../conf/iac-model.ini', upload=False)
+        m = MODAK("../conf/iac-model.ini", upload=False)
         job_data = req
         container_runtime = m.get_opt_container_runtime(job_data)
 
-        job_data['job'].update({'container_runtime': container_runtime})
+        job_data["job"].update({"container_runtime": container_runtime})
         res = make_response(jsonify(job_data), 200)
         return res
+
 
 @app.route("/get_job_content", methods=["POST"])
 def modak_get_job_content():
@@ -68,13 +75,14 @@ def modak_get_job_content():
         req = request.get_json()
         # Print the dictionary
         print(req)
-        m = MODAK('../conf/iac-model.ini', upload=False)
+        m = MODAK("../conf/iac-model.ini", upload=False)
         job_data = req
         _, job_content = m.get_optimisation(job_data)
 
-        job_data['job'].update({'job_content': job_content})
+        job_data["job"].update({"job_content": job_content})
         res = make_response(jsonify(job_data), 200)
         return res
+
 
 @app.route("/get_optimisation", methods=["POST"])
 def modak_get_optimisation():
@@ -83,15 +91,16 @@ def modak_get_optimisation():
         req = request.get_json()
         # Print the dictionary
         print(req)
-        m = MODAK('../conf/iac-model.ini', upload=False)
+        m = MODAK("../conf/iac-model.ini", upload=False)
         job_data = req
 
         container_runtime, job_content = m.get_optimisation(job_data)
-        job_data['job'].update({'container_runtime': container_runtime})
-        job_data['job'].update({'job_content': job_content})
+        job_data["job"].update({"container_runtime": container_runtime})
+        job_data["job"].update({"job_content": job_content})
 
         res = make_response(jsonify(job_data), 200)
         return res
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0")

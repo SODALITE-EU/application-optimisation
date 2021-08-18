@@ -1,5 +1,5 @@
 image:
-  name: quay.io/singularity/singularity:v3.4.2-slim
+  name: quay.io/singularity/singularity:v3.5.3-slim
   entrypoint: [""]
 
 variables:
@@ -9,10 +9,13 @@ build image:
   stage: deploy
 
   script:
-    - apk update && apk upgrade && apk add bash
-    - /bin/bash .gitlabci/build.sh build/${DEFFILE}.def
-    - mkdir -p singularity && mv build/${DEFFILE}.tar.bz2 singularity/
-    - mkdir -p singularity && mv build/${DEFFILE}.def singularity/
+    - apk update && apk upgrade && apk add bash sudo
+    - mkdir -p singularity
+    - /bin/bash bin/build.sh MPICH
+    - mv ${DEFFILE}.simg singularity/${DEFFILE}_MPICH.simg
+    - /bin/bash bin/build.sh OpenMPI
+    - mv ${DEFFILE}.simg singularity/${DEFFILE}_OpenMPI.simg
+    - cp build/${DEFFILE}.def singularity/
 
   # Run CI only if the definition file has been changed
   only:
@@ -21,6 +24,7 @@ build image:
       - devel
     changes:
       - build/benchmarks.def
+      - build/benchmarks_conf.def
       - build/Make.Linux
       - build/mpirank.c
       - build/beffio_flags.txt
@@ -28,5 +32,6 @@ build image:
 
   artifacts:
     paths:
-      - singularity/${DEFFILE}.tar.bz2
+      - singularity/${DEFFILE}_MPICH.simg
+      - singularity/${DEFFILE}_OpenMPI.simg
       - singularity/${DEFFILE}.def

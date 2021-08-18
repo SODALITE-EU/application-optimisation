@@ -1,9 +1,10 @@
 import unittest
+
 from MODAK_driver import MODAK_driver
-from settings import settings
+from settings import Settings
+
 
 class test_MODAK_driver(unittest.TestCase):
-
     def setUp(self):
         self.driver = MODAK_driver()
 
@@ -11,13 +12,15 @@ class test_MODAK_driver(unittest.TestCase):
         pass
 
     def test_driver(self):
-        if settings.MODE == 'test':
-            self.assertEqual(self.driver.dbname, 'test_iac_model')
+        if Settings.MODE == "test":
+            self.assertEqual(self.driver.dbname, "test_iac_model")
         else:
-            self.assertEqual(self.driver.dbname, 'iac_model')
-        df = self.driver.applySQL("select * from optimisation where app_name = 'pytorch'")
-        self.assertEqual(df['app_name'][0], 'pytorch')
+            self.assertEqual(self.driver.dbname, "iac_model")
+        df = self.driver.applySQL(
+            "select * from optimisation where app_name = 'pytorch'"
+        )
+        self.assertEqual(df["app_name"][0], "pytorch")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
