@@ -12,7 +12,6 @@ from jobfile_generator import JobfileGenerator
 from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from MODAK_gcloud import TransferData
-from datetime import datetime
 from copy import deepcopy
 import logging
 import json
