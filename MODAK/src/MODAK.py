@@ -13,8 +13,6 @@ from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from MODAK_gcloud import TransferData
 from copy import deepcopy
-import logging
-import json
 from opt_dsl_reader import OptDSLReader
 from settings import DEFAULT_SETTINGS_DIR, Settings
 
