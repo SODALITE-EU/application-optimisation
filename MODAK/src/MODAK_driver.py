@@ -20,14 +20,17 @@ class MODAK_driver:
     tablelist = []
     db_dir = ""
     logging.basicConfig(
-        filename=f"../log/MODAK{datetime.now().strftime('%b_%d_%Y_%H_%M_%S')}.log",
+        filename=DEFAULT_SETTINGS_DIR
+        / ".."
+        / "log"
+        / f"MODAK{datetime.now().strftime('%b_%d_%Y_%H_%M_%S')}.log",
         filemode="w",
         level=logging.DEBUG,
     )
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
     def __init__(self, conf_file=DEFAULT_SETTINGS_DIR / "iac-model.ini", install=False):
-        logging.info("Intialising driver")
+        logging.info("Initialising driver")
         Settings.initialise(conf_file)
         self.dbname = Settings.DB_NAME
         logging.info(f"selected DB : {self.dbname}")

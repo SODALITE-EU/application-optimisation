@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-import getopt
+
+import argparse
 import json
 import logging
 import pathlib
@@ -54,8 +55,9 @@ class MODAK:
         # job_json_data.get('job').get('application').get('container_runtime')
 
         logging.info("Generating job file header")
-        job_file = "{}/{}_{}.sh".format(
-            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+        job_file = (
+            Settings.OUT_DIR
+            / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         gen_t = JobfileGenerator(job_json_data, job_file, "torque")
 
@@ -72,9 +74,9 @@ class MODAK:
 
         logging.info("Applying optimisations " + str(self._map.get_opts()))
         opts = self._enf.enforce_opt(self._map.get_opts())
-        if opts:
-            for i in range(0, opts.shape[0]):
-                gen_t.add_optscript(opts["script_name"][i], opts["script_loc"][i])
+        for opt in opts:
+            for i in range(0, opt.shape[0]):
+                gen_t.add_optscript(opt["script_name"][i], opt["script_loc"][i])
 
         logging.info("Adding application run")
         gen_t.add_apprun()
@@ -97,8 +99,9 @@ class MODAK:
         job_name = job_json_data.get("job").get("job_options").get("job_name")
         if job_name is None:
             job_name = "job"
-        job_file = "{}/{}_{}.sh".format(
-            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+        job_file = (
+            Settings.OUT_DIR
+            / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         JobfileGenerator(job_json_data, job_file, "torque")
 
@@ -199,8 +202,8 @@ class MODAK:
             )
 
         logging.info("Generating job file header")
-        job_file = "{}/{}_{}.sh".format(
-            Settings.OUT_DIR, job_name, datetime.now().strftime("%Y%m%d%H%M%S")
+        job_file = (
+            Settings.OUT_DIR / "{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         gen_t = JobfileGenerator(job_json_data, job_file)
 
@@ -225,44 +228,61 @@ class MODAK:
         logging.info("Adding application run")
         gen_t.add_apprun()
 
-        f = open(job_file, "r")
-        job_script_content = f.read()
+        job_script_content = job_file.read_text()
 
         logging.info("Job script content: " + job_script_content)
         return (new_container, job_script_content)
 
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-    try:
-        opts, args = getopt.getopt(argv, "hi:o:", ["ifile=", "ofile="])
-    except getopt.GetoptError:
-        print("MODAK.py -i <inputfile> -o <outputfile>")
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == "-h":
-            print("MODAK.py -i <inputfile> -o <outputfile>")
-            sys.exit()
-        elif opt in ("-i", "--ifile"):
-            inputfile = arg
-        elif opt in ("-o", "--ofile"):
-            outputfile = arg
-    print('Input file is "', inputfile)
-    print('Output file is "', outputfile)
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate MODAK output given a DSL file"
+    )
+    parser.add_argument(
+        "-i",
+        "--ifile",
+        metavar="DSLFILE",
+        type=argparse.FileType("r"),
+        default=sys.stdin,
+        help="DSL file (default: read from stdin)",
+    )
+    parser.add_argument(
+        "-o",
+        "--ofile",
+        metavar="OUTPUTFILE",
+        type=argparse.FileType("w"),
+        default=sys.stdout,
+        help="Output file (default: write to stdout)",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        metavar="CONFIGFILE",
+        type=pathlib.Path,
+        default=DEFAULT_SETTINGS_DIR / "iac-model.ini",
+        help=f"Configuration file (default: {DEFAULT_SETTINGS_DIR / 'iac-model.ini'}",
+    )
+    args = parser.parse_args()
 
-    m = MODAK("../conf/iac-model.ini")
-    # dsl_file = "../test/input/tf_snow.json"
-    # dsl_file = "../test/input/mpi_solver.json"
-    with open(inputfile) as json_file:
-        job_data = json.load(json_file)
-        link = m.optimise(job_data)
+    print(f"Input file: '{args.ifile.name}'", file=sys.stderr)
+    print(f"Output file: '{args.ofile.name}'", file=sys.stderr)
 
-    print(link)
-    job_data["job"].update({"job_script": link[0], "build_script": link[1]})
-    with open(outputfile, "w") as fp:
-        json.dump(job_data, fp)
+    m = MODAK(args.config)
+
+    job_data = json.load(args.ifile)
+    link = m.optimise(job_data)
+
+    json_dump_opts = {}
+    if args.ofile == sys.stdout:
+        json_dump_opts["indent"] = 2
+
+    print(f"Job script location: {link}", file=sys.stderr)
+    job_data["job"].update({"job_script": str(link["jobscript"]), "build_script": str(link["buildscript"])})
+    json.dump(job_data, args.ofile, **json_dump_opts)
+
+    if args.ofile == sys.stdout:
+        args.ofile.write("\n")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

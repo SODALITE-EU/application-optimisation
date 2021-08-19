@@ -1,11 +1,7 @@
 from copy import deepcopy
 import json
 import pathlib
-import ssl
 import unittest
-
-import wget
-
 from unittest.mock import patch
 
 from MODAK import MODAK
@@ -23,14 +19,13 @@ class test_MODAK(unittest.TestCase):
     def test_modak_hpc(self):
         print("Test MODAK")
         m = MODAK()
-        ssl._create_default_https_context = ssl._create_unverified_context
         dsl_file = SCRIPT_DIR / "input" / "mpi_solver.json"
         with dsl_file.open() as json_file:
             job_link = m.optimise(json.load(json_file))
-        filename = wget.download(job_link, out="/tmp")
+
         with SCRIPT_DIR.joinpath("input/solver.sh").open() as fhandle:
             mylist = list(fhandle)
-        with open(filename) as fhandle:
+        with open(job_link) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
@@ -46,11 +41,11 @@ class test_MODAK(unittest.TestCase):
         with dsl_file.open() as json_file:
             job_link = m.optimise(json.load(json_file))
 
-        ssl._create_default_https_context = ssl._create_unverified_context
-        filename = wget.download(job_link, out="/tmp")
-        with SCRIPT_DIR.joinpath("input/skyline-extraction-training.sh") as fhandle:
+        with SCRIPT_DIR.joinpath(
+            "input/skyline-extraction-training.sh"
+        ).open() as fhandle:
             mylist = list(fhandle)
-        with open(filename) as fhandle:
+        with open(job_link) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
@@ -65,11 +60,9 @@ class test_MODAK(unittest.TestCase):
         with dsl_file.open() as json_file:
             job_link = m.optimise(json.load(json_file))
 
-        ssl._create_default_https_context = ssl._create_unverified_context
-        filename = wget.download(job_link, out="/tmp")
-        with SCRIPT_DIR.joinpath("input/resnet.sh") as fhandle:
+        with SCRIPT_DIR.joinpath("input/resnet.sh").open() as fhandle:
             mylist = list(fhandle)
-        with open(filename) as fhandle:
+        with open(job_link) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
@@ -84,11 +77,9 @@ class test_MODAK(unittest.TestCase):
         with dsl_file.open() as json_file:
             job_link = m.optimise(json.load(json_file))
 
-        ssl._create_default_https_context = ssl._create_unverified_context
-        filename = wget.download(job_link, out="/tmp")
-        with SCRIPT_DIR.joinpath("input/mpi_test.sh") as fhandle:
+        with SCRIPT_DIR.joinpath("input/mpi_test.sh").open() as fhandle:
             mylist = list(fhandle)
-        with open(filename) as fhandle:
+        with open(job_link) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
@@ -103,12 +94,11 @@ class test_MODAK(unittest.TestCase):
         with dsl_file.open() as json_file:
             job_link = m.optimise(json.load(json_file))
 
-        ssl._create_default_https_context = ssl._create_unverified_context
-        filename = wget.download(job_link, out="/tmp")
-        with SCRIPT_DIR.joinpath("input/mpi_test_egi.sh") as fhandle:
+        with SCRIPT_DIR.joinpath("input/mpi_test_egi.sh").open() as fhandle:
             mylist = list(fhandle)
-        with open(filename) as fhandle:
+        with open(job_link) as fhandle:
             testlist = list(fhandle)
+
         self.assertEqual(len(mylist), len(testlist))
 
         for i in range(0, (len(mylist))):
