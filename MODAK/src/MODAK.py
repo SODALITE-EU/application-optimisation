@@ -126,7 +126,7 @@ class MODAK:
     
     def get_buildjob(self, job_json_data):
         logging.info('Creating build script for job')
-        logging.info('Processing build data' + str(job_json_data))
+        logging.info(f'Processing build data: {job_json_data})
 
         # patch in the build job as the job task
         # First, figure out what we're patching in:
