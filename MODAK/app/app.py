@@ -89,8 +89,7 @@ def modak_get_build():
         # Parse the JSON into a Python dictionary
         req = request.get_json()
         # Print the dictionary
-        print(req)
-        m = MODAK('../conf/iac-model.ini', upload=False)
+        m = MODAK()
         job_data = req
 
         build_content = m.get_buildjob(job_data)
