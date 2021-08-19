@@ -5,7 +5,9 @@ import logging
 import pathlib
 import sys
 import re
+import jinja2
 from datetime import datetime
+from typing import NamedTuple
 
 from enforcer import Enforcer
 from jobfile_generator import JobfileGenerator
@@ -16,6 +18,7 @@ from copy import deepcopy
 from opt_dsl_reader import OptDSLReader
 from settings import DEFAULT_SETTINGS_DIR, Settings
 
+JobScripts = NamedTuple("JobScripts", [("jobscript", str), ("buildscript",str)])
 
 class MODAK:
     def __init__(
@@ -58,6 +61,11 @@ class MODAK:
 
         logging.info('Generating build file')
         buildjob = self.get_buildjob(job_json_data)
+        build_file = "{}/{}_{}.sh".format(
+            Settings.OUT_DIR, f"{job_name}_build", datetime.now().strftime("%Y%m%d%H%M%S")
+        )
+        with open(build_file, 'w') as f:
+            f.write(buildjob)
 
         logging.info("Adding autotuning scripts")
         gen_t.add_tuner(upload=self._upload)
@@ -75,13 +83,13 @@ class MODAK:
             file_to = f"/modak/{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
             build_file_to = f"/modak/build_{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
             self._job_link = self._drop.upload_file(file_from=job_file, file_to=file_to)
-            self._build_link = self._drop.upload_file(file_from=job_file, file_to=build_file_to)
+            self._build_link = self._drop.upload_file(file_from=build_file, file_to=build_file_to)
         else:
             self._job_link = job_file
             self._build_link = build_file
         logging.info("Job script link: " + self._job_link)
         logging.info("Build script link: " + self._build_link)
-        return (self._job_link, self._build_link)
+        return JobScripts(self._job_link, self._build_link)
 
     def job_header(self, job_json_data):
         logging.info("Generating job file header")
@@ -123,15 +131,26 @@ class MODAK:
     
     def get_buildjob(self, job_json_data):
         logging.info('Creating build script for job')
-        logging.info(f'Processing build data: {job_json_data})
+        logging.info(f"Processing build data: {job_json_data}")
 
         # patch in the build job as the job task
         # First, figure out what we're patching in:
-        try:
-            buildsrc = job_json_data["job"]["application"]["build"]["src"]
-        except KeyError:
-            logging.info("No job.application.build.src section, returning empty response")
+        if "job" not in job_json_data:
+            logging.info("No job section in request, returning empty resposne")
             return ""
+        if "application" not in job_json_data["job"]:
+            logging.info("No job.application.build section in request, returning empty resposne")
+            return ""
+        if "build" not in job_json_data["job"]["application"]:
+            logging.info("No job.application.build section in request, returning empty resposne")
+            return ""
+        if "src" not in job_json_data["job"]["application"]["build"]:
+            logging.info("No job.application.build section in request, returning empty resposne")
+            return ""
+        if "build_command" not in job_json_data["job"]["application"]["build"]:
+            logging.info("No job.application.build section in request, returning empty resposne")
+            return ""
+        buildsrc = job_json_data["job"]["application"]["build"]["src"]
         buildcmd = job_json_data["job"]["application"]["build"]["build_command"]
         final_build = ""
         if buildsrc[-4:] == ".git":
@@ -144,18 +163,17 @@ class MODAK:
             process_per_node = job_json_data["job"]["application"]["build"]["build_parallelism"]
         except KeyError:
             pass
-        final_build += re.sub(
-            pattern="\{\{[\s]*BUILD_PARALLELISM[\s]*\}\}",
-            repl=str(process_per_node),
-            string=buildcmd
-        )
+        t = jinja2.Template(buildcmd)
+        final_build += t.render(BUILD_PARALLELISM=process_per_node)
+        stdoutfile = job_json_data["job"]["job_options"]["standard_output_file"]
+        stderrfile = job_json_data["job"]["job_options"]["standard_error_file"]
 
         mod_jobdata = deepcopy(job_json_data)
         mod_jobdata["job"]["job_options"]["job_name"] = job_json_data["job"]["job_options"]["job_name"] + "_build"
         mod_jobdata["job"]["job_options"]["node_count"] = 1
         mod_jobdata["job"]["job_options"]["process_count_per_node"] = process_per_node
-        mod_jobdata["job"]["job_options"]["standard_output_file"] = "build-" + job_json_data["job"]["job_options"]["standard_output_file"]
-        mod_jobdata["job"]["job_options"]["standard_error_file"] = "build-" + job_json_data["job"]["job_options"]["standard_error_file"]
+        mod_jobdata["job"]["job_options"]["standard_output_file"] = f"build-{stdoutfile}"
+        mod_jobdata["job"]["job_options"]["standard_error_file"] = f"build-{stderrfile}"
         mod_jobdata["job"]["application"]["executable"] = final_build
         
         return self.get_optimisation(mod_jobdata)[1]
@@ -241,8 +259,7 @@ def main(argv=None):
         link = m.optimise(job_data)
 
     print(link)
-    job_data["job"].update({"job_script": link[0]})
-    job_data["job"].update({"build_script": link[1]})
+    job_data["job"].update({"job_script": link[0], "build_script": link[1]})
     with open(outputfile, "w") as fp:
         json.dump(job_data, fp)
 
