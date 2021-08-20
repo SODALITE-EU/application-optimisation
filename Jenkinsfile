@@ -87,6 +87,8 @@ pipeline {
         stage('Test MODAK') {
             steps {
                 sh  """ #!/bin/bash
+                cd MODAK/
+
                 docker-compose down || :
                 if [ -n "\$(docker ps | grep modak)" ]; then
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
@@ -94,25 +96,19 @@ pipeline {
                 docker-compose build --no-cache
                 docker-compose up -d
                 sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
-                #docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') /bin/bash -c "cd ../test; python3 -m unittest -v"
-                RES=\$?
+
+                docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
+                docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml . 
+
+                python3 -m venv venv-test
+                . venv-test/bin/activate
+                python3 -m pip install --upgrade pip
+                python3 -m pip install --no-cache-dir -r MODAK/requirements.txt
+                PYTHONPATH="${PYTHONPATH}:src" pytest --junitxml=modak-results-venv.xml --cov=src
+
                 docker-compose down
-                exit \$RES
-                    """
-                //docker-compose build --no-cache
-                //docker-compose up -d
-                //docker exec -it applicationoptimisation_restapi_1 /bin/bash -c "cd ../test; python3 -m unittest -v"
-                //RES=\$?
-                //docker-compose down
-                //exit \$RES
-                // python3 -m venv venv-test
-                // . venv-test/bin/activate
-                // python3 -m pip install --upgrade pip
-                // python3 -m pip install --no-cache-dir -r MODAK/requirements.txt
-                // cd MODAK/test
-                //junit 'src/results.xml'
-                //# Running tests in this envornment doesn't work yet.
-                //#PYTHONPATH=${PYTHONPATH}:../src python3 -m pytest --junitxml=../results.xml --cov=../MODAK
+                """
+                junit 'modak-results-*.xml'
             }
         }
         stage('SonarQube analysis'){
