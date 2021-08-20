@@ -45,7 +45,7 @@ class test_MODAK(unittest.TestCase):
             "input/skyline-extraction-training.sh"
         ).open() as fhandle:
             mylist = list(fhandle)
-        with open(job_link[0]) as fhandle:
+        with open(job_link.jobscript) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
@@ -62,7 +62,7 @@ class test_MODAK(unittest.TestCase):
 
         with SCRIPT_DIR.joinpath("input/resnet.sh").open() as fhandle:
             mylist = list(fhandle)
-        with open(job_link[0]) as fhandle:
+        with open(job_link.jobscript) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
@@ -230,7 +230,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
             }
             return_value = MODAK().get_buildjob(injson)
             
-            self.assertEqual("wget --no-check-certificate http://example/tar.gz\nsleep 1", p1.call_args[0][0]["job"]["application"]["executable"])
+            self.assertEqual("wget --no-check-certificate 'http://example/tar.gz'\nsleep 1", p1.call_args[0][0]["job"]["application"]["executable"])
 
     def test_build_parallelism(self):
         """
@@ -261,7 +261,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
             }
             return_value = MODAK().get_buildjob(injson)
             
-            self.assertEqual("wget --no-check-certificate http://example/tar.gz\nsleep 4", p1.call_args[0][0]["job"]["application"]["executable"])
+            self.assertEqual("wget --no-check-certificate 'http://example/tar.gz'\nsleep 4", p1.call_args[0][0]["job"]["application"]["executable"])
 
 if __name__ == "__main__":
     unittest.main()
