@@ -174,8 +174,10 @@ class Mapper:
         opts = opt_dsl.get_opt_list(parallel)
         logging.info("optimisations: " + str(opts))
         app_name = opts.get("library")
-        # TODO: this changes original values from the request
-        opts.pop("library")
+
+        # TODO: this changes original values from the request, but
+        #       having this still in for the next call enables an artificial constraint
+        opts.pop("library", None)
 
         sqlstr = f"select opt_dsl_code from optimisation where app_name = '{app_name}'"
 
