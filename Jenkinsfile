@@ -86,7 +86,19 @@ pipeline {
         }
         stage('Test MODAK') {
             steps {
-                sh  """ #!/bin/bash
+                sh  """ #!/bin/bash -l
+                set -euxo pipefail
+                cd MODAK/
+
+                python3 -m venv venv-pre-commit
+                . venv-pre-commit/bin/activate
+                python3 -m pip install --upgrade pip
+                python3 -m pip install --no-cache-dir pre-commit
+                pre-commit run -a
+                """
+                sh  """ #!/bin/bash -l
+                set -euxo pipefail
+
                 cd MODAK/
 
                 docker-compose down || :
