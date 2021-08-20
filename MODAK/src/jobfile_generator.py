@@ -100,20 +100,20 @@ class JobfileGenerator:
     ):
         """Generates the job files, e.g. PBS and SLURM."""
         logging.info("Initialising job file generator")
-        self.batch_file = batch_file
-        self.job_json_obj = job_json_obj
-        self.job_data = job_json_obj.get("job").get("job_options", {})
-        self.app_data = job_json_obj.get("job").get("application", {})
-        self.opt_data = job_json_obj.get("job").get("optimisation", {})
-        self.singularity_exec = "singularity exec"
-        self.current_dir = "./"
+        self._batch_file = batch_file
+        self._job_json_obj = job_json_obj
+        self._job_data = job_json_obj.get("job").get("job_options", {})
+        self._app_data = job_json_obj.get("job").get("application", {})
+        self._opt_data = job_json_obj.get("job").get("optimisation", {})
+        self._singularity_exec = "singularity exec"
+        self._current_dir = "./"
         self.ac = ArgumentConverter()
         # TODO: scheduler type should be derived based on the infrastructure target name
         # TODO: there shall be an entry in the database where scheduler type
         #       is specified in the infrastructure target
 
         self._target_name = (
-            self.job_json_obj.get("job", {}).get("target", {}).get("name")
+            self._job_json_obj.get("job", {}).get("target", {}).get("name")
         )
 
         # use an explicitly given scheduler, if provided, otherwise determine from DSL
@@ -121,7 +121,7 @@ class JobfileGenerator:
             self._scheduler = scheduler
         else:
             self._scheduler = (
-                self.job_json_obj.get("job", {})
+                self._job_json_obj.get("job", {})
                 .get("target", {})
                 .get("job_scheduler_type")
             )
@@ -137,7 +137,7 @@ class JobfileGenerator:
     def _generate_torque_header(self):
         logging.info("Generating torque header")
         DIRECTIVE = "#PBS"
-        with self.batch_file.open("w") as fhandle:
+        with self._batch_file.open("w") as fhandle:
             fhandle.write(f"{DIRECTIVE} -S /bin/bash\n")
             fhandle.write("## START OF HEADER ##\n")
             if "job_name" in self._job_data:
@@ -156,7 +156,7 @@ class JobfileGenerator:
                     fhandle.write(f":ppn={self._job_data['process_count_per_node']}")
                 if "request_gpus" in self._job_data:
                     fhandle.write(f":gpus={self._job_data['request_gpus']}")
-                    self.singularity_exec = self.singularity_exec + " --nv "
+                    self._singularity_exec = self._singularity_exec + " --nv "
                 # specific to torque with default scheduler
                 if "queue" in self._job_data:
                     fhandle.write(f":{self._job_data['queue']}")
@@ -217,88 +217,88 @@ class JobfileGenerator:
 
     def _generate_slurm_header(self):
         logging.info("Generating slurm header")
-        filename = self.batch_file
+        filename = self._batch_file
         DIRECTIVE = '#SBATCH'
-        f = open(filename, 'w')
-        f.write('#!/bin/bash')
-        f.write('\n')
-        f.write('## START OF HEADER ##')
-        f.write('\n')
-        if "job_name" in self.job_data:
-            f.write(DIRECTIVE + ' -J ' + self.job_data['job_name'])
+        with open(filename, 'w') as f:
+            f.write('#!/bin/bash')
             f.write('\n')
-        if "account" in self.job_data:
-            f.write(DIRECTIVE + ' -A ' + self.job_data['account'])
+            f.write('## START OF HEADER ##')
             f.write('\n')
-        if "queue" in self.job_data:
-            f.write(DIRECTIVE + ' --partition=' + self.job_data['queue'])
-            f.write('\n')
-        if "wall_time_limit" in self.job_data:
-            f.write(DIRECTIVE + ' --time=' + self.job_data['wall_time_limit'])
-            f.write('\n')
-        if "node_count" in self.job_data:
-            f.write(DIRECTIVE + ' -N ' + str(self.job_data['node_count']))
-            f.write('\n')
-        if "core_count" in self.job_data:
-            f.write(DIRECTIVE + ' -n ' + str(self.job_data['core_count']))
-            f.write('\n')
-        if "process_count_per_node" in self.job_data:
-            f.write(DIRECTIVE + ' --ntasks-per-node=' + str(self.job_data['process_count_per_node']))
-            f.write('\n')
-        if "core_count_per_process" in self.job_data:
-            f.write(DIRECTIVE + ' ----cpus-per-task=' + str(self.job_data['core_count_per_process']))
-            f.write('\n')
-        if "memory_limit" in self.job_data:
-            f.write(DIRECTIVE + ' --mem=' + self.job_data['memory_limit'])
-            f.write('\n')
-        if "minimum_memory_per_processor" in self.job_data:
-            f.write(DIRECTIVE + ' --mem-per-cpu=' + self.job_data['minimum_memory_per_processor'])
-            f.write('\n')
-        if "request_gpus" in self.job_data:
-            f.write(DIRECTIVE + ' --gres=gpu:' + str(self.job_data['request_gpus']))
-            f.write('\n')
-            self.singularity_exec = self.singularity_exec + ' --nv '
-        if "request_specific_nodes" in self.job_data:
-            f.write(DIRECTIVE + ' --nodelist=' + self.job_data['request_specific_nodes'])
-            f.write('\n')
-        if "job_array" in self.job_data:
-            f.write(DIRECTIVE + ' -a ' + self.job_data['job_array'])
-            f.write('\n')
-        if "standard_output_file" in self.job_data:
-            f.write(DIRECTIVE + ' --output=' + self.job_data['standard_output_file'])
-            f.write('\n')
-        if "standard_error_file" in self.job_data:
-            f.write(DIRECTIVE + ' --error=' + self.job_data['standard_error_file'])
-            f.write('\n')
-        if "combine_stdout_stderr" in self.job_data:
-            pass
-        if "architecture_constraint" in self.job_data:
-            f.write(DIRECTIVE + ' -C ' + self.job_data['architecture_constraint'])
-            f.write('\n')
-        if "copy_environment" in self.job_data:
-            f.write(DIRECTIVE + ' --export=ALL ')
-            f.write('\n')
-        if "copy_environment_variable" in self.job_data:
-            f.write(DIRECTIVE + ' --export=' + self.job_data['copy_environment_variable'])
-            f.write('\n')
-        if "job_dependency" in self.job_data:
-            f.write(DIRECTIVE + ' --dependency=' + self.job_data['job_dependency'])
-            f.write('\n')
-        if "request_event_notification" in self.job_data:
-            f.write(DIRECTIVE + ' --mail-type=' + 
-                self.ac.convert_notifications(SCHEDULER_SLURM, self.job_data['request_event_notification']))
-            f.write('\n')
-        if "email_address" in self.job_data:
-            f.write(DIRECTIVE + ' --mail-user=' + self.job_data['email_address'])
-            f.write('\n')
-        if "defer_job" in self.job_data:
-            f.write(DIRECTIVE + ' --begin=' + self.job_data['defer_job'])
-            f.write('\n')
-        if "node_exclusive" in self.job_data:
-            f.write(DIRECTIVE + ' --exclusive')
-            f.write('\n')
+            if "job_name" in self._job_data:
+                f.write(DIRECTIVE + ' -J ' + self._job_data['job_name'])
+                f.write('\n')
+            if "account" in self._job_data:
+                f.write(DIRECTIVE + ' -A ' + self._job_data['account'])
+                f.write('\n')
+            if "queue" in self._job_data:
+                f.write(DIRECTIVE + ' --partition=' + self._job_data['queue'])
+                f.write('\n')
+            if "wall_time_limit" in self._job_data:
+                f.write(DIRECTIVE + ' --time=' + self._job_data['wall_time_limit'])
+                f.write('\n')
+            if "node_count" in self._job_data:
+                f.write(DIRECTIVE + ' -N ' + str(self._job_data['node_count']))
+                f.write('\n')
+            if "core_count" in self._job_data:
+                f.write(DIRECTIVE + ' -n ' + str(self._job_data['core_count']))
+                f.write('\n')
+            if "process_count_per_node" in self._job_data:
+                f.write(DIRECTIVE + ' --ntasks-per-node=' + str(self._job_data['process_count_per_node']))
+                f.write('\n')
+            if "core_count_per_process" in self._job_data:
+                f.write(DIRECTIVE + ' ----cpus-per-task=' + str(self._job_data['core_count_per_process']))
+                f.write('\n')
+            if "memory_limit" in self._job_data:
+                f.write(DIRECTIVE + ' --mem=' + self._job_data['memory_limit'])
+                f.write('\n')
+            if "minimum_memory_per_processor" in self._job_data:
+                f.write(DIRECTIVE + ' --mem-per-cpu=' + self._job_data['minimum_memory_per_processor'])
+                f.write('\n')
+            if "request_gpus" in self._job_data:
+                f.write(DIRECTIVE + ' --gres=gpu:' + str(self._job_data['request_gpus']))
+                f.write('\n')
+                self._singularity_exec = self._singularity_exec + ' --nv '
+            if "request_specific_nodes" in self._job_data:
+                f.write(DIRECTIVE + ' --nodelist=' + self._job_data['request_specific_nodes'])
+                f.write('\n')
+            if "job_array" in self._job_data:
+                f.write(DIRECTIVE + ' -a ' + self._job_data['job_array'])
+                f.write('\n')
+            if "standard_output_file" in self._job_data:
+                f.write(DIRECTIVE + ' --output=' + self._job_data['standard_output_file'])
+                f.write('\n')
+            if "standard_error_file" in self._job_data:
+                f.write(DIRECTIVE + ' --error=' + self._job_data['standard_error_file'])
+                f.write('\n')
+            if "combine_stdout_stderr" in self._job_data:
+                pass
+            if "architecture_constraint" in self._job_data:
+                f.write(DIRECTIVE + ' -C ' + self._job_data['architecture_constraint'])
+                f.write('\n')
+            if "copy_environment" in self._job_data:
+                f.write(DIRECTIVE + ' --export=ALL ')
+                f.write('\n')
+            if "copy_environment_variable" in self._job_data:
+                f.write(DIRECTIVE + ' --export=' + self._job_data['copy_environment_variable'])
+                f.write('\n')
+            if "job_dependency" in self._job_data:
+                f.write(DIRECTIVE + ' --dependency=' + self._job_data['job_dependency'])
+                f.write('\n')
+            if "request_event_notification" in self._job_data:
+                f.write(DIRECTIVE + ' --mail-type=' + 
+                    self.ac.convert_notifications(SCHEDULER_SLURM, self._job_data['request_event_notification']))
+                f.write('\n')
+            if "email_address" in self._job_data:
+                f.write(DIRECTIVE + ' --mail-user=' + self._job_data['email_address'])
+                f.write('\n')
+            if "defer_job" in self._job_data:
+                f.write(DIRECTIVE + ' --begin=' + self._job_data['defer_job'])
+                f.write('\n')
+            if "node_exclusive" in self._job_data:
+                f.write(DIRECTIVE + ' --exclusive')
+                f.write('\n')
 
-        with self.batch_file.open("w") as fhandle:
+        with self._batch_file.open("w") as fhandle:
             fhandle.write("#!/bin/bash\n")
             fhandle.write("## START OF HEADER ##\n")
             if "job_name" in self._job_data:
@@ -335,7 +335,7 @@ class JobfileGenerator:
                 fhandle.write(
                     f"{DIRECTIVE} --gres=gpu:{self._job_data['request_gpus']}\n"
                 )
-                self.singularity_exec = self.singularity_exec + " --nv "
+                self._singularity_exec = self._singularity_exec + " --nv "
             if "request_specific_nodes" in self._job_data:
                 fhandle.write(
                     f"{DIRECTIVE} --nodelist={self._job_data['request_specific_nodes']}\n"
@@ -386,7 +386,7 @@ class JobfileGenerator:
 
     def _generate_bash_header(self):
         logging.info("Generating bash header")
-        with self.batch_file.open("w") as fhandle:
+        with self._batch_file.open("w") as fhandle:
             fhandle.write("#!/bin/bash\n\n")
 
     def add_job_header(self):
@@ -399,23 +399,23 @@ class JobfileGenerator:
 
     def add_tuner(self, upload=True):
         tuner = Tuner(upload)
-        res = tuner.encode_tune(self.job_json_obj, self.batch_file)
+        res = tuner.encode_tune(self._job_json_obj, self._batch_file)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")
             return None
 
         logging.info("Adding tuner" + str(tuner))
-        with self.batch_file.open("a") as fhandle:
+        with self._batch_file.open("a") as fhandle:
             fhandle.write("\n")
             fhandle.write("## START OF TUNER ##\n")
             fhandle.write(f"file={tuner.get_tune_filename()}\n")
             fhandle.write('[ -f $file ] && rm "$file"\n')
             fhandle.write(f"wget --no-check-certificate '{tuner.get_tune_link()}'\n")
             fhandle.write(f"chmod 755 '{tuner.get_tune_filename()}'\n")
-            if "container_runtime" in self.app_data:
-                cont = self.app_data["container_runtime"]
+            if "container_runtime" in self._app_data:
+                cont = self._app_data["container_runtime"]
                 fhandle.write(
-                    f"\n{self.singularity_exec} "
+                    f"\n{self._singularity_exec} "
                     f'"{self.get_sif_filename(cont)}" "{tuner.get_tune_filename()}"'
                 )
                 fhandle.write("\n")
@@ -426,7 +426,7 @@ class JobfileGenerator:
 
     def add_optscript(self, scriptfile, scriptlink):
         logging.info("Adding optimisations " + scriptfile)
-        with open(self.batch_file, "a") as f:
+        with open(self._batch_file, "a") as f:
             f.seek(0, os.SEEK_END)
             scriptcontents = None
             try:
@@ -439,7 +439,7 @@ class JobfileGenerator:
                 f.write(str.format("""
 file={scriptfile}
 if [ -f $file ] ; then rm $file; fi
-wget --no-check-certificate {scriptlink}
+wget --no-check-certificate '{scriptlink}'
 chmod 755 {scriptfile}
 source {scriptfile}
 """, scriptfile=scriptfile, scriptlink=scriptlink))
@@ -447,24 +447,24 @@ source {scriptfile}
 
     def add_apprun(self):
         logging.info("Adding app run")
-        with self.batch_file.open("a") as fhandle:
+        with self._batch_file.open("a") as fhandle:
             exe = (
-                f"{self.app_data.get('executable', '')}"
-                f" {self.app_data.get('arguments', '')}"
+                f"{self._app_data.get('executable', '')}"
+                f" {self._app_data.get('arguments', '')}"
             )
 
             cont_exec_command = ""
-            cont = self.app_data.get("container_runtime", "")
+            cont = self._app_data.get("container_runtime", "")
             if cont:
                 cont_exec_command = (
-                    f'{self.singularity_exec} "{self.get_sif_filename(cont)}"'
+                    f'{self._singularity_exec} "{self.get_sif_filename(cont)}"'
                 )
 
-            app_type = self.app_data.get("app_type")
+            app_type = self._app_data.get("app_type")
 
-            if "build" in self.app_data:
-                src = self.app_data["build"].get("src")
-                build_command = self.app_data["build"].get("build_command")
+            if "build" in self._app_data:
+                src = self._app_data["build"].get("src")
+                build_command = self._app_data["build"].get("build_command")
                 if src[-4:] == ".git":
                     fhandle.write(f"\ngit clone {src}\n")
                 else:
@@ -472,8 +472,8 @@ source {scriptfile}
                 fhandle.write(f"\n{cont_exec_command} {build_command}\n")
 
             if app_type == "mpi" or app_type == "hpc":
-                mpi_ranks = self.app_data.get("mpi_ranks", 1)
-                threads = self.app_data.get("threads", 1)
+                mpi_ranks = self._app_data.get("mpi_ranks", 1)
+                threads = self._app_data.get("threads", 1)
                 fhandle.write(f"\nexport OMP_NUM_THREADS={threads}\n")
                 if self._scheduler == "torque" and "openmpi:1.10" in cont:
                     fhandle.write(f"{cont_exec_command} mpirun -np {mpi_ranks} {exe}\n")
