@@ -159,7 +159,7 @@ class MODAK:
         if buildsrc[-4:] == ".git":
             final_build = f"git clone {buildsrc}\n"
         else:
-            final_build = f"wget --no-check-certificate {buildsrc}\n"
+            final_build = f"wget --no-check-certificate '{buildsrc}'\n"
         
         process_per_node=1
         try:
