@@ -16,9 +16,7 @@ print("This is the MODAK driver program")
 class MODAK_driver:
     """This is the driver program that will drive the MODAK"""
 
-    dblist = []
-    tablelist = []
-    db_dir = ""
+    # dblist = []
     logging.basicConfig(
         filename=DEFAULT_SETTINGS_DIR
         / ".."
