@@ -5,6 +5,8 @@ import logging
 import pathlib
 from typing import Optional
 
+from jinja2 import Environment, FileSystemLoader
+
 from tuner import Tuner
 
 
@@ -126,257 +128,36 @@ class JobfileGenerator:
                 .get("job_scheduler_type")
             )
 
+        self._env = Environment(
+            loader=FileSystemLoader(
+                pathlib.Path(__file__).parent.resolve() / "templates"
+            ),
+            trim_blocks=True,
+        )
+
     # Based on https://kb.northwestern.edu/page.php?id=89454
 
     def _generate_torque_header(self):
         logging.info("Generating torque header")
-        DIRECTIVE = "#PBS"
+        template = self._env.get_template("torque.header")
         with self._batch_file.open("w") as fhandle:
-            fhandle.write(f"{DIRECTIVE} -S /bin/bash\n")
-            fhandle.write("## START OF HEADER ##\n")
-            if "job_name" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -N {self._job_data['job_name']}\n")
-            if "account" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -A {self._job_data['account']}\n")
-            if "queue" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -q {self._job_data['queue']}\n")
-            if "wall_time_limit" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -l walltime={self._job_data['wall_time_limit']}\n"
-                )
-            if "node_count" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -l nodes={self._job_data['node_count']}")
-                if "process_count_per_node" in self._job_data:
-                    fhandle.write(f":ppn={self._job_data['process_count_per_node']}")
-                if "request_gpus" in self._job_data:
-                    fhandle.write(f":gpus={self._job_data['request_gpus']}")
-                    self._singularity_exec = self._singularity_exec + " --nv"
-                # specific to torque with default scheduler
-                if "queue" in self._job_data:
-                    fhandle.write(f":{self._job_data['queue']}")
-                fhandle.write("\n")
-            if "core_count" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -l procs={self._job_data['core_count']}\n")
-            if "core_count_per_process" in self._job_data:
-                pass
-            if "memory_limit" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -l mem={self._job_data['memory_limit']}\n")
-            if "minimum_memory_per_processor" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -l pmem={self._job_data['minimum_memory_per_processor']}\n"
-                )
-            if "request_specific_nodes" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -l nodes={self._job_data['request_specific_nodes']}\n"
-                )
-            if "job_array" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -t {self._job_data['job_array']}\n")
-            if "standard_output_file" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -o {self._job_data['standard_output_file']}\n"
-                )
-            if "standard_error_file" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -e {self._job_data['standard_error_file']}\n"
-                )
-            if "combine_stdout_stderr" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -j oe\n")
-            if "architecture_constraint" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -l partition={self._job_data['architecture_constraint']}\n"
-                )
-            if "copy_environment" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -V\n")
-            if "copy_environment_variable" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -v {self._job_data['copy_environment_variable']}\n"
-                )
-            if "job_dependency" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -W {self._job_data['job_dependency']}\n")
-            if "request_event_notification" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -m {self._job_data['request_event_notification']}\n"
-                )
-            if "email_address" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -M {self._job_data['email_address']}\n")
-            if "defer_job" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -a {self._job_data['defer_job']}\n")
-            if "node_exclusive" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -l naccesspolicy=singlejob\n")
+            fhandle.write(template.render(job_data=self._job_data))
 
-            fhandle.write("## END OF HEADER ##\n")
-            fhandle.write("cd $PBS_O_WORKDIR\n")
-            self._current_dir = "$PBS_O_WORKDIR/"
-            fhandle.write("export PATH=$PBS_O_WORKDIR:$PATH\n")
+        if "node_count" in self._job_data and "request_gpus" in self._job_data:
+            self._singularity_exec = self._singularity_exec + " --nv"
+
+        self._current_dir = "$PBS_O_WORKDIR/"
 
     def _generate_slurm_header(self):
         logging.info("Generating slurm header")
-        filename = self._batch_file
-        DIRECTIVE = '#SBATCH'
-        with open(filename, 'w') as f:
-            f.write('#!/bin/bash')
-            f.write('\n')
-            f.write('## START OF HEADER ##')
-            f.write('\n')
-            if "job_name" in self._job_data:
-                f.write(DIRECTIVE + ' -J ' + self._job_data['job_name'])
-                f.write('\n')
-            if "account" in self._job_data:
-                f.write(DIRECTIVE + ' -A ' + self._job_data['account'])
-                f.write('\n')
-            if "queue" in self._job_data:
-                f.write(DIRECTIVE + ' --partition=' + self._job_data['queue'])
-                f.write('\n')
-            if "wall_time_limit" in self._job_data:
-                f.write(DIRECTIVE + ' --time=' + self._job_data['wall_time_limit'])
-                f.write('\n')
-            if "node_count" in self._job_data:
-                f.write(DIRECTIVE + ' -N ' + str(self._job_data['node_count']))
-                f.write('\n')
-            if "core_count" in self._job_data:
-                f.write(DIRECTIVE + ' -n ' + str(self._job_data['core_count']))
-                f.write('\n')
-            if "process_count_per_node" in self._job_data:
-                f.write(DIRECTIVE + ' --ntasks-per-node=' + str(self._job_data['process_count_per_node']))
-                f.write('\n')
-            if "core_count_per_process" in self._job_data:
-                f.write(DIRECTIVE + ' ----cpus-per-task=' + str(self._job_data['core_count_per_process']))
-                f.write('\n')
-            if "memory_limit" in self._job_data:
-                f.write(DIRECTIVE + ' --mem=' + self._job_data['memory_limit'])
-                f.write('\n')
-            if "minimum_memory_per_processor" in self._job_data:
-                f.write(DIRECTIVE + ' --mem-per-cpu=' + self._job_data['minimum_memory_per_processor'])
-                f.write('\n')
-            if "request_gpus" in self._job_data:
-                f.write(DIRECTIVE + ' --gres=gpu:' + str(self._job_data['request_gpus']))
-                f.write('\n')
-                self._singularity_exec = self._singularity_exec + ' --nv '
-            if "request_specific_nodes" in self._job_data:
-                f.write(DIRECTIVE + ' --nodelist=' + self._job_data['request_specific_nodes'])
-                f.write('\n')
-            if "job_array" in self._job_data:
-                f.write(DIRECTIVE + ' -a ' + self._job_data['job_array'])
-                f.write('\n')
-            if "standard_output_file" in self._job_data:
-                f.write(DIRECTIVE + ' --output=' + self._job_data['standard_output_file'])
-                f.write('\n')
-            if "standard_error_file" in self._job_data:
-                f.write(DIRECTIVE + ' --error=' + self._job_data['standard_error_file'])
-                f.write('\n')
-            if "combine_stdout_stderr" in self._job_data:
-                pass
-            if "architecture_constraint" in self._job_data:
-                f.write(DIRECTIVE + ' -C ' + self._job_data['architecture_constraint'])
-                f.write('\n')
-            if "copy_environment" in self._job_data:
-                f.write(DIRECTIVE + ' --export=ALL ')
-                f.write('\n')
-            if "copy_environment_variable" in self._job_data:
-                f.write(DIRECTIVE + ' --export=' + self._job_data['copy_environment_variable'])
-                f.write('\n')
-            if "job_dependency" in self._job_data:
-                f.write(DIRECTIVE + ' --dependency=' + self._job_data['job_dependency'])
-                f.write('\n')
-            if "request_event_notification" in self._job_data:
-                f.write(DIRECTIVE + ' --mail-type=' + 
-                    self.ac.convert_notifications(SCHEDULER_SLURM, self._job_data['request_event_notification']))
-                f.write('\n')
-            if "email_address" in self._job_data:
-                f.write(DIRECTIVE + ' --mail-user=' + self._job_data['email_address'])
-                f.write('\n')
-            if "defer_job" in self._job_data:
-                f.write(DIRECTIVE + ' --begin=' + self._job_data['defer_job'])
-                f.write('\n')
-            if "node_exclusive" in self._job_data:
-                f.write(DIRECTIVE + ' --exclusive')
-                f.write('\n')
-
+        template = self._env.get_template("slurm.header")
         with self._batch_file.open("w") as fhandle:
-            fhandle.write("#!/bin/bash\n")
-            fhandle.write("## START OF HEADER ##\n")
-            if "job_name" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -J {self._job_data['job_name']}\n")
-            if "account" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -A {self._job_data['account']}\n")
-            if "queue" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} --partition={self._job_data['queue']}\n")
-            if "wall_time_limit" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --time={self._job_data['wall_time_limit']}\n"
-                )
-            if "node_count" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -N {self._job_data['node_count']}\n")
-            if "core_count" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -n {self._job_data['core_count']}\n")
-            if "process_count_per_node" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE}"
-                    f" --ntasks-per-node={self._job_data['process_count_per_node']}\n"
-                )
-            if "core_count_per_process" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --cpus-per-task={self._job_data['core_count_per_process']}\n"
-                )
-            if "memory_limit" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} --mem={self._job_data['memory_limit']}\n")
-            if "minimum_memory_per_processor" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE}"
-                    f" --mem-per-cpu={self._job_data['minimum_memory_per_processor']}\n"
-                )
-            if "request_gpus" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --gres=gpu:{self._job_data['request_gpus']}\n"
-                )
-                self._singularity_exec = self._singularity_exec + " --nv"
-            if "request_specific_nodes" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --nodelist={self._job_data['request_specific_nodes']}\n"
-                )
-            if "job_array" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} -a {self._job_data['job_array']}\n")
-            if "standard_output_file" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --output={self._job_data['standard_output_file']}\n"
-                )
-            if "standard_error_file" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -error={self._job_data['standard_error_file']}\n"
-                )
-            if "combine_stdout_stderr" in self._job_data:
-                pass
-            if "architecture_constraint" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} -C {self._job_data['architecture_constraint']}\n"
-                )
-            if "copy_environment" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} --export=ALL\n")
-            if "copy_environment_variable" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --export={self._job_data['copy_environment_variable']}\n"
-                )
-            if "job_dependency" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --dependency={self._job_data['job_dependency']}\n"
-                )
-            if "request_event_notification" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --mail-type={self._job_data['request_event_notification']}\n"
-                )
-            if "email_address" in self._job_data:
-                fhandle.write(
-                    f"{DIRECTIVE} --mail-user={self._job_data['email_address']}\n"
-                )
-            if "defer_job" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} --begin={self._job_data['defer_job']}\n")
-            if "node_exclusive" in self._job_data:
-                fhandle.write(f"{DIRECTIVE} --exclusive\n")
+            fhandle.write(template.render(job_data=self._job_data))
 
-            fhandle.write("## END OF HEADER ##\n")
-            fhandle.write("cd $SLURM_SUBMIT_DIR\n")
-            self._current_dir = "$SLURM_SUBMIT_DIR/"
-            fhandle.write("export PATH=$SLURM_SUBMIT_DIR:$PATH\n")
+        if "request_gpus" in self._job_data:
+            self._singularity_exec = self._singularity_exec + " --nv"
+
+        self._current_dir = "$SLURM_SUBMIT_DIR/"
 
     def _generate_bash_header(self):
         logging.info("Generating bash header")

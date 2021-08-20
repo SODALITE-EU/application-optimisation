@@ -9,8 +9,9 @@
 #SBATCH --mail-type=abe
 #SBATCH --mail-user=kartshy@gmail.com
 ## END OF HEADER ##
-cd $SLURM_SUBMIT_DIR
-export PATH=$SLURM_SUBMIT_DIR:$PATH
+
+cd "${SLURM_SUBMIT_DIR}"
+export PATH="${SLURM_SUBMIT_DIR}:${PATH}"
 ## MODAK: START HLRS TESTBED ##
 module load mpi/openmpi-x86_64
 ## MODAK: END HLRS TESTBED ##
