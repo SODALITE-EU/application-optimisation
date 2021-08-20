@@ -1,7 +1,10 @@
 # Setup
 
 For running the unittests you currently need a MariaDB/MySQL server running,
-hence Docker is a requirement for now.
+hence Docker is a requirement for now. For development you also need the
+`pre-commit` tools.
+
+## Docker
 
 To build the MODAK API container from the locally checked out source code and
 bring up the API server together with the database, run the following:
@@ -9,6 +12,23 @@ bring up the API server together with the database, run the following:
 ```console
 $ docker built -t modakopt/modak:api .
 $ docker compose up
+```
+
+## pre-commit
+
+The following can also be done within a `virtualenv` (see below).
+This registers the `pre-commit` hooks for the current git checkout such
+that tools like `black` or `flake8` are run automatically on commit.
+
+```console
+$ pip install pre-commit
+$ pre-commit install --install-hooks
+```
+
+To manually check that the current tree is clean:
+
+```console
+$ pre-commit run -a
 ```
 
 ## Running tests inside the Docker image
