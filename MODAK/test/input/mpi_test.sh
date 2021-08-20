@@ -10,8 +10,9 @@
 #PBS -m abe
 #PBS -M kartshy@gmail.com
 ## END OF HEADER ##
-cd $PBS_O_WORKDIR
-export PATH=$PBS_O_WORKDIR:$PATH
+
+cd "${PBS_O_WORKDIR}"
+export PATH="${PBS_O_WORKDIR}:${PATH}"
 
 wget --no-check-certificate https://raw.githubusercontent.com/olcf/XC30-Training/master/affinity/Xthi.c
 

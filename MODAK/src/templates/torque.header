@@ -1,0 +1,73 @@
+#PBS -S /bin/bash
+## START OF HEADER ##
+{% if job_data.job_name is defined %}
+#PBS -N {{ job_data.job_name }}
+{% endif %}
+{% if job_data.account is defined %}
+#PBS -A {{ job_data.account }}
+{% endif %}
+{% if job_data.queue is defined %}
+#PBS -q {{ job_data.queue }}
+{% endif %}
+{% if job_data.wall_time_limit is defined %}
+#PBS -l walltime={{ job_data.wall_time_limit }}
+{% endif %}
+{% if job_data.node_count is defined %}
+#PBS -l nodes={{ job_data.node_count }}
+  {%- if job_data.process_count_per_node is defined %}:ppn={{ job_data.process_count_per_node }}{% endif %}
+  {%- if job_data.request_gpus %}:gpus={{ job_data.request_gpus }}{% endif %}
+  {%- if job_data.queue is defined %}:{{ job_data.queue }}{% endif %}
+{% endif +%}
+{% if job_data.core_count is defined %}
+#PBS -l procs={{ job_data.core_count }}
+{% endif %}
+{% if job_data.memory_limit is defined %}
+#PBS -l mem={{ job_data.memory_limit }}
+{% endif %}
+{% if job_data.minimum_memory_per_processor is defined %}:
+#PBS -l pmem={{ job_data.minimum_memory_per_processor }}
+{% endif %}
+{% if job_data.request_specific_nodes is defined %}
+#PBS -l nodes={{ job_data.request_specific_nodes }}
+{% endif %}
+{% if job_data.job_array is defined %}
+#PBS -t {{ job_data.job_array }}
+{% endif %}
+{% if job_data.standard_output_file is defined %}
+#PBS -o {{ job_data.standard_output_file }}
+{% endif %}
+{% if job_data.standard_error_file is defined %}
+#PBS -e {{ job_data.standard_error_file }}
+{% endif %}
+{% if job_data.combine_stdout_stderr is defined %}
+#PBS -j oe
+{% endif %}
+{% if job_data.architecture_constraint is defined %}
+#PBS -l partition={{ job_data.architecture_constraint }}
+{% endif %}
+{% if job_data.copy_environment is defined %}
+#PBS -V
+{% endif %}
+{% if job_data.copy_environment_variable is defined %}
+#PBS -v {{ job_data.copy_environment_variable }}
+{% endif %}
+{% if job_data.job_dependency is defined %}
+#PBS -W {{ job_data.job_dependency }}
+{% endif %}
+{% if job_data.request_event_notification is defined %}
+#PBS -m {{ job_data.request_event_notification }}
+{% endif %}
+{% if job_data.email_address is defined %}
+#PBS -M {{ job_data.email_address }}
+{% endif %}
+{% if job_data.defer_job is defined %}
+#PBS -a job_data.defer_job
+{% endif %}
+{% if job_data.node_exclusive is defined %}
+#PBS -l naccesspolicy=singlejob
+{% endif %}
+## END OF HEADER ##
+
+cd "${PBS_O_WORKDIR}"
+export PATH="${PBS_O_WORKDIR}:${PATH}"
+
