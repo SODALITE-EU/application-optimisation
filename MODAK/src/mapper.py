@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import List
 
 from MODAK_driver import MODAK_driver
 from opt_dsl_reader import OptDSLReader
@@ -8,8 +9,8 @@ from opt_dsl_reader import OptDSLReader
 class Mapper:
     def __init__(self, driver: MODAK_driver):
         logging.info("Initialised MODAK mapper")
-        self.driver = driver
-        self.opts = []
+        self._driver = driver
+        self._opts: List[str] = []
 
     def map_container(self, opt_json_obj):
         logging.info("Mapping to optimal container")
@@ -20,7 +21,7 @@ class Mapper:
         if opt_json_obj["job"].get("target") is not None:
             if opt_json_obj["job"].get("target").get("name") is not None:
                 target_name = opt_json_obj["job"].get("target").get("name").strip()
-                self.opts.append(f"{target_name}:true")
+                self._opts.append(f"{target_name}:true")
 
         if app_type == "ai_training":
             logging.info("Decoding AI training application")
@@ -72,7 +73,7 @@ class Mapper:
                 src=src,
             )
         )
-        self.driver.updateSQL(
+        self._driver.updateSQL(
             stmt.format(
                 opt_dsl_code=opt_dsl_code,
                 container_file=container_file,
@@ -117,7 +118,7 @@ class Mapper:
                 )
             )
         )
-        self.driver.updateSQL(
+        self._driver.updateSQL(
             stmt.format(
                 opt_dsl_code=opt_dsl_code,
                 app_name=app_name,
@@ -132,7 +133,7 @@ class Mapper:
         logging.info("Get container for opt code: " + str(opt_dsl_code))
         stmt = "select container_file, image_type, image_hub from mapper \
                 where opt_dsl_code='{}' order by map_id desc limit 1"
-        df = self.driver.applySQL(stmt.format(opt_dsl_code))
+        df = self._driver.applySQL(stmt.format(opt_dsl_code))
         if df.size > 0:
             container_file = df["container_file"][0]
             image_hub = df["image_hub"][0]
@@ -197,9 +198,9 @@ class Mapper:
             optstr = f" and optimisation like '%{t}%'"
             sqlstr = sqlstr + optstr
             logging.info("Adding opt query " + optstr)
-            self.opts.append(t)
+            self._opts.append(t)
 
-        df = self.driver.selectSQL(sqlstr)
+        df = self._driver.selectSQL(sqlstr)
         if df.size > 0:
             dsl_code = df["opt_dsl_code"][0]
         else:
@@ -246,9 +247,9 @@ class Mapper:
             optstr = f" and optimisation like '%{t}%'"
             sqlstr = sqlstr + optstr
             logging.info("Adding opt query " + optstr)
-            self.opts.append(t)
+            self._opts.append(t)
 
-        df = self.driver.selectSQL(sqlstr)
+        df = self._driver.selectSQL(sqlstr)
         if df.size > 0:
             dsl_code = df["opt_dsl_code"][0]
         else:
@@ -257,7 +258,7 @@ class Mapper:
         return dsl_code
 
     def get_opts(self):
-        return self.opts
+        return self._opts
 
     def get_decoded_opts(self, opt_json_obj):
         opts = []
