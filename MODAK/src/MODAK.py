@@ -89,8 +89,8 @@ class MODAK:
         else:
             self._job_link = job_file
             self._build_link = build_file
-        logging.info("Job script link: " + self._job_link)
-        logging.info("Build script link: " + self._build_link)
+        logging.info(f"Job script link: {self._job_link}")
+        logging.info(f"Build script link: {self._build_link}")
         return JobScripts(self._job_link, self._build_link)
 
     def job_header(self, job_json_data):

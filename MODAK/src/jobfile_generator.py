@@ -113,7 +113,7 @@ class JobfileGenerator:
         #       is specified in the infrastructure target
 
         self._target_name = (
-            self._job_json_obj.get("job", {}).get("target", {}).get("name")
+            self.job_json_obj.get("job", {}).get("target", {}).get("name")
         )
 
         # use an explicitly given scheduler, if provided, otherwise determine from DSL
@@ -121,7 +121,7 @@ class JobfileGenerator:
             self._scheduler = scheduler
         else:
             self._scheduler = (
-                self._job_json_obj.get("job", {})
+                self.job_json_obj.get("job", {})
                 .get("target", {})
                 .get("job_scheduler_type")
             )
@@ -137,7 +137,7 @@ class JobfileGenerator:
     def _generate_torque_header(self):
         logging.info("Generating torque header")
         DIRECTIVE = "#PBS"
-        with self._batch_file.open("w") as fhandle:
+        with self.batch_file.open("w") as fhandle:
             fhandle.write(f"{DIRECTIVE} -S /bin/bash\n")
             fhandle.write("## START OF HEADER ##\n")
             if "job_name" in self._job_data:
@@ -156,7 +156,7 @@ class JobfileGenerator:
                     fhandle.write(f":ppn={self._job_data['process_count_per_node']}")
                 if "request_gpus" in self._job_data:
                     fhandle.write(f":gpus={self._job_data['request_gpus']}")
-                    self._singularity_exec = self._singularity_exec + " --nv "
+                    self.singularity_exec = self.singularity_exec + " --nv "
                 # specific to torque with default scheduler
                 if "queue" in self._job_data:
                     fhandle.write(f":{self._job_data['queue']}")
@@ -298,7 +298,7 @@ class JobfileGenerator:
             f.write(DIRECTIVE + ' --exclusive')
             f.write('\n')
 
-        with self._batch_file.open("w") as fhandle:
+        with self.batch_file.open("w") as fhandle:
             fhandle.write("#!/bin/bash\n")
             fhandle.write("## START OF HEADER ##\n")
             if "job_name" in self._job_data:
@@ -335,7 +335,7 @@ class JobfileGenerator:
                 fhandle.write(
                     f"{DIRECTIVE} --gres=gpu:{self._job_data['request_gpus']}\n"
                 )
-                self._singularity_exec = self._singularity_exec + " --nv "
+                self.singularity_exec = self.singularity_exec + " --nv "
             if "request_specific_nodes" in self._job_data:
                 fhandle.write(
                     f"{DIRECTIVE} --nodelist={self._job_data['request_specific_nodes']}\n"
@@ -386,7 +386,7 @@ class JobfileGenerator:
 
     def _generate_bash_header(self):
         logging.info("Generating bash header")
-        with self._batch_file.open("w") as fhandle:
+        with self.batch_file.open("w") as fhandle:
             fhandle.write("#!/bin/bash\n\n")
 
     def add_job_header(self):
@@ -399,23 +399,23 @@ class JobfileGenerator:
 
     def add_tuner(self, upload=True):
         tuner = Tuner(upload)
-        res = tuner.encode_tune(self._job_json_obj, self._batch_file)
+        res = tuner.encode_tune(self.job_json_obj, self.batch_file)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")
             return None
 
         logging.info("Adding tuner" + str(tuner))
-        with self._batch_file.open("a") as fhandle:
+        with self.batch_file.open("a") as fhandle:
             fhandle.write("\n")
             fhandle.write("## START OF TUNER ##\n")
             fhandle.write(f"file={tuner.get_tune_filename()}\n")
             fhandle.write('[ -f $file ] && rm "$file"\n')
             fhandle.write(f"wget --no-check-certificate '{tuner.get_tune_link()}'\n")
             fhandle.write(f"chmod 755 '{tuner.get_tune_filename()}'\n")
-            if "container_runtime" in self._app_data:
-                cont = self._app_data["container_runtime"]
+            if "container_runtime" in self.app_data:
+                cont = self.app_data["container_runtime"]
                 fhandle.write(
-                    f"\n{self._singularity_exec} "
+                    f"\n{self.singularity_exec} "
                     f'"{self.get_sif_filename(cont)}" "{tuner.get_tune_filename()}"'
                 )
                 fhandle.write("\n")
@@ -447,24 +447,24 @@ source {scriptfile}
 
     def add_apprun(self):
         logging.info("Adding app run")
-        with self._batch_file.open("a") as fhandle:
+        with self.batch_file.open("a") as fhandle:
             exe = (
-                f"{self._app_data.get('executable', '')}"
-                f" {self._app_data.get('arguments', '')}"
+                f"{self.app_data.get('executable', '')}"
+                f" {self.app_data.get('arguments', '')}"
             )
 
             cont_exec_command = ""
-            cont = self._app_data.get("container_runtime", "")
+            cont = self.app_data.get("container_runtime", "")
             if cont:
                 cont_exec_command = (
-                    f'{self._singularity_exec} "{self.get_sif_filename(cont)}"'
+                    f'{self.singularity_exec} "{self.get_sif_filename(cont)}"'
                 )
 
-            app_type = self._app_data.get("app_type")
+            app_type = self.app_data.get("app_type")
 
-            if "build" in self._app_data:
-                src = self._app_data["build"].get("src")
-                build_command = self._app_data["build"].get("build_command")
+            if "build" in self.app_data:
+                src = self.app_data["build"].get("src")
+                build_command = self.app_data["build"].get("build_command")
                 if src[-4:] == ".git":
                     fhandle.write(f"\ngit clone {src}\n")
                 else:
@@ -472,8 +472,8 @@ source {scriptfile}
                 fhandle.write(f"\n{cont_exec_command} {build_command}\n")
 
             if app_type == "mpi" or app_type == "hpc":
-                mpi_ranks = self._app_data.get("mpi_ranks", 1)
-                threads = self._app_data.get("threads", 1)
+                mpi_ranks = self.app_data.get("mpi_ranks", 1)
+                threads = self.app_data.get("threads", 1)
                 fhandle.write(f"\nexport OMP_NUM_THREADS={threads}\n")
                 if self._scheduler == "torque" and "openmpi:1.10" in cont:
                     fhandle.write(f"{cont_exec_command} mpirun -np {mpi_ranks} {exe}\n")

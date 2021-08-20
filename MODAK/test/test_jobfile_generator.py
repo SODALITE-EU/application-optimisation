@@ -11,7 +11,7 @@ class test_mapper(unittest.TestCase):
         self.optscript = tempfile.NamedTemporaryFile()
         self.optscript.file.write(TEST_STRING)
         self.optscript.file.flush()
-        self.jg = jobfile_generator.jobfile_generator({
+        self.jg = jobfile_generator.JobfileGenerator({
             "job": {
                 "job_options": {},
                 "application": {},

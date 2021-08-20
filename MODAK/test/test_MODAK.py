@@ -45,7 +45,7 @@ class test_MODAK(unittest.TestCase):
             "input/skyline-extraction-training.sh"
         ).open() as fhandle:
             mylist = list(fhandle)
-        with open(job_link) as fhandle:
+        with open(job_link[0]) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
@@ -62,7 +62,7 @@ class test_MODAK(unittest.TestCase):
 
         with SCRIPT_DIR.joinpath("input/resnet.sh").open() as fhandle:
             mylist = list(fhandle)
-        with open(job_link) as fhandle:
+        with open(job_link[0]) as fhandle:
             testlist = list(fhandle)
         self.assertEqual(len(mylist), len(testlist))
 
