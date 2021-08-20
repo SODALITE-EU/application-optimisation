@@ -2,8 +2,8 @@
   "job":{
     "job_options": {
       "job_name": "mpi_test_egi",
-      "wall_time_limit": "1:00:00 ",
-      "node_count": 4,
+      "wall_time_limit": "1:00:00",
+      "node_count": 2,
       "process_count_per_node": 1,
       "standard_output_file": "mpi_test.out",
       "standard_error_file": "mpi_test.err",
@@ -13,7 +13,7 @@
     },
     "target": {
       "name": "egi",
-      "job_scheduler_type": "torque"
+      "job_scheduler_type": "slurm"
     },
     "application": {
       "app_tag": "mpi_test",
@@ -21,7 +21,7 @@
       "app_type": "hpc",
       "executable": "./xthi",
       "arguments": "",
-      "mpi_ranks": 4,
+      "mpi_ranks": 80,
       "threads": 2,
       "build": {
         "src": "https://raw.githubusercontent.com/olcf/XC30-Training/master/affinity/Xthi.c",
@@ -44,7 +44,7 @@
         },
         "parallelisation-mpi": {
           "library": "openmpi",
-          "version": "1.10"
+          "version": "3.1.3"
         }
       }
     }

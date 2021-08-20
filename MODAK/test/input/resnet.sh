@@ -10,11 +10,10 @@
 ## END OF HEADER ##
 cd $PBS_O_WORKDIR
 export PATH=$PBS_O_WORKDIR:$PATH
+## MODAK: START OF OPT:XLA ##
+mkdir xla_dump
+export TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit"
+export XLA_FLAGS="--xla_dump_to=xla_dump/generated"
+## MODAK: END OF OPT:XLA ##
 
-file=enable_xla.sh
-if [ -f $file ] ; then rm $file; fi
-wget --no-check-certificate https://www.dropbox.com/s/e6n9yb0a5601gp2/enable_xla.sh
-chmod 755 enable_xla.sh
-source enable_xla.sh
-
-singularity exec --nv  $SINGULARITY_DIR/modak_tensorflow-2.1-gpu-src.sif  ./resnet_benchmark.sh
+singularity exec --nv "$SINGULARITY_DIR/modak_tensorflow-2.1-gpu-src.sif" ./resnet_benchmark.sh

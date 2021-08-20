@@ -126,12 +126,6 @@ class JobfileGenerator:
                 .get("job_scheduler_type")
             )
 
-        # override for certain (test) target names for now:
-        if self._target_name == "egi":
-            self._scheduler = SCHEDULER_SLURM
-        elif self._target_name == "hlrs_testbed":
-            self._scheduler = SCHEDULER_TORQUE
-
     # Based on https://kb.northwestern.edu/page.php?id=89454
 
     def _generate_torque_header(self):
@@ -156,7 +150,7 @@ class JobfileGenerator:
                     fhandle.write(f":ppn={self._job_data['process_count_per_node']}")
                 if "request_gpus" in self._job_data:
                     fhandle.write(f":gpus={self._job_data['request_gpus']}")
-                    self._singularity_exec = self._singularity_exec + " --nv "
+                    self._singularity_exec = self._singularity_exec + " --nv"
                 # specific to torque with default scheduler
                 if "queue" in self._job_data:
                     fhandle.write(f":{self._job_data['queue']}")
@@ -335,7 +329,7 @@ class JobfileGenerator:
                 fhandle.write(
                     f"{DIRECTIVE} --gres=gpu:{self._job_data['request_gpus']}\n"
                 )
-                self._singularity_exec = self._singularity_exec + " --nv "
+                self._singularity_exec = self._singularity_exec + " --nv"
             if "request_specific_nodes" in self._job_data:
                 fhandle.write(
                     f"{DIRECTIVE} --nodelist={self._job_data['request_specific_nodes']}\n"
@@ -402,7 +396,7 @@ class JobfileGenerator:
         res = tuner.encode_tune(self._job_json_obj, self._batch_file)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")
-            return None
+            return
 
         logging.info("Adding tuner" + str(tuner))
         with self._batch_file.open("a") as fhandle:
@@ -448,10 +442,10 @@ source {scriptfile}
     def add_apprun(self):
         logging.info("Adding app run")
         with self._batch_file.open("a") as fhandle:
-            exe = (
-                f"{self._app_data.get('executable', '')}"
-                f" {self._app_data.get('arguments', '')}"
-            )
+            exe = self._app_data.get("executable", "")
+            args = self._app_data.get("arguments", "")
+            if args:
+                exe += f" {args}"
 
             cont_exec_command = ""
             cont = self._app_data.get("container_runtime", "")

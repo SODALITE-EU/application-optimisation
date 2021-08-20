@@ -59,7 +59,10 @@ class MODAK:
             Settings.OUT_DIR
             / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
-        gen_t = JobfileGenerator(job_json_data, job_file, "torque")
+        gen_t = JobfileGenerator(job_json_data, job_file)
+
+        logging.info("Adding job header")
+        gen_t.add_job_header()
 
         logging.info('Generating build file')
         buildjob = self.get_buildjob(job_json_data)
@@ -103,7 +106,7 @@ class MODAK:
             Settings.OUT_DIR
             / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
-        JobfileGenerator(job_json_data, job_file, "torque")
+        JobfileGenerator(job_json_data, job_file)
 
         file_to = f"/modak/{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         if self._upload:

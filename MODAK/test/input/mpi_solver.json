@@ -2,7 +2,7 @@
   "job":{
     "job_options": {
       "job_name": "solver",
-      "wall_time_limit": "1:00:00 ",
+      "wall_time_limit": "1:00:00",
       "node_count": 2,
       "core_count": 40,
       "process_count_per_node": 40,
