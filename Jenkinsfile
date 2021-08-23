@@ -191,6 +191,15 @@ pipeline {
             }
             steps {
                 sh """#!/bin/bash
+                    rm -rf .venv
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    python3 -m pip install --upgrade pip
+                    python3 -m pip install -r deploy-requirements.txt
+                    cp ${ca_crt_file} xOpera-rest-blueprint/modules/docker/artifacts/ca.crt
+                    cp ${ca_crt_file} xOpera-rest-blueprint/modules/misc/tls/artifacts/ca.crt
+                    cp ${ca_key_file} xOpera-rest-blueprint/modules/docker/artifacts/ca.key
+                    cp ${ca_key_file} xOpera-rest-blueprint/modules/misc/tls/artifacts/ca.key
                    """
             }
         }
@@ -206,18 +215,17 @@ pipeline {
             }
             environment {
                 // add env var for this stage only
-                vm_name = 'modak-dev'
+                vm_name = 'modak-dev-dev'
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'modak_ssh_key', keyFileVariable: 'modak_ssh_key_file', usernameVariable: 'modak_ssh_username')]) {
                     sh """#!/bin/bash
-                        hostname
-                        ls
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@${vm_name}.sodalite.eu "cd application-optimization && docker-compose down && cd .. && rm -rf application-optimization; docker kill \$(docker ps | grep modak | awk '{print \$1}'); mkdir -p application-optimization; docker system prune -a -f"
-                        scp -i ${modak_ssh_key_file} -r ./* ${modak_ssh_username}@${vm_name}.sodalite.eu:application-optimization/
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@${vm_name}.sodalite.eu "cd application-optimization && docker-compose up -d"
-                        sleep 300
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@${vm_name}.sodalite.eu "cd application-optimization/MODAK/test/integration && ./hpc.sh"
+                        # create input.yaml file from template
+                        envsubst < deploy-blueprint/inputs/input.yaml.tmpl > deploy-blueprint/input.yaml
+                        . .venv/bin/activate
+                        cd deploy-blueprint
+                        rm -r -f .opera
+                        opera deploy service.yaml -i input.yaml
                        """
                 }
             }
