@@ -216,6 +216,8 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'modak_ssh_key', keyFileVariable: 'modak_ssh_key_file', usernameVariable: 'modak_ssh_username')]) {
                     sh """#!/bin/bash
+                        pwd
+                        ls -R
                         # create input.yaml file from template
                         envsubst < deploy-blueprint/inputs/input.yaml.tmpl > deploy-blueprint/input.yaml
                         . .venv/bin/activate
