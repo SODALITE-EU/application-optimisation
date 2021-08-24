@@ -196,6 +196,9 @@ pipeline {
                     . .venv/bin/activate
                     python3 -m pip install --upgrade pip
                     python3 -m pip install -r deploy-requirements.txt
+                    # Force update of modules/ directory via git submodule
+                    git submodule init
+                    git submodule update
                    """
             }
         }
