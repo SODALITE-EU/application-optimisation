@@ -196,10 +196,6 @@ pipeline {
                     . .venv/bin/activate
                     python3 -m pip install --upgrade pip
                     python3 -m pip install -r deploy-requirements.txt
-                    cp ${ca_crt_file} xOpera-rest-blueprint/modules/docker/artifacts/ca.crt
-                    cp ${ca_crt_file} xOpera-rest-blueprint/modules/misc/tls/artifacts/ca.crt
-                    cp ${ca_key_file} xOpera-rest-blueprint/modules/docker/artifacts/ca.key
-                    cp ${ca_key_file} xOpera-rest-blueprint/modules/misc/tls/artifacts/ca.key
                    """
             }
         }
