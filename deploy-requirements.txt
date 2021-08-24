@@ -1,2 +1,2 @@
-opera[openstack]
+opera[openstack]==0.6.4
 docker
