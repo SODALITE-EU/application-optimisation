@@ -219,7 +219,7 @@ pipeline {
                         pwd
                         ls -R
                         # create input.yaml file from template
-                        envsubst < deploy-blueprint/inputs/input.yaml.tmpl > deploy-blueprint/input.yaml
+                        envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
                         . .venv/bin/activate
                         cd deploy-blueprint
                         rm -r -f .opera
