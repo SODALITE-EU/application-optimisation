@@ -44,6 +44,10 @@ pipeline {
        // ANSIBLE SETTINGS
        ANSIBLE_TIMEOUT = "60"
 
+       // ROOT X.509 CERTIFICATES
+       ca_crt_file = credentials('xopera-ca-crt')
+       ca_key_file = credentials('xopera-ca-key')
+
        // CI-CD vars
        // When triggered from git tag, $BRANCH_NAME is actually GIT's tag_name
        TAG_SEM_VER_COMPLIANT = """${sh(
@@ -199,6 +203,10 @@ pipeline {
                     # Force update of modules/ directory via git submodule
                     git submodule init
                     git submodule update
+                    cp ${ca_crt_file} deploy-blueprint/modules/docker/artifacts/ca.crt
+                    cp ${ca_crt_file} deploy-blueprint/modules/misc/tls/artifacts/ca.crt
+                    cp ${ca_key_file} deploy-blueprint/modules/docker/artifacts/ca.key
+                    cp ${ca_key_file} deploy-blueprint/modules/misc/tls/artifacts/ca.key
                    """
             }
         }
