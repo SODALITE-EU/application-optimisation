@@ -21,11 +21,7 @@ docker-registry-cert-email-address: ${docker_registry_cert_email_address}
 docker-registry-cert-path: ${cert_path}
 docker-registry-cert-files-prefix: ${cert_files_prefix}
 # POSTGRES SETTINGS
-postgres_env:
-  POSTGRES_USER: ${postgres_user}
-  POSTGRES_PASSWORD: ${postgres_password}
-  POSTGRES_DB: ${postgres_db}
-  POSTGRES_PORT: "${postgres_port}"
+mariadb_env:
 # XOPERA SETTINGS
 xopera_env:
   DEBUG: "${xopera_debug}"
