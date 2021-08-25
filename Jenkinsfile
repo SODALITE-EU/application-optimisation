@@ -200,9 +200,6 @@ pipeline {
                     . .venv/bin/activate
                     python3 -m pip install --upgrade pip
                     python3 -m pip install -r deploy-requirements.txt
-                    ansible-galaxy install geerlingguy.pip,2.1.0 --force
-                    ansible-galaxy install geerlingguy.docker,3.1.2 --force
-                    ansible-galaxy install geerlingguy.repo-epel,3.0.0 --force
                     # Force update of modules/ directory via git submodule
                     git submodule init
                     git submodule update
