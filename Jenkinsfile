@@ -237,7 +237,8 @@ pipeline {
                         . .venv/bin/activate
                         cd deploy-blueprint
                         rm -r -f .opera
-                        ANSIBLE_HOST_KEY_CHECKING=False opera deploy service.yaml -i input.yaml
+                        ssh-keygen -f "/home/jenkins/.ssh/known_hosts" -R "77.231.202.232"
+                        opera deploy service.yaml -i input.yaml
                        """
                 }
             }
