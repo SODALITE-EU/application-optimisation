@@ -91,6 +91,7 @@ pipeline {
         stage('Test MODAK') {
             steps {
                 sh  """ #!/bin/bash
+                git status
                 docker-compose down || :
                 if [ -n "\$(docker ps | grep modak)" ]; then
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
@@ -161,6 +162,7 @@ pipeline {
             steps {
                 withDockerRegistry(credentialsId: 'jenkins-sodalite.docker_token', url: '') {
                     sh  """#!/bin/bash
+                        git status
                         ./make_docker.sh push modak staging
                         """
                 }
@@ -195,6 +197,7 @@ pipeline {
             }
             steps {
                 sh """#!/bin/bash
+                    git status
                     rm -rf .venv
                     python3 -m venv .venv
                     . .venv/bin/activate
@@ -229,6 +232,7 @@ pipeline {
                     sh """#!/bin/bash
                         pwd
                         ls -R
+                        git status
                         # create input.yaml file from template
                         envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
                         . .venv/bin/activate
