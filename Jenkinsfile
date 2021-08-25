@@ -226,7 +226,7 @@ pipeline {
                 vm_name = 'modak-dev-dev'
             }
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'modak_ssh_key', keyFileVariable: 'modak_ssh_key_file', usernameVariable: 'modak_ssh_username')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'xOpera_ssh_key', keyFileVariable: 'xOpera_ssh_key_file', usernameVariable: 'xOpera_ssh_username')]) {
                     sh """#!/bin/bash
                         pwd
                         ls -R
