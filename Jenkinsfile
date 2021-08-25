@@ -237,7 +237,7 @@ pipeline {
                         . .venv/bin/activate
                         cd deploy-blueprint
                         rm -r -f .opera
-                        opera deploy service.yaml -i input.yaml
+                        ANSIBLE_HOST_KEY_CHECKING=False opera deploy service.yaml -i input.yaml
                        """
                 }
             }
