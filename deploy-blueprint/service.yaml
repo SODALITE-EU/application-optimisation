@@ -57,7 +57,7 @@ topology_template:
     docker-registry-cert-files-prefix:
       type: string
       default: ""
-    postgres_env:
+    mariadb_env:
       type: map
     xopera_env:
       type: map

@@ -17,12 +17,9 @@ docker-registry-cert-organization-name: XLAB
 docker-registry-cert-email-address: [MAIL - OPTIONAL]
 docker-registry-cert-path: /home/xopera/certs
 docker-registry-cert-files-prefix: image.docker.local
-# POSTGRES SETTINGS
-postgres_env:
-  POSTGRES_USER: username
-  POSTGRES_PASSWORD: password
-  POSTGRES_DB: postgres
-  POSTGRES_PORT: "5432"
+# MARAIDB SETTINGS
+mariadb_env:
+  PLACEHODLER: "true"
 # XOPERA SETTINGS
 xopera_env:
   DEBUG: "false"
