@@ -197,6 +197,7 @@ pipeline {
             }
             steps {
                 sh """#!/bin/bash
+                    set -x
                     git status
                     rm -rf .venv
                     python3 -m venv .venv
