@@ -2,7 +2,7 @@ pipeline {
     agent { label 'docker-slave' }
        environment {
        // OPENSTACK SETTINGS
-       ssh_key_name = "modak"
+       ssh_key_name = "77-231-202-183-xOpera"
        image_name = "centos7"
        network_name = "orchestrator-network"
        security_groups = "default,sodalite-remote-access,sodalite-rest,sodalite-uc"
