@@ -2,8 +2,9 @@ pipeline {
     agent { label 'docker-slave' }
        environment {
        // OPENSTACK SETTINGS
-       ssh_key_name = "77-231-202-183-xOpera"
+       ssh_key_name = "jenkins-opera"
        image_name = "centos7"
+       username = "centos"
        network_name = "orchestrator-network"
        security_groups = "default,sodalite-remote-access,sodalite-rest,sodalite-uc"
        flavor_name = "m1.small"
