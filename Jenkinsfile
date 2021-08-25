@@ -201,12 +201,13 @@ pipeline {
                     git status
                     rm -rf .venv
                     # Force update of modules/ directory via git submodule
-                    git submodule init
-                    git submodule update
+                    #git submodule init
+                    #git submodule update
                     python3 -m venv .venv
                     . .venv/bin/activate
                     python3 -m pip install --upgrade pip
                     python3 -m pip install -r deploy-requirements.txt
+                    git clone https://github.com/SODALITE-EU/iac-modules.git deployment-blueprint/modules/
                     cp ${ca_crt_file} deploy-blueprint/modules/docker/artifacts/ca.crt
                     cp ${ca_crt_file} deploy-blueprint/modules/misc/tls/artifacts/ca.crt
                     cp ${ca_key_file} deploy-blueprint/modules/docker/artifacts/ca.key
