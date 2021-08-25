@@ -1,10 +1,10 @@
 # OPENSTACK SETTINGS
 ssh-key-name: [SSH KEY NAME]
 image-name: "centos-7 x86_64"
-vm-name: xOpera
+vm-name: modak
 openstack-network-name: xlab
 security-groups: default,remote_access,sodalite-uc
-flavor-name: m1.medium
+flavor-name: m1.tiny
 ssh_config:
 # DOCKER SETTINGS
 docker-network: sodalite
