@@ -61,6 +61,8 @@ topology_template:
       type: map
     xopera_env:
       type: map
+    modak_env:
+      type: map
     ssh_config:
       type: map
     username:
