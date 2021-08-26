@@ -184,20 +184,20 @@ topology_template:
         - host: sodalite-vm
         - dependency: tls-certs
 
-    mariadb:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        image_name: mariadb:10.6
-        volumes:
-          - "MODAK_DB/:/docker-entrypoint-initdb.d"
-        alias: modak-mariadb
-        env: { get_input: mariadb_env }
-        docker_network_name:  { get_property: [ SELF, network, name ] }
+    # mariadb:
+    #   type: sodalite.nodes.DockerizedComponent
+    #   properties:
+    #     image_name: mariadb:10.6
+    #     volumes:
+    #       - "MODAK_DB/:/docker-entrypoint-initdb.d"
+    #     alias: modak-mariadb
+    #     env: { get_input: mariadb_env }
+    #     docker_network_name:  { get_property: [ SELF, network, name ] }
 
-      requirements:
-        - host:  docker-host
-        - network: docker-network
-        - registry: docker-public-registry 
+    #   requirements:
+    #     - host:  docker-host
+    #     - network: docker-network
+    #     - registry: docker-public-registry 
 
     api:
       type: sodalite.nodes.DockerizedComponent
