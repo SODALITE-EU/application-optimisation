@@ -189,7 +189,7 @@ topology_template:
     mariadb:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        image_name: mariadb:10.6
+        image_name: library/mariadb:10.6
         volumes:
           - "MODAK_DB/:/docker-entrypoint-initdb.d"
         alias: modak-mariadb
