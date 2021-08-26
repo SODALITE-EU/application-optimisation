@@ -212,4 +212,4 @@ topology_template:
         - registry: docker-public-registry
         - network: docker-network
         - dependency: openstack-keys
-        - dependency: mariadb
+      #  - dependency: mariadb
