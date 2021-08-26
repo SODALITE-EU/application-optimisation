@@ -235,6 +235,7 @@ pipeline {
                         pwd
                         ls -R
                         git status
+                        set -x
                         # create input.yaml file from template
                         envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
                         . .venv/bin/activate
