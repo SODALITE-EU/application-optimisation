@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Install sample site
+      copy:
+        dest: "{{ path }}"
+        src: modakdb.sql
+    - name: Change permissions    
+      file:
+        path: "{{ path }}"
+        mode: 0777        

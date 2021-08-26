@@ -185,13 +185,18 @@ topology_template:
       requirements:
         - host: sodalite-vm
         - dependency: tls-certs
+      
+    dbsource:
+      type: sodalite.nodes.util.ModakDBDump
+      properties: 
+        path: /tmp/modak-db
 
     mariadb:
       type: sodalite.nodes.DockerizedComponent
       properties:
         image_name: library/mariadb:10.6
         volumes:
-          - "MODAK_DB/:/docker-entrypoint-initdb.d"
+          - "/tmp/modak-db:/docker-entrypoint-initdb.d"
         alias: modak-mariadb
         env: { get_input: mariadb_env }
         docker_network_name:  { get_property: [ SELF, network, name ] }
