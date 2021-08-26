@@ -22,7 +22,7 @@ docker-registry-cert-path: ${cert_path}
 docker-registry-cert-files-prefix: ${cert_files_prefix}
 # POSTGRES SETTINGS
 mariadb_env:
-  PLACEHOLDER: "true"
+  MYSQL_ROOT_PASSWORD: my-secret-pw
 # XOPERA SETTINGS
 xopera_env:
   DEBUG: "${xopera_debug}"
