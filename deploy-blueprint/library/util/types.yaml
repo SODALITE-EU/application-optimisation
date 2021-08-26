@@ -31,7 +31,7 @@ node_types:
   sodalite.nodes.util.ModakDBDump:
     derived_from: tosca.nodes.SoftwareComponent
     properties:
-      dest:
+      path:
         description: Destination for file
         type: string
 
