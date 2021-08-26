@@ -13,11 +13,11 @@ pipeline {
        dockerhub_user = " "
        dockerhub_pass = " "
        docker_registry_ip = credentials('jenkins-docker-registry-ip')
-       docker_registry_cert_country_name = "DE"
-       docker_registry_cert_organization_name = "HLRS"
+       docker_registry_cert_country_name = "SI"
+       docker_registry_cert_organization_name = "XLAB"
        docker_public_registry_url = "registry.hub.docker.com"
-       docker_registry_cert_email_address = "steven.presser@hlrs.de"
-       cert_path = "/home/modak/certs"
+       docker_registry_cert_email_address = "dragan.radolovic@xlab.si"
+       cert_path = "/home/xopera/certs"
        cert_files_prefix = "image.docker.local"
 
        // OIDC secrets
