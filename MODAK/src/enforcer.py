@@ -20,8 +20,9 @@ class Enforcer:
                 opt_code = opt.split(":")
                 if "true" in opt_code[1]:
                     df = self._driver.applySQL(
-                        "select script_name, script_loc, stage from optscript "
-                        "where opt_code = '{}' ".format(opt_code[0])
+                        "SELECT script_name, script_loc, stage FROM optscript"
+                        " WHERE opt_code = %s",
+                        (opt_code[0],),
                     )
                     dfs.append(df)
         return dfs
