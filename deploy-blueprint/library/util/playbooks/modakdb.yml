@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  become: yes
+  become: no
 
   tasks:
     - name: Install sample site
