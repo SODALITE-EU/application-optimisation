@@ -81,6 +81,20 @@ def modak_get_job_content():
 
         return jsonify(job_data)
 
+@app.route("/get_build", methods=["POST"])
+def modak_get_build():
+    if request.is_json:
+        # Parse the JSON into a Python dictionary
+        req = request.get_json()
+        # Print the dictionary
+        m = MODAK()
+        job_data = req
+
+        build_content = m.get_buildjob(job_data)
+        job_data["job"]["build_script"] = build_content
+
+        res = jsonify(job_data)
+        return res
 
 @app.route("/get_optimisation", methods=["POST"])
 def modak_get_optimisation():
