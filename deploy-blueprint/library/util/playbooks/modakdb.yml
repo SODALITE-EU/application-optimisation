@@ -3,7 +3,7 @@
   become: no
 
   tasks:
-    - name: Install sample site
+    - name: Install sample database
       copy:
         dest: "{{ path }}"
         src: modakdb.sql

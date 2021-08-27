@@ -190,6 +190,8 @@ topology_template:
       type: sodalite.nodes.util.ModakDBDump
       properties: 
         path: /tmp/modak-db
+      requirements:
+        - host: sodalite-vm
 
     mariadb:
       type: sodalite.nodes.DockerizedComponent
