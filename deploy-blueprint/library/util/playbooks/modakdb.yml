@@ -3,6 +3,10 @@
   become: yes
 
   tasks:
+    - name: Remove old database container
+      docker_component:
+        state: absent
+        name: "{{ alias }}"
     - name: Install sample database
       copy:
         dest: "{{ path }}"
