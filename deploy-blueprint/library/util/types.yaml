@@ -34,6 +34,9 @@ node_types:
       path:
         description: Destination for file
         type: string
+      alias:
+        description: Alias for the modak database docker container
+        type: string
 
     interfaces:
       Standard:
