@@ -23,9 +23,10 @@ docker-registry-cert-files-prefix: ${cert_files_prefix}
 # POSTGRES SETTINGS
 mariadb_env:
   MYSQL_ROOT_PASSWORD: my-secret-pw
+# MODAK configuration parameters
 db_pass: my-secret-pw
 modak_env:
-  PlACEHOLDER: something
+  MODAK_CONFIG: /tmp/modak-iac-model.ini
 # XOPERA SETTINGS
 xopera_env:
   DEBUG: "${xopera_debug}"

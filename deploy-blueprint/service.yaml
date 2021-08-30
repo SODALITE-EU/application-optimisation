@@ -224,7 +224,7 @@ topology_template:
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/modak-api:M24Release
         volumes:
-          - "/tmp/iac-model.ini:/home/MODAK/conf/iac-model.ini"
+          - "/tmp/iac-model.ini:/tmp/modak-iac-model.ini"
         restart_policy: always
         env: { get_input: modak_env }
         volumes:
