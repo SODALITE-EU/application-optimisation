@@ -69,9 +69,6 @@ topology_template:
       type: string
     modak_db_pass:
       type: string
-    # Target for downloading the MODAK image
-    modak_docker_source:
-      type: string
 #    identity_file:
 #      type: string
 
@@ -227,7 +224,7 @@ topology_template:
       properties:
         alias: modak
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/modak-api:latest
+        image_name: sodaliteh2020/modak-api:M24Release
         volumes:
           - "/tmp/iac-model.ini:/tmp/modak-iac-model.ini"
           - "/tmp/modak:/var/log/modak"
@@ -237,7 +234,7 @@ topology_template:
           - 5000:5000
       requirements:
         - host: docker-host
-        - registry: { get_input: modak_docker_source }
+        - registry: docker-public-registry
         - network: docker-network
         - dependency: openstack-keys
         - dependency: mariadb
