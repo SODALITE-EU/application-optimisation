@@ -6,8 +6,8 @@ cresta_link           = https://www.dropbox.com/s/iaivd8wujhctpl5/cresta.tar.gz
 [prod]
 db_name               = iac_model
 db_dir                = 
-out_dir               = {{ logdir | default("/var/log/modak", true) }}
+out_dir               = {{ logdir }}
 host                  = {{ db_host }}
-port                  = {{ db_port | default(3306, true) }}
-user                  = {{ db_user | default("root", true) }}
+port                  = {{ db_port }}
+user                  = {{ db_user }}
 password              = {{ db_pass }}

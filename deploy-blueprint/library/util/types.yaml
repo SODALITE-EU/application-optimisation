@@ -62,15 +62,18 @@ node_types:
       logdir:
         description: Directory in which to writ elogs
         type: string
+        default: /var/log/modak
       db_host:
         description: Hostname for the database
         type: string
       db_port:
         description: Port number for the database
         type: integer
+        default: 3306
       db_user:
         description: Username to connect to the databse with
         type: string
+        default: root
       db_pass:
         description: Password to use to connect to the database
         type: string
