@@ -3,7 +3,7 @@
   become: yes
 
   tasks:
-  - name: Generating config for MODAK API
+    - name: Generating config for MODAK API
       template:
         src: "iac-model.ini.j2"
         dest: "/tmp/iac-model.ini"
