@@ -55,3 +55,38 @@ node_types:
               path: { type: string, default: { get_property: [ SELF, path ] } }
             implementation:
               primary: playbooks/delete.yml
+
+  sodalite.nodes.util.ModakConfig:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      logdir:
+        description: Directory in which to writ elogs
+        type: string
+      db_host:
+        description: Hostname for the database
+        type: string
+      db_port:
+        description: Port number for the database
+        type: int
+      db_user:
+        description: Username to connect to the databse with
+        type: string
+      db_pass:
+        description: Password to use to connect to the database
+        type: string
+
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              logdir: { type: string, default: { get_property: [ SELF, logdir ] } }
+              db_host: { type: string, default: { get_property: [ SELF, db_host ] } }
+              db_port: { type: int, default: { get_property: [ SELF, db_port ] } }
+              db_user: { type: string, default: { get_property: [ SELF, db_user ] } }
+              db_pass: { type: string, default: { get_property: [ SELF, db_pass ] } }
+            implementation:
+              primary: playbooks/modakconfig.yml
+              dependencies:
+                - artifacts/iac-model.ini.j2

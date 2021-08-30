@@ -208,6 +208,14 @@ topology_template:
         - host:  docker-host
         - network: docker-network
         - registry: docker-public-registry 
+    
+    configsrc:
+      type: sodalite.nodes.util.ModakConfig
+      properties:
+        db_host: modak-mariadb
+        db_pass: { get_input: db_pass }
+      requirements:
+        - host: docker-host
 
     api:
       type: sodalite.nodes.DockerizedComponent
@@ -215,8 +223,11 @@ topology_template:
         alias: modak
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: sodaliteh2020/modak-api:M24Release
+        volumes:
+          - "/tmp/iac-model.ini:/home/MODAK/conf/iac-model.ini"
         restart_policy: always
         env: { get_input: modak_env }
+        volumes:
       requirements:
         - host: docker-host
         - registry: docker-public-registry

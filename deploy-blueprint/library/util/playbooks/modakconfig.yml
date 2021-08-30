@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+  - name: Generating config for MODAK API
+      template:
+        src: "iac-model.ini.j2"
+        dest: "/tmp/iac-model.ini"
+        mode: "0755"
