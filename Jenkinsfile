@@ -245,7 +245,7 @@ pipeline {
 
                         # Copy the DB dump and put it where we need it
                         mkdir -p library/util/artifacts
-                        cp ../MODAK-DB/modak_mysqldump.sql library/util/artifacts/modakdb.sql
+                        cp ../MODAK/db/modak_mysqldump.sql library/util/artifacts/modakdb.sql
                         opera deploy service.yaml -i input.yaml
                        """
                 }
