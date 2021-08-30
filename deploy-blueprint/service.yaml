@@ -190,6 +190,7 @@ topology_template:
       type: sodalite.nodes.util.ModakDBDump
       properties: 
         path: /tmp/modak-db
+        alias: modak-mariadb
       requirements:
         - host: sodalite-vm
 
