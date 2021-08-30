@@ -228,6 +228,7 @@ pipeline {
             environment {
                 // add env var for this stage only
                 vm_name = 'modak-dev-dev'
+                modak_docker_source = 'docker-private-registry'
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'xOpera_ssh_key', keyFileVariable: 'xOpera_ssh_key_file', usernameVariable: 'xOpera_ssh_username')]) {
@@ -262,18 +263,27 @@ pipeline {
                 }
             }
             environment {
-                vm_name = 'modak'
+                vm_name = 'modak-prod'
+                modak_docker_source = 'docker-public-registry'
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'modak_ssh_key', keyFileVariable: 'modak_ssh_key_file', usernameVariable: 'modak_ssh_username')]) {
                     sh """#!/bin/bash
-                        hostname
-                        ls
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@${vm_name}.sodalite.eu "cd application-optimization && docker-compose down && cd .. && rm -rf application-optimization; docker kill \$(docker ps | grep modak | awk '{print \$1}'); mkdir -p application-optimization; docker system prune -a -f"
-                        scp -i ${modak_ssh_key_file} -r ./* ${modak_ssh_username}@${vm_name}.sodalite.eu:application-optimization/
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@${vm_name}.sodalite.eu "cd application-optimization && docker-compose up -d"
-                        sleep 300
-                        ssh -i ${modak_ssh_key_file} -o StrictHostKeyChecking=no ${modak_ssh_username}@${vm_name}.sodalite.eu "cd application-optimization/MODAK/test/integration && ./hpc.sh"
+                        pwd
+                        ls -R
+                        git status
+                        set -x
+                        # create input.yaml file from template
+                        envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
+                        . .venv/bin/activate
+                        cd deploy-blueprint
+                        rm -r -f .opera
+                        ssh-keygen -f "/home/jenkins/.ssh/known_hosts" -R "77.231.202.232"
+
+                        # Copy the DB dump and put it where we need it
+                        mkdir -p library/util/artifacts
+                        cp ../MODAK/db/modak_mysqldump.sql library/util/artifacts/modakdb.sql
+                        opera deploy service.yaml -i input.yaml
                        """
                 }
             }
