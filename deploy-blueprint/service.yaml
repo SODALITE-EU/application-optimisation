@@ -227,6 +227,7 @@ topology_template:
         image_name: sodaliteh2020/modak-api:M24Release
         volumes:
           - "/tmp/iac-model.ini:/tmp/modak-iac-model.ini"
+          - "/tmp/modak:/var/log/modak"
         restart_policy: always
         env: { get_input: modak_env }
       requirements:
