@@ -11,7 +11,3 @@
       file:
         path: "{{ path }}"
         mode: 0777        
-    - name: Remove old database container
-      docker_component:
-        state: absent
-        name: "{{ alias }}"
