@@ -224,7 +224,7 @@ topology_template:
       properties:
         alias: modak
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/modak-api:M24Release
+        image_name: sodaliteh2020/modak-api:latest
         volumes:
           - "/tmp/iac-model.ini:/tmp/modak-iac-model.ini"
           - "/tmp/modak:/var/log/modak"
@@ -234,7 +234,7 @@ topology_template:
           - 5000:5000
       requirements:
         - host: docker-host
-        - registry: docker-public-registry
+        - registry: docker-private-registry
         - network: docker-network
         - dependency: openstack-keys
         - dependency: mariadb
