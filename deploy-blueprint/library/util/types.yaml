@@ -42,6 +42,7 @@ node_types:
           create:
             inputs:
               path: { type: string, default: { get_property: [ SELF, path ] } }
+              alias: { type: string, default: { get_property: [ SELF, alias ] } }
             implementation:
               primary: playbooks/modakdb.yml
               dependencies:
