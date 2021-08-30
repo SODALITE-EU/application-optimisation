@@ -67,6 +67,8 @@ topology_template:
       type: map
     username:
       type: string
+    modak_db_pass:
+      type: string
 #    identity_file:
 #      type: string
 
@@ -213,7 +215,7 @@ topology_template:
       type: sodalite.nodes.util.ModakConfig
       properties:
         db_host: modak-mariadb
-        db_pass: { get_input: db_pass }
+        db_pass: { get_input: modak_db_pass }
       requirements:
         - host: docker-host
 
