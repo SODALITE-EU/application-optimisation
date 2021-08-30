@@ -67,7 +67,7 @@ node_types:
         type: string
       db_port:
         description: Port number for the database
-        type: int
+        type: integer
       db_user:
         description: Username to connect to the databse with
         type: string
@@ -83,7 +83,7 @@ node_types:
             inputs:
               logdir: { type: string, default: { get_property: [ SELF, logdir ] } }
               db_host: { type: string, default: { get_property: [ SELF, db_host ] } }
-              db_port: { type: int, default: { get_property: [ SELF, db_port ] } }
+              db_port: { type: integer, default: { get_property: [ SELF, db_port ] } }
               db_user: { type: string, default: { get_property: [ SELF, db_user ] } }
               db_pass: { type: string, default: { get_property: [ SELF, db_pass ] } }
             implementation:
