@@ -21,10 +21,10 @@ class test_mapper(unittest.TestCase):
         target_string = '{"cpu_type":"x86","acc_type":"nvidia"}'
         opt_string = '{"xla":true,"version":"1.1"}'
         self.driver.updateSQL(
-            "delete from mapper where opt_dsl_code = '{}'".format("TF_PIP_XLA")
+            "DELETE FROM mapper WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
         )
         self.driver.updateSQL(
-            "delete from optimisation where opt_dsl_code = '{}'".format("TF_PIP_XLA")
+            "DELETE FROM optimisation WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
         )
         self.m.add_optimisation(
             "TF_PIP_XLA",
@@ -33,9 +33,7 @@ class test_mapper(unittest.TestCase):
             json.loads(opt_string),
         )
         df = self.driver.applySQL(
-            "select app_name from optimisation where opt_dsl_code = '{}'".format(
-                "TF_PIP_XLA"
-            )
+            "SELECT app_name FROM optimisation WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
         )
         self.assertEqual(df.size, 1)
         print(df["app_name"][0])
@@ -43,15 +41,13 @@ class test_mapper(unittest.TestCase):
 
     def test_add_container(self):
         self.driver.updateSQL(
-            "delete from mapper where opt_dsl_code = '{}'".format("TF_PIP_XLA")
+            "DELETE FROM mapper WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
         )
         self.m.add_container(
             "TF_PIP_XLA", "AI/containers/tensorflow/tensorflow_pip_xla"
         )
         df = self.driver.applySQL(
-            "select container_file  from mapper where opt_dsl_code = '{}'".format(
-                "TF_PIP_XLA"
-            )
+            "SELECT container_file FROM mapper WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
         )
         self.assertEqual(df.size, 1)
         self.assertEqual(
@@ -78,7 +74,8 @@ class test_mapper(unittest.TestCase):
     # def test_add_container(self):
     #     map_id = self.m.add_container('TF_PIP_XLA',
     #                                   'AI/containers/tensorflow/tensorflow_pip_xla')
-    #     df = self.driver.applySQL(f"select opt_dsl_code from mapper where map_id = {map_id}")
+    #     df = self.driver.applySQL("SELECT opt_dsl_code FROM mapper WHERE map_id = %s",
+    #                               (map_id, ))
     #     self.assertEqual(df.count(), 1)
     #     self.assertEqual(df.select('opt_dsl_code').collect()[0][0], 'TF_PIP_XLA')
 

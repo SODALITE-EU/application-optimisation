@@ -2,7 +2,7 @@
   "job":{
     "job_options": {
       "job_name": "mpi_test",
-      "wall_time_limit": "1:00:00 ",
+      "wall_time_limit": "1:00:00",
       "node_count": 2,
       "core_count": 40,
       "process_count_per_node": 40,
@@ -11,6 +11,9 @@
       "combine_stdout_stderr": true,
       "request_event_notification": "abe",
       "email_address": "kartshy@gmail.com"
+    },
+    "target": {
+      "job_scheduler_type": "torque"
     },
     "application": {
       "app_tag": "mpi_test",

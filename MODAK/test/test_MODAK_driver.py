@@ -17,7 +17,7 @@ class test_MODAK_driver(unittest.TestCase):
         else:
             self.assertEqual(self.driver.dbname, "iac_model")
         df = self.driver.applySQL(
-            "select * from optimisation where app_name = 'pytorch'"
+            "SELECT * FROM optimisation WHERE app_name = %s", ("pytorch",)
         )
         self.assertEqual(df["app_name"][0], "pytorch")
 

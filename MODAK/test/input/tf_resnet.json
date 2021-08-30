@@ -2,7 +2,7 @@
   "job": {
     "job_options": {
       "job_name": "resnet",
-      "wall_time_limit": "12:00:00 ",
+      "wall_time_limit": "12:00:00",
       "node_count": 1,
       "process_count_per_node": 40,
       "request_gpus": 1,
@@ -10,6 +10,9 @@
       "combine_stdout_stderr": true,
       "request_event_notification": "abe",
       "email_address": "kartshy@gmail.com"
+    },
+    "target": {
+      "job_scheduler_type": "torque"
     },
     "application": {
       "app_tag": "resnet-benchmark",
