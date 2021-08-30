@@ -230,6 +230,8 @@ topology_template:
           - "/tmp/modak:/var/log/modak"
         restart_policy: always
         env: { get_input: modak_env }
+        ports:
+          - 5000:5000
       requirements:
         - host: docker-host
         - registry: docker-public-registry
