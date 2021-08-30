@@ -227,7 +227,6 @@ topology_template:
           - "/tmp/iac-model.ini:/tmp/modak-iac-model.ini"
         restart_policy: always
         env: { get_input: modak_env }
-        volumes:
       requirements:
         - host: docker-host
         - registry: docker-public-registry
