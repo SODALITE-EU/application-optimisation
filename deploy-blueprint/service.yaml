@@ -240,7 +240,7 @@ topology_template:
     proxy:
       type: sodalite.nodes.DockerizedComponent
       properties:
-        alias: xopera-proxy
+        alias: modak-proxy
         docker_network_name:  { get_property: [ SELF, network, name ] }
         image_name: library/traefik:latest
         command:
@@ -263,3 +263,9 @@ topology_template:
           - /var/run/docker.sock:/var/run/docker.sock:ro
           - /home/nginx/certificates.toml:/configuration/certificates.toml:ro
           - /home/nginx/certs:/etc/nginx/certs
+        requirements:
+        - host: docker-host
+        - registry: docker-public-registry   
+        - network: docker-network           
+        - dependency: api
+        - dependency: proxy-tls-config
