@@ -191,7 +191,7 @@ topology_template:
       properties:
         image_name: library/mariadb:10.6
         volumes:
-          - "/tmp/modak-db:/docker-entrypoint-initdb.d"
+          - "/tmp/modak-db/modakdb.sql:/docker-entrypoint-initdb.d/modakdb.sql"
         alias: modak-mariadb
         env: { get_input: mariadb_env }
         docker_network_name:  { get_property: [ SELF, network, name ] }
