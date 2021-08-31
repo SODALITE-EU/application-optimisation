@@ -263,7 +263,7 @@ topology_template:
           - /var/run/docker.sock:/var/run/docker.sock:ro
           - /home/nginx/certificates.toml:/configuration/certificates.toml:ro
           - /home/nginx/certs:/etc/nginx/certs
-        requirements:
+      requirements:
         - host: docker-host
         - registry: docker-public-registry   
         - network: docker-network           
