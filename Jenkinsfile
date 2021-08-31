@@ -91,7 +91,7 @@ pipeline {
         }
         stage('Test MODAK') {
             steps {
-                sh  """ #!/bin/bash -l
+                sh  """ #!/bin/bash
                 set -euxo pipefail
                 cd MODAK/
 
@@ -122,7 +122,7 @@ pipeline {
 
                 #docker-compose down
                 """
-                //junit 'modak-results-*.xml'
+                junit 'modak-results-*.xml'
             }
         }
         stage('SonarQube analysis'){
