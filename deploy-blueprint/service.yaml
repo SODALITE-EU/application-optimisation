@@ -224,7 +224,7 @@ topology_template:
       properties:
         alias: modak
         docker_network_name:  { get_property: [ SELF, network, name ] }
-        image_name: sodaliteh2020/modak-api:latest
+        image_name: modak-api:latest
         volumes:
           - "/tmp/iac-model.ini:/tmp/modak-iac-model.ini"
           - "/tmp/modak:/var/log/modak"

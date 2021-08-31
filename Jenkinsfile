@@ -165,7 +165,7 @@ pipeline {
                     sh  """#!/bin/bash
                         set -x
                         git status
-                        ./make_docker.sh push modak staging
+                        ./make_docker.sh push modak-api staging
                         """
                 }
             }
@@ -183,7 +183,7 @@ pipeline {
             steps {
                 withDockerRegistry(credentialsId: 'jenkins-sodalite.docker_token', url: '') {
                     sh  """#!/bin/bash
-                            ./make_docker.sh push modak production
+                            ./make_docker.sh push modak-api production
                         """
                 }
             }
