@@ -231,26 +231,24 @@ pipeline {
                 vm_name = 'modak-dev-dev'
             }
             steps {
-                withDockerRegistry(credentialsId: 'jenkins-sodalite.docker_token', url: '') {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'xOpera_ssh_key', keyFileVariable: 'xOpera_ssh_key_file', usernameVariable: 'xOpera_ssh_username')]) {
-                        sh """#!/bin/bash
-                            pwd
-                            ls -R
-                            git status
-                            set -x
-                            # create input.yaml file from template
-                            envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
-                            . .venv/bin/activate
-                            cd deploy-blueprint
-                            rm -r -f .opera
-                            ssh-keygen -f "/home/jenkins/.ssh/known_hosts" -R "77.231.202.232"
+                withCredentials([sshUserPrivateKey(credentialsId: 'xOpera_ssh_key', keyFileVariable: 'xOpera_ssh_key_file', usernameVariable: 'xOpera_ssh_username')]) {
+                    sh """#!/bin/bash
+                        pwd
+                        ls -R
+                        git status
+                        set -x
+                        # create input.yaml file from template
+                        envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
+                        . .venv/bin/activate
+                        cd deploy-blueprint
+                        rm -r -f .opera
+                        ssh-keygen -f "/home/jenkins/.ssh/known_hosts" -R "77.231.202.232"
 
-                            # Copy the DB dump and put it where we need it
-                            mkdir -p library/util/artifacts
-                            cp ../MODAK/db/modak_mysqldump.sql library/util/artifacts/modakdb.sql
-                            opera deploy service.yaml -i input.yaml
-                        """
-                    }
+                        # Copy the DB dump and put it where we need it
+                        mkdir -p library/util/artifacts
+                        cp ../MODAK/db/modak_mysqldump.sql library/util/artifacts/modakdb.sql
+                        opera deploy service.yaml -i input.yaml
+                    """
                 }
             }
         }
