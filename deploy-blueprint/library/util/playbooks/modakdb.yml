@@ -7,6 +7,10 @@
       docker_container:
         name: "{{ alias }}"
         state: absent
+    - name: Make sure database directory exists
+      file:
+        path: "{{ path | dirname }}"
+        state: directory
     - name: Install sample database
       copy:
         dest: "{{ path }}"
