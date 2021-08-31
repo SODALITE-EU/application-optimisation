@@ -77,29 +77,19 @@ topology_template:
     security-rules-sodalite:  
       type: sodalite.nodes.OpenStack.SecurityRules 
       properties:  
-        ports:  
-          component_ports:  
-            port_range_max: 8085 
-            remote_ip_prefix: 0.0.0.0/0 
-            port_range_min: 8080 
-            protocol: tcp 
-          http_port:  
-            port_range_min: 80 
-            port_range_max: 80 
-            protocol: tcp 
-            remote_ip_prefix: 0.0.0.0/0 
-          5000_ports:  
+        ports:
+          http_port:
             port_range_min: 5000
-            port_range_max: 5005
+            port_range_max: 5000
             protocol: tcp 
             remote_ip_prefix: 0.0.0.0/0
           https_port:
-            port_range_min: 443
-            port_range_max: 444
+            port_range_min: 5443
+            port_range_max: 5443
             protocol: tcp
-            remote_ip_prefix: 0.0.0.0/0            
-        group_name:  sodalite-uc 
-        group_description:  Sodalite UC security group
+            remote_ip_prefix: 0.0.0.0/0
+        group_name:  sodalite-modak
+        group_description:  Sodalite MODAK security group
 
     sodalite-vm:  
       type: sodalite.nodes.OpenStack.VM 
@@ -230,11 +220,46 @@ topology_template:
           - "/tmp/modak:/var/log/modak"
         restart_policy: always
         env: { get_input: modak_env }
-        ports:
-          - 5000:5000
+        labels:
+          traefik.enable: "true"
+          traefik.http.services.api.loadbalancer.server.port: "5000"
+          # http config
+          traefik.http.routers.api.rule: "PathPrefix(`/`)"
+          traefik.http.routers.api.entrypoints: "web"
+          # https config
+          traefik.http.routers.api-https.rule: "PathPrefix(`/`)"
+          traefik.http.routers.api-https.entrypoints: "websecure"
+          traefik.http.routers.api-https.tls: "true"
       requirements:
         - host: docker-host
         - registry: docker-private-registry
         - network: docker-network
         - dependency: openstack-keys
-        - dependency: mariadb
+        - dependency: 
+
+    proxy:
+      type: sodalite.nodes.DockerizedComponent
+      properties:
+        alias: xopera-proxy
+        docker_network_name:  { get_property: [ SELF, network, name ] }
+        image_name: library/traefik:latest
+        command:
+          - "--accesslog=true"
+          - "--log.level=info"
+          - "--providers.docker=true"
+          - "--providers.docker.exposedbydefault=false"
+          # entrypoints
+          - "--entrypoints.web.address=:5000"
+          - "--entrypoints.websecure.address=:5443"
+          # http certs config
+          - "--providers.file.directory=/configuration/"
+          - "--providers.file.watch=true"
+          # dashboard
+          - "--api.dashboard=true"
+        restart_policy: always
+        restart: yes
+        ports:  ['5000:5000', '5443:5443']
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - /home/nginx/certificates.toml:/configuration/certificates.toml:ro
+          - /home/nginx/certs:/etc/nginx/certs
