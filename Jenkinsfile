@@ -120,9 +120,9 @@ pipeline {
                 python3 -m pip install --no-cache-dir -r MODAK/requirements.txt
                 PYTHONPATH="${PYTHONPATH}:src" pytest --junitxml=modak-results-venv.xml --cov=src
 
-                docker-compose down
+                #docker-compose down
                 """
-                junit 'modak-results-*.xml'
+                //junit 'modak-results-*.xml'
             }
         }
         stage('SonarQube analysis'){
