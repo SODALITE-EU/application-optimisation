@@ -235,7 +235,7 @@ topology_template:
         - registry: docker-private-registry
         - network: docker-network
         - dependency: openstack-keys
-        - dependency: 
+        - dependency: mariadb
 
     proxy:
       type: sodalite.nodes.DockerizedComponent
