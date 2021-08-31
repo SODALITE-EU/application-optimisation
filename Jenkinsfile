@@ -93,7 +93,7 @@ pipeline {
             steps {
                 sh  """ #!/bin/bash -l
                 set -x
-                set -euxo pipefail
+                set -eux
                 cd MODAK/
 
                 python3 -m venv venv-pre-commit
