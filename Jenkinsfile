@@ -91,7 +91,8 @@ pipeline {
         }
         stage('Test MODAK') {
             steps {
-                sh  """ #!/bin/bash
+                sh  """ #!/bin/bash -l
+                set -x
                 set -euxo pipefail
                 cd MODAK/
 
