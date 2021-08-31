@@ -163,6 +163,7 @@ pipeline {
             steps {
                 withDockerRegistry(credentialsId: 'jenkins-sodalite.docker_token', url: '') {
                     sh  """#!/bin/bash
+                        set -x
                         git status
                         ./make_docker.sh push modak staging
                         """
