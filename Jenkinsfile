@@ -113,7 +113,7 @@ pipeline {
                 python3 -m venv venv-test
                 . venv-test/bin/activate
                 python3 -m pip install --upgrade pip
-                python3 -m pip install --no-cache-dir -r MODAK/requirements.txt
+                python3 -m pip install --no-cache-dir -r requirements.txt
                 PYTHONPATH="\${PYTHONPATH}:src" pytest --junitxml=modak-results-venv.xml --cov=src
                 """
                 junit 'modak-results-*.xml'
