@@ -108,7 +108,7 @@ pipeline {
                 sh '''#! /bin/bash
                 cd MODAK/
 
-                docker-compose down || :
+                docker-compose down -v || :
                 if [ -n "\$(docker ps | grep modak)" ]; then
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
                 fi
@@ -118,7 +118,7 @@ pipeline {
                 docker-compose logs
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
                 docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml . 
-                docker-compose down
+                docker-compose down -v
                 '''
 
                 // sh  '''#! /bin/bash -l
