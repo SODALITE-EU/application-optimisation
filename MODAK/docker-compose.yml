@@ -15,4 +15,4 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
     volumes:
-      - "./db/:/docker-entrypoint-initdb.d/"
+      - "./db/modak_mysqldump.sql:/docker-entrypoint-initdb.d/modak_mysqldump.sql:ro"
