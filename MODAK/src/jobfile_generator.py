@@ -1,52 +1,62 @@
 import json
-import os
-import urllib.request
 import logging
+import os
 import pathlib
-from typing import Optional
+import urllib.request
 
 from jinja2 import Environment, FileSystemLoader
 
 from tuner import Tuner
 
-
 """Constant to represent the scheduler to use is SLURM"""
-SCHEDULER_SLURM="slurm"
+SCHEDULER_SLURM = "slurm"
 """Constant to represent the scheduler to use is PBS Torque"""
-SCHEDULER_TORQUE="torque"
+SCHEDULER_TORQUE = "torque"
 
-class ArgumentConverter():
-        # Define which options are vaild of each of the schedulers
-    VAILD_TORQUE=['a','b','e', 'f'] # abort, begin, end
-    VALID_SLURM=["BEGIN", "END", "FAIL", "REQUEUE", "ALL",
-        "INVALID_DEPEND", "STAGE_OUT", "TIME_LIMIT", "TIME_LIMIT_90", 
-        "TIME_LIMIT_80", "TIME_LIMIT_50", "ARRAY_TASKS"]
-    SLURM_TO_TORQUE={
+
+class ArgumentConverter:
+    # Define which options are vaild of each of the schedulers
+    VAILD_TORQUE = ["a", "b", "e", "f"]  # abort, begin, end
+    VALID_SLURM = [
+        "BEGIN",
+        "END",
+        "FAIL",
+        "REQUEUE",
+        "ALL",
+        "INVALID_DEPEND",
+        "STAGE_OUT",
+        "TIME_LIMIT",
+        "TIME_LIMIT_90",
+        "TIME_LIMIT_80",
+        "TIME_LIMIT_50",
+        "ARRAY_TASKS",
+    ]
+    SLURM_TO_TORQUE = {
         "NONE": "n",
-        "BEGIN": "b", 
-        "END": "e", 
+        "BEGIN": "b",
+        "END": "e",
         "FAIL": "f",
         "REQUEUE": "",
         "ALL": "abef",
         "INVALID_DEPEND": "a",
         "STAGE_OUT": "",
         "TIME_LIMIT": "a",
-        "TIME_LIMIT_90": "", 
+        "TIME_LIMIT_90": "",
         "TIME_LIMIT_80": "",
         "TIME_LIMIT_50": "",
-        "ARRAY_TASKS": ""
+        "ARRAY_TASKS": "",
     }
-    TORQUE_TO_SLURM={
+    TORQUE_TO_SLURM = {
         "a": "FAIL,INVALID_DEPEND,TIME_LIMIT",
         "b": "BEGIN",
         "e": "END",
         "f": "FAIL",
         "n": "FAIL",
-        "p": "NONE"
+        "p": "NONE",
     }
 
     def _slurm_to_torque(self, options):
-        # For each option in the slurm options, look it up in the 
+        # For each option in the slurm options, look it up in the
         # SLURM_TO_TORQUE dict. Then concatenate all the returned values
         res = "".join([self.SLURM_TO_TORQUE[opt] for opt in options.split(",")])
         if res == "":
@@ -56,50 +66,51 @@ class ArgumentConverter():
     def _torque_to_slurm(self, options):
         # For each character in the torque options, look it up in the
         # TORQUE_TO_SLURM dict. Then concatenate all the returned vaules,
-        # separating them with commas 
+        # separating them with commas
         return ",".join([self.TORQUE_TO_SLURM[opt] for opt in options])
 
     def _is_slurm_options(self, options):
         # Split the options string on commas, then check each part is a valid
         # option. Return true if all are; false otherwise.
-        if options=="":
-            return False # cannot be empty
-        if options=="NONE":
-            return True #None must stand alone
+        if options == "":
+            return False  # cannot be empty
+        if options == "NONE":
+            return True  # None must stand alone
         return all(opt in self.VALID_SLURM for opt in options.split(","))
-    
+
     def _is_torque_options(self, options):
         # For each character in the options, check if it is a valid torque
         # option. If all are, return true, otherwise, false
-        if options=="":
-            return False # cannot be empty
-        if options == "n" or options=="p":
-            return True # n and p must be alone
+        if options == "":
+            return False  # cannot be empty
+        if options == "n" or options == "p":
+            return True  # n and p must be alone
         return all(opt in self.VAILD_TORQUE for opt in options)
 
-    def convert_notifications(self, scheduler, notifications):    
+    def convert_notifications(self, scheduler, notifications):
         # Check if the options we have match the scheduler we have
-        if scheduler==SCHEDULER_SLURM and self._is_torque_options(notifications):
+        if scheduler == SCHEDULER_SLURM and self._is_torque_options(notifications):
             # Scheduler is slurm, but notifications are torque.
             # convert then return
             return self._torque_to_slurm(notifications)
-        elif scheduler==SCHEDULER_TORQUE and self._is_slurm_options(notifications):
+        elif scheduler == SCHEDULER_TORQUE and self._is_slurm_options(notifications):
             # Scheduler is torque, notifications are slurm.
             # convert, then return
             return self._slurm_to_torque(notifications)
-        elif scheduler==SCHEDULER_SLURM and not self._is_slurm_options(notifications):
+        elif scheduler == SCHEDULER_SLURM and not self._is_slurm_options(notifications):
             # Options passed are invalid; use a default
             return "ALL"
-        elif scheduler==SCHEDULER_TORQUE and not self._is_torque_options(notifications):
+        elif scheduler == SCHEDULER_TORQUE and not self._is_torque_options(
+            notifications
+        ):
             return "abe"
         # Scheduler and options match; return the original notification options
         # (Also, if notifications are invalid this leaves them intact/unmodified)
         return notifications
 
+
 class JobfileGenerator:
-    def __init__(
-            self, job_json_obj, batch_file:str, scheduler:str = None
-    ):
+    def __init__(self, job_json_obj, batch_file: str, scheduler: str = None):
         """Generates the job files, e.g. PBS and SLURM."""
         logging.info("Initialising job file generator")
         self._batch_file = batch_file
@@ -211,13 +222,19 @@ class JobfileGenerator:
             if scriptcontents is not None:
                 f.write(scriptcontents.read().decode("UTF-8"))
             else:
-                f.write(str.format("""
+                f.write(
+                    str.format(
+                        """
 file={scriptfile}
 if [ -f $file ] ; then rm $file; fi
 wget --no-check-certificate '{scriptlink}'
 chmod 755 {scriptfile}
 source {scriptfile}
-""", scriptfile=scriptfile, scriptlink=scriptlink))
+""",
+                        scriptfile=scriptfile,
+                        scriptlink=scriptlink,
+                    )
+                )
         logging.info("Successfully added optimisation")
 
     def add_apprun(self):

@@ -81,6 +81,7 @@ def modak_get_job_content():
 
         return jsonify(job_data)
 
+
 @app.route("/get_build", methods=["POST"])
 def modak_get_build():
     if request.is_json:
@@ -95,6 +96,7 @@ def modak_get_build():
 
         res = jsonify(job_data)
         return res
+
 
 @app.route("/get_optimisation", methods=["POST"])
 def modak_get_optimisation():
