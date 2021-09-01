@@ -1,4 +1,7 @@
 pipeline {
+    options {
+        timeout(time: 3, unit: 'HOURS')   // timeout on whole pipeline job
+    }
     agent { label 'docker-slave' }
        environment {
        // OPENSTACK SETTINGS
