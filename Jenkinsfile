@@ -106,6 +106,7 @@ pipeline {
                 pre-commit run -a
                 """
                 sh '''#! /bin/bash
+                set -x
                 cd MODAK/
 
                 docker-compose down -v || :
