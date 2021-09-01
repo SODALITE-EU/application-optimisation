@@ -114,7 +114,7 @@ pipeline {
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
                 fi
                 docker-compose build --no-cache
-                docker-compose up -d
+                docker-compose up -V -d
                 sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
                 docker-compose logs
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
