@@ -1,6 +1,7 @@
 pipeline {
     options {
         timeout(time: 3, unit: 'HOURS')   // timeout on whole pipeline job
+        disableConcurrentBuilds()
     }
     agent { label 'docker-slave' }
        environment {
@@ -115,9 +116,11 @@ pipeline {
                 fi
                 docker-compose --version
                 docker-compose up -V --build --force-recreate --always-recreate-deps -d
+                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
+                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
                 sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
                 ls db/
-                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls /docker-entrypoint-initdb.d/
+                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
                 docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
                 docker-compose logs
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
