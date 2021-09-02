@@ -116,9 +116,10 @@ pipeline {
                 fi
                 docker-compose --version
                 docker-compose up -V --build --force-recreate --always-recreate-deps -d
+                ls -lR db/
                 docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
                 docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
-                docker volume ls
+                docker inspect \$(docker ps | grep modak | grep sql | awk '{print \$1}')
                 sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
                 ls db/
                 docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
