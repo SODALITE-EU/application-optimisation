@@ -15,4 +15,4 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
     volumes:
-      - "${PWD}/db/:/docker-entrypoint-initdb.d/:ro"
+      - "./db/:/docker-entrypoint-initdb.d/:ro"
