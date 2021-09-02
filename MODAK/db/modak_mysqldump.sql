@@ -102,7 +102,7 @@ CREATE TABLE `optscript` (
 
 LOCK TABLES `optscript` WRITE;
 /*!40000 ALTER TABLE `optscript` DISABLE KEYS */;
-INSERT INTO `optscript` VALUES ('egi','set_default_egi.sh','https://www.dropbox.com/s/97h9zkj7uxx9sc5/set_default_egi.sh?dl=1',0),('hlrs_testbed','set_default_hlrs_testbed.sh','https://www.dropbox.com/s/hpfcwwkd4zy52t9/set_default_hlrs_testbed.sh?dl=1',0),('xla','enable_xla.sh','https://www.dropbox.com/s/e6n9yb0a5601gp2/enable_xla.sh?dl=1',0);
+INSERT INTO `optscript` VALUES ('egi','set_default_egi.sh','file://modak-builtin/set_default_egi.sh',0),('hlrs_testbed','set_default_hlrs_testbed.sh','file://modak-builtin/set_default_hlrs_testbed.sh',0),('xla','enable_xla.sh','file://modak-builtin/enable_xla.sh',0);
 /*!40000 ALTER TABLE `optscript` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -258,7 +258,7 @@ CREATE TABLE `optscript` (
 
 LOCK TABLES `optscript` WRITE;
 /*!40000 ALTER TABLE `optscript` DISABLE KEYS */;
-INSERT INTO `optscript` VALUES ('egi','set_default_egi.sh','https://www.dropbox.com/s/97h9zkj7uxx9sc5/set_default_egi.sh?dl=1',0),('hlrs_testbed','set_default_hlrs_testbed.sh','https://www.dropbox.com/s/hpfcwwkd4zy52t9/set_default_hlrs_testbed.sh?dl=1',0),('xla','enable_xla.sh','https://www.dropbox.com/s/e6n9yb0a5601gp2/enable_xla.sh?dl=1',0);
+INSERT INTO `optscript` VALUES ('egi','set_default_egi.sh','file://modak-builtin/set_default_egi.sh',0),('hlrs_testbed','set_default_hlrs_testbed.sh','file://modak-builtin/set_default_hlrs_testbed.sh',0),('xla','enable_xla.sh','file://modak-builtin/enable_xla.sh',0);
 /*!40000 ALTER TABLE `optscript` ENABLE KEYS */;
 UNLOCK TABLES;
 
