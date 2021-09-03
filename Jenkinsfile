@@ -116,7 +116,8 @@ pipeline {
                 fi
                 docker-compose --version
                 docker-compose up -V --build --force-recreate --always-recreate-deps -d
-                echo \$DOCKER_HOST
+                echo "Docker host is \${DOCKER_HOST}"
+                echo \\$DOCKER_HOST
                 ls -lR db/
                 ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
                 docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
