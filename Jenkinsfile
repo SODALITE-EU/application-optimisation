@@ -116,6 +116,7 @@ pipeline {
                 fi
                 docker-compose --version
                 docker-compose up -V --build --force-recreate --always-recreate-deps -d
+                docker cp db/modak_mysqldump.sql \$(docker ps | grep modak | grep sql | awk '{print \$1}'):/docker-entrypoint-initdb.d/
                 echo "Docker host is \${DOCKER_HOST}"
                 echo \\$DOCKER_HOST
                 ls -lR db/
