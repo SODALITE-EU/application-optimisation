@@ -115,10 +115,8 @@ pipeline {
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
                 fi
                 docker-compose --version
-                docker-compose up -V --build --force-recreate --always-recreate-deps -d
+                docker-compose up -f docker-compose.yml.jenkins -V --build --force-recreate --always-recreate-deps -d
                 docker cp db/modak_mysqldump.sql \$(docker ps | grep modak | grep sql | awk '{print \$1}'):/docker-entrypoint-initdb.d/
-                echo "Docker host is \${DOCKER_HOST}"
-                echo \\$DOCKER_HOST
                 ls -lR db/
                 ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
                 docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
@@ -131,20 +129,10 @@ pipeline {
                 docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
                 docker-compose logs
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
+                docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') find / -name modak-results-docker.xml
                 docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml . 
-                docker-compose down -v
+                docker-compose down -f docker-compose.yml.jenkins -v
                 '''
-
-                // sh  '''#! /bin/bash -l
-                // set -x
-                // set -eux
-                // cd MODAK/
-                // python3 -m venv venv-test
-                // . venv-test/bin/activate
-                // python3 -m pip install --upgrade pip
-                // python3 -m pip install --no-cache-dir -r requirements.txt
-                // PYTHONPATH="${PYTHONPATH:-}:src" pytest --junitxml=modak-results-venv.xml --cov=src
-                // '''
                 junit 'modak-results-*.xml'
             }
         }
