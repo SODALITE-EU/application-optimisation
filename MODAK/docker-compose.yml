@@ -15,4 +15,4 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
     volumes:
-      - "./db:/docker-entrypoint-initdb.d:ro"
+      - "/home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db:/docker-entrypoint-initdb.d:ro"
