@@ -232,7 +232,7 @@ pipeline {
             }
             environment {
                 // add env var for this stage only
-                vm_name = 'modak-dev-dev'
+                vm_name = 'modak-dev'
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'xOpera_ssh_key', keyFileVariable: 'xOpera_ssh_key_file', usernameVariable: 'xOpera_ssh_username')]) {
