@@ -95,57 +95,58 @@ pipeline {
         }
         stage('Test MODAK') {
             steps {
-                docker.image('mariadb:10.6').withRun('-e "MYSQL_ROOT_PASSWORD=my-secret-pw" -v "./db:/docker-entrypoint-initdb.d') { c ->
-                    docker.image('mariadb:10.6').inside("--link ${c.id}:modak_mariadb") {
-                        /* Wait until mysql service is up */
-                        sh 'while ! mysqladmin ping -hdb --silent; do sleep 1; done'
-                    }
-                    docker.build('modakapi', '-f MODAK/Dockerfile').inside("--link ${c.id}:modak_mariadb") {
-                        /*
-                        * Run some tests which require MySQL, and assume that it is
-                        * available on the host name `db`
-                        */
-                        sh 'PYTHONPATH="${PYTHONPATH:-}:src" pytest --junitxml=modak-results-venv.xml --cov=src'
-                    }
-                }
-                // sh  """ #!/bin/bash -l
-                // set -x
-                // set -eux
-                // cd MODAK/
+                sh  """ #!/bin/bash -l
+                set -x
+                set -eux
+                cd MODAK/
 
-                // python3 -m venv venv-pre-commit
-                // . venv-pre-commit/bin/activate
-                // python3 -m pip install --upgrade pip
-                // python3 -m pip install --no-cache-dir pre-commit
-                // pre-commit run -a
-                // """
-                // sh '''#! /bin/bash
-                // set -x
-                // cd MODAK/
+                python3 -m venv venv-pre-commit
+                . venv-pre-commit/bin/activate
+                python3 -m pip install --upgrade pip
+                python3 -m pip install --no-cache-dir pre-commit
+                pre-commit run -a
+                """
+                sh '''#! /bin/bash
+                set -x
+                cd MODAK/
 
-                // docker-compose down -v || :
-                // if [ -n "\$(docker ps | grep modak)" ]; then
-                //     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
-                // fi
-                // docker-compose --version
-                // docker-compose up -V --build --force-recreate --always-recreate-deps -d
-                // echo "Docker host is \${DOCKER_HOST}"
-                // echo \\$DOCKER_HOST
-                // ls -lR db/
-                // ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
-                // docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
-                // docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
-                // docker inspect \$(docker ps | grep modak | grep sql | awk '{print \$1}')
-                // sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
-                // ls db/
-                // ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
-                // docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
-                // docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
-                // docker-compose logs
-                // docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
-                // docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml . 
-                // docker-compose down -v
-                // '''
+                #docker-compose down -v || :
+                #if [ -n "\$(docker ps | grep modak)" ]; then
+                #    docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
+                #fi
+                #docker-compose --version
+                #docker-compose up -V --build --force-recreate --always-recreate-deps -d
+                ##echo "Docker host is \${DOCKER_HOST}"
+                #echo \\$DOCKER_HOST
+                #ls -lR db/
+                #ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
+                #docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
+                #docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
+                #docker inspect \$(docker ps | grep modak | grep sql | awk '{print \$1}')
+
+                docker kill modak_mariadb || :
+                docker rm modak_mariadb || :
+                docker run -e MYSQL_ROOT_PASSWORD=my-secret-pw --name modak_mariadb -v "$(pwd)/db:/docker-entrypoint-initdb.d" -d mariadb:10.6
+                sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
+                docker logs modak_mariadb
+                #ls db/
+                #ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
+                #docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
+                #docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
+                #docker-compose logs
+                #docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
+                #docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml . 
+                #docker-compose down -v
+
+
+                python3 -m venv venv-test
+                . venv-test/bin/activate
+                python3 -m pip install --upgrade pip
+                python3 -m pip install --no-cache-dir -r requirements.txt
+                PYTHONPATH="${PYTHONPATH:-}:src" pytest --junitxml=modak-results-venv.xml --cov=src
+                docker kill modak_mariadb || :
+                docker rm modak_mariadb || :
+                '''
 
                 // sh  '''#! /bin/bash -l
                 // set -x
