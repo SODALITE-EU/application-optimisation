@@ -130,7 +130,7 @@ pipeline {
                 docker-compose logs
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') find / -name modak-results-docker.xml
-                docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml . 
+                docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml ..
                 docker-compose -f docker-compose.yml.jenkins down -v
                 '''
                 junit 'modak-results-*.xml'
