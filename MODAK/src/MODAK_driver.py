@@ -31,10 +31,8 @@ class MODAK_driver:
     def __init__(self, conf_file=DEFAULT_SETTINGS_DIR / "iac-model.ini", install=False):
         logging.info("Initialising driver")
         Settings.initialise(conf_file)
-        self.dbname = Settings.DB_NAME
-        logging.info(f"selected DB : {self.dbname}")
-        # Provide your Spark-master node below
-        logging.info("Connecting to model repo")
+
+        logging.info("Connecting to model repo using DB: {Settings.DB_NAME}")
         try:
             self.cnx = mysql.connector.connect(
                 user=Settings.USER,
@@ -43,13 +41,14 @@ class MODAK_driver:
                 port=Settings.PORT,
                 database=Settings.DB_NAME,
             )
-        except mysql.connector.Error as err:
-            logging.error("Error connecting to modak repo")
-            logging.error(err)
+        except mysql.connector.Error:
+            logging.exception("Error connecting to modak repo")
+            raise
 
         # self.__init_IaC_modelrepo(install)
         if Settings.QUITE_SERVER_LOGS:
             self._quiet_logs()
+
         logging.info("Successfully initialised driver")
 
     def __del__(self):
