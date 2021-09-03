@@ -114,22 +114,11 @@ pipeline {
                 if [ -n "\$(docker ps | grep modak)" ]; then
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
                 fi
-                docker-compose --version
+
                 docker-compose -f docker-compose.yml.jenkins up -V --build --force-recreate --always-recreate-deps -d
                 docker cp db/modak_mysqldump.sql \$(docker ps | grep modak | grep sql | awk '{print \$1}'):/docker-entrypoint-initdb.d/
-                ls -lR db/
-                ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
-                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
-                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
-                docker inspect \$(docker ps | grep modak | grep sql | awk '{print \$1}')
                 sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
-                ls db/
-                ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
-                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') ls -lR /docker-entrypoint-initdb.d/
-                docker exec \$(docker ps | grep modak | grep sql | awk '{print \$1}') mount
-                docker-compose logs
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
-                docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') find / -name modak-results-docker.xml
                 docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml ..
                 docker-compose -f docker-compose.yml.jenkins down -v
                 '''
@@ -248,9 +237,6 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'xOpera_ssh_key', keyFileVariable: 'xOpera_ssh_key_file', usernameVariable: 'xOpera_ssh_username')]) {
                     sh """#!/bin/bash
-                        pwd
-                        ls -R
-                        git status
                         set -x
                         # create input.yaml file from template
                         envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
@@ -283,9 +269,6 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'xOpera_ssh_key', keyFileVariable: 'xOpera_ssh_key_file', usernameVariable: 'xOpera_ssh_username')]) {
                     sh """#!/bin/bash
-                        pwd
-                        ls -R
-                        git status
                         set -x
                         # create input.yaml file from template
                         envsubst < deploy-blueprint/input/input.yaml.tmpl > deploy-blueprint/input.yaml
