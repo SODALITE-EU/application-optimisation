@@ -115,7 +115,7 @@ pipeline {
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
                 fi
                 docker-compose --version
-                docker-compose up -f docker-compose.yml.jenkins -V --build --force-recreate --always-recreate-deps -d
+                docker-compose -f docker-compose.yml.jenkins up -V --build --force-recreate --always-recreate-deps -d
                 docker cp db/modak_mysqldump.sql \$(docker ps | grep modak | grep sql | awk '{print \$1}'):/docker-entrypoint-initdb.d/
                 ls -lR db/
                 ls -lR /home/jenkins/workspace/MODAK_0.0.0-spresser-new/MODAK/db
@@ -131,7 +131,7 @@ pipeline {
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') find / -name modak-results-docker.xml
                 docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml . 
-                docker-compose down -f docker-compose.yml.jenkins -v
+                docker-compose -f docker-compose.yml.jenkins down -v
                 '''
                 junit 'modak-results-*.xml'
             }
