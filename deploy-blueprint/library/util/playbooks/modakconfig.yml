@@ -3,8 +3,12 @@
   become: yes
 
   tasks:
+    - name: Make sure database directory exists
+      file:
+        path: "/usr/local/modak"
+        state: directory
     - name: Generating config for MODAK API
       template:
         src: "iac-model.ini.j2"
-        dest: "/tmp/iac-model.ini"
+        dest: "/usr/local/modak/iac-model.ini"
         mode: "0755"
