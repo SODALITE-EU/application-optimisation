@@ -115,7 +115,7 @@ pipeline {
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
                 fi
 
-                docker-compose -f docker-compose.yml.jenkins up -V --build --force-recreate --always-recreate-deps -d
+                docker-compose up -V --build --force-recreate --always-recreate-deps -d
                 docker cp db/modak_mysqldump.sql \$(docker ps | grep modak | grep sql | awk '{print \$1}'):/docker-entrypoint-initdb.d/
                 sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
                 docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
