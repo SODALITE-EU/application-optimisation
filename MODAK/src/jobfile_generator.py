@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import pathlib
 import urllib.request
 from urllib.parse import urlparse
