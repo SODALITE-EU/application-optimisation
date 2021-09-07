@@ -18,4 +18,4 @@
     - name: Change permissions    
       file:
         path: "{{ path }}"
-        mode: 0777        
+        mode: 0755   
