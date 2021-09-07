@@ -3,6 +3,7 @@ import logging
 import os
 import pathlib
 import urllib.request
+from urllib.parse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -119,7 +120,6 @@ class JobfileGenerator:
         self._app_data = job_json_obj.get("job").get("application", {})
         self._opt_data = job_json_obj.get("job").get("optimisation", {})
         self._singularity_exec = "singularity exec"
-        self._current_dir = "./"
         self.ac = ArgumentConverter()
         # TODO: scheduler type should be derived based on the infrastructure target name
         # TODO: there shall be an entry in the database where scheduler type
@@ -157,8 +157,6 @@ class JobfileGenerator:
         if "node_count" in self._job_data and "request_gpus" in self._job_data:
             self._singularity_exec = self._singularity_exec + " --nv"
 
-        self._current_dir = "$PBS_O_WORKDIR/"
-
     def _generate_slurm_header(self):
         logging.info("Generating slurm header")
         template = self._env.get_template("slurm.header")
@@ -167,8 +165,6 @@ class JobfileGenerator:
 
         if "request_gpus" in self._job_data:
             self._singularity_exec = self._singularity_exec + " --nv"
-
-        self._current_dir = "$SLURM_SUBMIT_DIR/"
 
     def _generate_bash_header(self):
         logging.info("Generating bash header")
@@ -212,29 +208,41 @@ class JobfileGenerator:
 
     def add_optscript(self, scriptfile, scriptlink):
         logging.info("Adding optimisations " + scriptfile)
-        with open(self._batch_file, "a") as f:
-            f.seek(0, os.SEEK_END)
-            scriptcontents = None
-            try:
-                scriptcontents = urllib.request.urlopen(scriptlink)
-            except Exception as e:
-                logging.info("Couldn't inline optscript: %s" % e)
-            if scriptcontents is not None:
-                f.write(scriptcontents.read().decode("UTF-8"))
-            else:
-                f.write(
-                    str.format(
-                        """
-file={scriptfile}
-if [ -f $file ] ; then rm $file; fi
-wget --no-check-certificate '{scriptlink}'
-chmod 755 {scriptfile}
-source {scriptfile}
-""",
-                        scriptfile=scriptfile,
-                        scriptlink=scriptlink,
+        with open(self._batch_file, "a") as fhandle:
+            parsed_url = urlparse(scriptlink)
+
+            if parsed_url.scheme == "file":
+                source_path = pathlib.Path(parsed_url.path)
+
+                if parsed_url.netloc == "modak-builtin":
+                    source_path = (
+                        pathlib.Path(__file__).parent.resolve()
+                        / "scripts"
+                        / source_path.relative_to("/")
                     )
+
+                fhandle.write(source_path.read_text())
+
+            elif parsed_url.scheme in ("http", "https"):
+                try:
+                    scriptcontents = urllib.request.urlopen(scriptlink)
+                    fhandle.write(scriptcontents.read().decode("UTF-8"))
+                except Exception as e:
+                    logging.info(f"Could not inline optscript: {e}")
+                    fhandle.write(
+                        f"""
+file={scriptfile}
+if [ -f $file ] ; then rm "$file"; fi
+wget --no-check-certificate '{scriptlink}'
+chmod 755 "{scriptfile}"
+source "{scriptfile}"
+"""
+                    )
+            else:
+                raise AssertionError(
+                    f"Unsupported protocol '{parsed_url.scheme}' in script link '{scriptlink}'"
                 )
+
         logging.info("Successfully added optimisation")
 
     def add_apprun(self):

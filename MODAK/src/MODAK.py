@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import json
@@ -227,7 +227,8 @@ class MODAK:
 
         logging.info("Generating job file header")
         job_file = (
-            Settings.OUT_DIR / "{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
+            Settings.OUT_DIR
+            / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         gen_t = JobfileGenerator(job_json_data, job_file)
 
