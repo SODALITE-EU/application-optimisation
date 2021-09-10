@@ -110,7 +110,9 @@ pipeline {
                 set -x
                 cd MODAK/
 
+                docker network prune || :
                 docker-compose down -v || :
+                docker network prune || :
                 if [ -n "\$(docker ps | grep modak)" ]; then
                     docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
                 fi
