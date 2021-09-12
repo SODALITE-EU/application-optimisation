@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN db/tosqlite.py -C db/
+
 ENV PYTHONPATH "${PYTHONPATH}:/opt/app/src:/opt/app/test"
-ENV MODAK_CONFIG "/opt/app/conf/dock-iac-model.ini"
 CMD ["python", "app/app.py"]

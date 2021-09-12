@@ -96,8 +96,7 @@ pipeline {
         stage('Test MODAK') {
             steps {
                 sh  """ #!/bin/bash -l
-                set -x
-                set -eux
+                set -eux -o pipefail
                 cd MODAK/
 
                 python3 -m venv venv-pre-commit
@@ -106,21 +105,14 @@ pipeline {
                 python3 -m pip install --no-cache-dir pre-commit
                 pre-commit run -a
                 """
-                sh '''#! /bin/bash
-                set -x
+                sh '''#! /bin/bash -l
+                set -eux -o pipefail
                 cd MODAK/
 
-                docker-compose down -v || :
-                if [ -n "\$(docker ps | grep modak)" ]; then
-                    docker kill \$(docker ps | grep modak | awk '{print \$1}') || :
-                fi
-
-                docker-compose -f docker-compose.yml.jenkins up -V --build --force-recreate --always-recreate-deps -d
-                docker cp db/modak_mysqldump.sql \$(docker ps | grep modak | grep sql | awk '{print \$1}'):/docker-entrypoint-initdb.d/
-                sleep 100 # MODAK won't be able to conenct to mysql without a wait. Might be more sane to check if mysql is ready, but this will do for now
-                docker exec \$(docker ps | grep modak | grep restapi | awk '{print \$1}') pytest --junitxml="modak-results-docker.xml" --cov=src
-                docker cp \$(docker ps | grep modak | grep restapi | awk '{print \$1}'):/opt/app/modak-results-docker.xml ..
-                docker-compose -f docker-compose.yml.jenkins down -v
+                docker build -t modak-unittest .
+                docker run --name modak-unittest modak-unittest pytest --junitxml="modak-results-docker.xml" --cov=src
+                docker cp modak-unittest:/opt/app/modak-results-docker.xml ..
+                docker rm modak-unittest
                 '''
                 junit 'modak-results-*.xml'
             }

@@ -2,6 +2,7 @@ import configparser
 import logging
 import os
 import pathlib
+import re
 from configparser import ConfigParser
 from types import SimpleNamespace
 
@@ -15,10 +16,7 @@ class SettingsNamespace(SimpleNamespace):
         self, conf_file: pathlib.Path = DEFAULT_SETTINGS_DIR / "iac-model.ini"
     ):
         my_conf_file = os.environ.get("MODAK_CONFIG", conf_file)
-        database_user = os.environ.get("MODAK_DATABASE_USER")
-        database_password = os.environ.get("MODAK_DATABASE_PASSWORD")
-        database_host = os.environ.get("MODAK_DATABASE_HOST")
-        database_port = os.environ.get("MODAK_DATABASE_PORT")
+        db_uri = os.environ.get("MODAK_DATABASE_URI")
 
         logging.info(f"Reading ini file : {my_conf_file}")
         try:
@@ -32,28 +30,40 @@ class SettingsNamespace(SimpleNamespace):
 
             section = self.MODE
             logging.info(f"Reading section {section} of ini file ")
-            self.DB_NAME = config.get(section, "db_name")
-            logging.info(f"db name : {self.DB_NAME}")
-            self.DB_DIR = pathlib.Path(config.get(section, "db_dir"))
-            logging.info(f"db dir : {self.DB_DIR}")
+            self.DB_URI = db_uri if db_uri else config.get(section, "db_uri")
+
+            match = re.match(
+                r"(?P<dialect>mysql|sqlite)://"
+                r"(?P<path>(?:(?P<username>[^@:]+)(?::(?P<password>[^@]+))?@)?"
+                r"(?P<hostname>[^@/:]+)?(?::(?P<port>\d+))?/"
+                r"(?P<dbname>.+))",
+                Settings.DB_URI,
+            )
+
+            if not match:
+                raise ValueError(f"Unable to parse db_uri '{Settings.DB_URI}'")
+
+            self.DB_DIALECT = match["dialect"]
+
+            if self.DB_DIALECT == "mysql":
+                self.DB_USER = match["username"]
+                self.DB_PASSWORD = match["password"] if match["password"] else ""
+                self.DB_HOST = match["host"]
+                self.DB_PORT = int(match["port"]) if match["port"] else 3306
+                self.DB_NAME = match["dbname"]
+            elif self.DB_DIALECT == "sqlite":
+                # relative directories are taken as relative to the configuration file,
+                # absolute dirs are maintained as such
+                self.DB_PATH = conf_file.parent / match["path"]
+            else:
+                raise AssertionError(f"Invalid dialect: {match['dialect']}")
+
             self.OUT_DIR = pathlib.Path(config.get(section, "out_dir"))
             logging.info("out dir : {self.OUT_DIR}")
-            self.HOST = database_host if database_host else config.get(section, "host")
-            logging.info(f"host : {self.HOST}")
-            self.PORT = database_port if database_port else config.get(section, "port")
-            logging.info(f"port : {self.PORT}")
-            self.USER = database_user if database_user else config.get(section, "user")
-            logging.info(f"user : {self.USER}")
-            self.PASSWORD = (
-                database_password
-                if database_password
-                else config.get(section, "password")
-            )
-            logging.info("password : **** ")
 
-        except configparser.Error as err:
-            logging.error(str(err))
-            raise RuntimeError(err)
+        except configparser.Error as exc:
+            logging.exception(exc)
+            raise
 
 
 # The default settings
