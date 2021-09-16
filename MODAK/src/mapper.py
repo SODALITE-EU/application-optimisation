@@ -4,6 +4,7 @@ from typing import List, Mapping
 
 from MODAK_driver import MODAK_driver
 from opt_dsl_reader import OptDSLReader
+from settings import Settings
 
 
 class Mapper:
@@ -18,10 +19,11 @@ class Mapper:
         reader = OptDSLReader(opt_json_obj["job"])
         app_type = reader.get_app_type()
         dsl_code = None
-        if opt_json_obj["job"].get("target") is not None:
-            if opt_json_obj["job"].get("target").get("name") is not None:
-                target_name = opt_json_obj["job"].get("target").get("name").strip()
-                self._opts.append(f"{target_name}:true")
+
+        try:
+            self._opts.append(f"{opt_json_obj['job']['target']['name'].strip()}:true")
+        except KeyError:
+            pass
 
         if app_type == "ai_training":
             logging.info("Decoding AI training application")
@@ -31,11 +33,13 @@ class Mapper:
             dsl_code = self.decode_hpc_opt(reader)
         else:
             logging.warning("Unknown application type")
-        logging.info("Decoded opt code: " + str(dsl_code))
+
+        logging.info(f"Decoded opt code: {dsl_code}")
+
         return self.get_container(dsl_code)
 
     def add_optcontainer(self, map_obj):
-        logging.info("Adding optimal container " + str(map_obj))
+        logging.info(f"Adding optimal container {map_obj}")
         self.add_optimisation(
             map_obj.get("name"),
             map_obj.get("app_name"),
@@ -141,15 +145,20 @@ class Mapper:
             " WHERE opt_dsl_code=%s ORDER BY map_id desc limit 1"
         )
         df = self._driver.applySQL(stmt, (opt_dsl_code,))
+
         if df.size > 0:
             container_file = df["container_file"][0]
             image_hub = df["image_hub"][0]
+
+            # replace the image hub with the alias if available
+            image_hub = Settings.IMAGE_HUB_ALIASES.get(image_hub, image_hub)
+
             container_link = f"{image_hub}://{container_file}"
             logging.info(f"Container link: {container_link}")
             return container_link
-        else:
-            logging.warning("No optimal container found")
-            return None
+
+        logging.warning("No optimal container found")
+        return None
 
     def get_json_nodes(self, target_str: str):
         target_str = (
