@@ -1,10 +1,12 @@
 import json
 import pathlib
 import unittest
+from unittest.mock import patch
 
 from mapper import Mapper
 from MODAK_driver import MODAK_driver
 from opt_dsl_reader import OptDSLReader
+from settings import Settings
 
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -61,7 +63,7 @@ class test_mapper(unittest.TestCase):
             opt_json_obj = json.load(json_file)
             new_container = self.m.map_container(opt_json_obj)
             self.assertEqual(
-                new_container, "docker://modakopt/modak:tensorflow-2.1-gpu-src"
+                new_container, "docker.io://modakopt/modak:tensorflow-2.1-gpu-src"
             )
 
     def test_map_container_hpc(self):
@@ -70,6 +72,18 @@ class test_mapper(unittest.TestCase):
             reader = OptDSLReader(job_data["job"])
             dsl_code = self.m.decode_hpc_opt(reader)
             self.assertEqual(dsl_code, "mpich_ub1804_cuda101_mpi314_gnugprof")
+
+    def test_map_container_aliased(self):
+        dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
+
+        with patch.object(Settings, "IMAGE_HUB_ALIASES", {"docker": "docker.invalid"}):
+            with dsl_file.open() as json_file:
+                opt_json_obj = json.load(json_file)
+                new_container = self.m.map_container(opt_json_obj)
+                self.assertEqual(
+                    new_container,
+                    "docker.invalid://modakopt/modak:tensorflow-2.1-gpu-src",
+                )
 
     # def test_add_container(self):
     #     map_id = self.m.add_container('TF_PIP_XLA',

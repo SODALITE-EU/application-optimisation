@@ -61,6 +61,11 @@ class SettingsNamespace(SimpleNamespace):
             self.OUT_DIR = pathlib.Path(config.get(section, "out_dir"))
             logging.info("out dir : {self.OUT_DIR}")
 
+            self.IMAGE_HUB_ALIASES = {}
+            sa_section = f"{self.MODE}.image_hub_aliases"
+            if config.has_section(sa_section):
+                self.IMAGE_HUB_ALIASES = dict(config.items(sa_section))
+
         except configparser.Error as exc:
             logging.exception(exc)
             raise
