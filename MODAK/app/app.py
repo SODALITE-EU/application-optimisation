@@ -1,8 +1,10 @@
-from flask import (  # redirect,; render_template,; session,; url_for,
+#!/usr/bin/env python
+
+from flask import (  # redirect,; session,; url_for,
     Flask,
     jsonify,
+    render_template,
     request,
-    send_from_directory,
 )
 
 from MODAK import MODAK
@@ -12,7 +14,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return send_from_directory(app.root_path, "index.html")
+    return render_template("index.html")
 
 
 # # Route for handling the login page logic
@@ -117,4 +119,4 @@ def modak_get_optimisation():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True)
