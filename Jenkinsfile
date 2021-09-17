@@ -237,9 +237,6 @@ pipeline {
                         rm -r -f .opera
                         ssh-keygen -f "/home/jenkins/.ssh/known_hosts" -R "77.231.202.232"
 
-                        # Copy the DB dump and put it where we need it
-                        mkdir -p library/util/artifacts
-                        cp ../MODAK/db/modak_mysqldump.sql library/util/artifacts/modakdb.sql
                         opera deploy service.yaml -i input.yaml
                     """
                 }
@@ -268,9 +265,6 @@ pipeline {
                         cd deploy-blueprint
                         rm -r -f .opera
 
-                        # Copy the DB dump and put it where we need it
-                        mkdir -p library/util/artifacts
-                        cp ../MODAK/db/modak_mysqldump.sql library/util/artifacts/modakdb.sql
                         opera deploy service.yaml -i input.yaml
                     """
                 }
