@@ -12,9 +12,9 @@ class TransferData:
         try:
             self.storage_client = storage.Client.from_service_account_json(google_cred)
             self.bucket = self.storage_client.get_bucket("modak-bucket")
-        except google.cloud.exceptions as err:
-            logging.error(str(err))
-            raise RuntimeError(str(err))
+        except google.cloud.exceptions:
+            logging.exception("Connecting to the Google cloud bucket failed")
+            raise
 
     def upload_file(self, file_from=None, file_to=None):
         """Upload data to a bucket"""
@@ -24,9 +24,11 @@ class TransferData:
             logging.info(f"Added {file_from} to storage : {blob.public_url}")
             # returns a public url
             return blob.public_url
-        except google.cloud.exceptions as err:
-            logging.error(str(err))
-            raise RuntimeError(str(err))
+        except google.cloud.exceptions:
+            logging.exception(
+                f"Uploading the file {file_from} to {blob.public_url} failed"
+            )
+            raise
 
 
 def main():
