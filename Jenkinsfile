@@ -96,7 +96,7 @@ pipeline {
         stage('Test MODAK') {
             steps {
                 sh  """ #!/bin/bash -l
-                set -eux -o pipefail
+                set -eux
                 cd MODAK/
 
                 python3 -m venv venv-pre-commit
@@ -106,7 +106,7 @@ pipeline {
                 pre-commit run -a
                 """
                 sh '''#! /bin/bash -l
-                set -eux -o pipefail
+                set -eux
                 cd MODAK/
 
                 docker build -t modak-unittest .
