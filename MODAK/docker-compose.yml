@@ -1,0 +1,7 @@
+version: "3"
+services:
+  restapi:
+    build: .
+    image: modakopt/modak:api
+    ports:
+      - "5000:5000"

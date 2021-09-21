@@ -1,0 +1,95 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+
+node_types:
+  sodalite.nodes.util.File:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      url:
+        description: Url from where to download file
+        type: string
+      path:
+        description: Destination for file
+        type: string
+
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              url: { type: string, default: { get_property: [ SELF, url ] } }
+              path: { type: string, default: { get_property: [ SELF, path ] } }
+            implementation:
+              primary: playbooks/download.yml
+          delete:
+            inputs:
+              path: { type: string, default: { get_property: [ SELF, path ] } }
+            implementation:
+              primary: playbooks/delete.yml
+
+  sodalite.nodes.util.ModakDBDump:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      path:
+        description: Destination for file
+        type: string
+      alias:
+        description: Alias for the modak database docker container
+        type: string
+
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              path: { type: string, default: { get_property: [ SELF, path ] } }
+              alias: { type: string, default: { get_property: [ SELF, alias ] } }
+            implementation:
+              primary: playbooks/modakdb.yml
+              dependencies:
+                - artifacts/modakdb.sql
+          delete:
+            inputs:
+              path: { type: string, default: { get_property: [ SELF, path ] } }
+            implementation:
+              primary: playbooks/delete.yml
+
+  sodalite.nodes.util.ModakConfig:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      logdir:
+        description: Directory in which to writ elogs
+        type: string
+        default: /var/log/modak
+      db_host:
+        description: Hostname for the database
+        type: string
+      db_port:
+        description: Port number for the database
+        type: integer
+        default: 3306
+      db_user:
+        description: Username to connect to the databse with
+        type: string
+        default: root
+      db_pass:
+        description: Password to use to connect to the database
+        type: string
+
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          create:
+            inputs:
+              logdir: { type: string, default: { get_property: [ SELF, logdir ] } }
+              db_host: { type: string, default: { get_property: [ SELF, db_host ] } }
+              db_port: { type: integer, default: { get_property: [ SELF, db_port ] } }
+              db_user: { type: string, default: { get_property: [ SELF, db_user ] } }
+              db_pass: { type: string, default: { get_property: [ SELF, db_pass ] } }
+            implementation:
+              primary: playbooks/modakconfig.yml
+              dependencies:
+                - artifacts/iac-model.ini.j2

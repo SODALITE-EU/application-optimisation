@@ -1,0 +1,76 @@
+#!/bin/bash
+## START OF HEADER ##
+{% if job_data.job_name is defined %}
+#SBATCH -J {{ job_data.job_name }}
+{% endif %}
+{% if job_data.account is defined %}
+#SBATCH -A {{ job_data.account }}
+{% endif %}
+{% if job_data.queue is defined %}
+#SBATCH --partition={{ job_data.queue }}
+{% endif %}
+{% if job_data.wall_time_limit is defined %}
+#SBATCH --time={{ job_data.wall_time_limit }}
+{% endif %}
+{% if job_data.node_count is defined %}
+#SBATCH -N {{ job_data.node_count }}
+{% endif %}
+{% if job_data.core_count is defined %}
+#SBATCH -n {{ job_data.core_count }}
+{% endif %}
+{% if job_data.process_count_per_node is defined %}
+#SBATCH --ntasks-per-node={{ job_data.process_count_per_node }}
+{% endif %}
+{% if job_data.core_count_per_process is defined %}
+#SBATCH --cpus-per-task={{ job_data.core_count_per_process }}
+{% endif %}
+{% if job_data.memory_limit is defined %}
+#SBATCH --mem={{ job_data.memory_limit }}
+{% endif %}
+{% if job_data.minimum_memory_per_processor is defined %}
+#SBATCH --mem-per-cpu={{ job_data.minimum_memory_per_processor }}
+{% endif %}
+{% if job_data.request_gpus is defined %}
+#SBATCH --gres=gpu:{{ job_data.request_gpus }}
+{% endif %}
+{% if job_data.request_specific_nodes is defined %}
+#SBATCH --nodelist={{ job_data.request_specific_nodes }}
+{% endif %}
+{% if job_data.job_array is defined %}
+#SBATCH -a {{ job_data.job_array }}
+{% endif %}
+{% if job_data.standard_output_file is defined %}
+#SBATCH --output={{ job_data.standard_output_file }}
+{% endif %}
+{% if job_data.standard_error_file is defined %}
+#SBATCH -error={{ job_data.standard_error_file }}
+{% endif %}
+{% if job_data.architecture_constraint is defined %}
+#SBATCH -C {{ job_data.architecture_constraint }}
+{% endif %}
+{% if job_data.copy_environment is defined %}
+#SBATCH --export=ALL
+{% endif %}
+{% if job_data.copy_environment_variable is defined %}
+#SBATCH --export={{ job_data.copy_environment_variable }}
+{% endif %}
+{% if job_data.job_dependency is defined %}
+#SBATCH --dependency={{ job_data.job_dependency }}
+{% endif %}
+{% if job_data.request_event_notification is defined %}
+#SBATCH --mail-type={{ job_data.request_event_notification }}
+{% endif %}
+{% if job_data.email_address is defined %}
+#SBATCH --mail-user={{ job_data.email_address }}
+{% endif %}
+{% if job_data.defer_job is defined %}
+#SBATCH --begin={{ job_data.defer_job }}
+{% endif %}
+{% if job_data.node_exclusive is defined %}
+#SBATCH --exclusive
+{% endif %}
+## END OF HEADER ##
+
+cd "${SLURM_SUBMIT_DIR}"
+export PATH="${SLURM_SUBMIT_DIR}:${PATH}"
+

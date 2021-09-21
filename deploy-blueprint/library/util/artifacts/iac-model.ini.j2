@@ -1,0 +1,13 @@
+[modak]
+mode                  = prod
+quite_server_log      = true
+cresta_link           = https://www.dropbox.com/s/iaivd8wujhctpl5/cresta.tar.gz
+
+[prod]
+db_name               = iac_model
+db_dir                = 
+out_dir               = {{ logdir }}
+host                  = {{ db_host }}
+port                  = {{ db_port }}
+user                  = {{ db_user }}
+password              = {{ db_pass }}

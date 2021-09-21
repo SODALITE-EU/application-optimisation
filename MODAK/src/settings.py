@@ -1,49 +1,75 @@
-from configparser import ConfigParser
+import configparser
 import logging
 import os
-import configparser
+import pathlib
+import re
+from configparser import ConfigParser
+from types import SimpleNamespace
 
-class settings:
-    """All setting for MODAK will be stored here. Change it make it tasty"""
+DEFAULT_SETTINGS_DIR = pathlib.Path(__file__).parent.resolve().parent / "conf"
 
-    @classmethod
-    def initialise(cls, conf_file: str = '../conf/iac-model.ini'):
-        my_conf_file = os.environ.get('MODAK_CONFIG', conf_file)
-        database_user = os.environ.get('MODAK_DATABASE_USER')
-        database_password = os.environ.get('MODAK_DATABASE_PASSWORD')
-        database_host = os.environ.get('MODAK_DATABASE_HOST')
-        database_port = os.environ.get('MODAK_DATABASE_PORT')
-        logging.info("Reading ini file : {}".format(my_conf_file))
+
+class SettingsNamespace(SimpleNamespace):
+    """All settings required for MODAK will be stored in an instance of this."""
+
+    def initialise(
+        self, conf_file: pathlib.Path = DEFAULT_SETTINGS_DIR / "iac-model.ini"
+    ):
+        my_conf_file = os.environ.get("MODAK_CONFIG", conf_file)
+        db_uri = os.environ.get("MODAK_DATABASE_URI")
+
+        logging.info(f"Reading ini file : {my_conf_file}")
         try:
             config = ConfigParser()
             config.read(my_conf_file)
-            cls.MODE = config.get("modak", "mode")
-            cls.QUITE_SERVER_LOGS = False
-            if  config.get("modak", "quite_server_log") == 'true':
-                cls.QUITE_SERVER_LOGS = True
-            section = cls.MODE
-            cls.PRODUCTION = False
-            if cls.MODE == 'prod':
-                cls.PRODUCTION = True
-            logging.info("Reading section {} of ini file ".format(section))
-            cls.DB_NAME                 = config.get(section, "db_name")
-            logging.info("db name :" + cls.DB_NAME)
-            cls.DB_DIR                  = config.get(section, "db_dir")
-            logging.info("db dir :" + cls.DB_DIR)
-            cls.OUT_DIR = config.get(section, "out_dir")
-            logging.info("out dir :" + cls.OUT_DIR)
-            cls.HOST = database_host if database_host else config.get(section, "host")
-            logging.info("host :" + cls.HOST)
-            cls.PORT = database_port if database_port else config.get(section, "port")
-            logging.info("port :" + cls.PORT)
-            cls.USER = database_user if database_user else config.get(section, "user")
-            logging.info("user :" + cls.USER)
-            cls.PASSWORD = database_password if database_password else config.get(section, "password")
-            logging.info("password : **** " )
-        except configparser.Error as err:
-            logging.error(str(err))
-            raise RuntimeError(err)
+            self.MODE = config.get("modak", "mode")
+            self.QUITE_SERVER_LOGS = False
+            if config.get("modak", "quite_server_log") == "true":
+                self.QUITE_SERVER_LOGS = True
+            self.PRODUCTION = self.MODE == "prod"
+
+            section = self.MODE
+            logging.info(f"Reading section {section} of ini file ")
+            self.DB_URI = db_uri if db_uri else config.get(section, "db_uri")
+
+            match = re.match(
+                r"(?P<dialect>mysql|sqlite)://"
+                r"(?P<path>(?:(?P<username>[^@:]+)(?::(?P<password>[^@]+))?@)?"
+                r"(?P<hostname>[^@/:]+)?(?::(?P<port>\d+))?/"
+                r"(?P<dbname>.+))",
+                Settings.DB_URI,
+            )
+
+            if not match:
+                raise ValueError(f"Unable to parse db_uri '{Settings.DB_URI}'")
+
+            self.DB_DIALECT = match["dialect"]
+
+            if self.DB_DIALECT == "mysql":
+                self.DB_USER = match["username"]
+                self.DB_PASSWORD = match["password"] if match["password"] else ""
+                self.DB_HOST = match["host"]
+                self.DB_PORT = int(match["port"]) if match["port"] else 3306
+                self.DB_NAME = match["dbname"]
+            elif self.DB_DIALECT == "sqlite":
+                # relative directories are taken as relative to the configuration file,
+                # absolute dirs are maintained as such
+                self.DB_PATH = conf_file.parent / match["path"]
+            else:
+                raise AssertionError(f"Invalid dialect: {match['dialect']}")
+
+            self.OUT_DIR = pathlib.Path(config.get(section, "out_dir"))
+            logging.info("out dir : {self.OUT_DIR}")
+
+            self.IMAGE_HUB_ALIASES = {}
+            sa_section = f"{self.MODE}.image_hub_aliases"
+            if config.has_section(sa_section):
+                self.IMAGE_HUB_ALIASES = dict(config.items(sa_section))
+
+        except configparser.Error as exc:
+            logging.exception(exc)
+            raise
 
 
-
-
+# The default settings
+Settings = SettingsNamespace()

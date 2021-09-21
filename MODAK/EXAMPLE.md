@@ -61,7 +61,7 @@ Optimise method takes the following input json as shown below (Full specificatio
     "optimisation": {
       "enable_opt_build": true,
       "enable_autotuning":true,
-      "app_type":"ai_training/hpc/big_data/ai_inference",
+      "app_type":"ai_training/hpc/ai_inference",
       "opt_build": {
         "cpu_type": "x86/arm/amd/power",
         "acc_type": "nvidia/amd/fpga"
@@ -138,7 +138,6 @@ Optimise method takes the following input json as shown below (Full specificatio
           "number_of_acc": 2
         }
       },
-      "app_type-big_data": {},
       "app_type-ai_inference": {}
     }
 }

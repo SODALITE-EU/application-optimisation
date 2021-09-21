@@ -178,7 +178,10 @@ if [ -f "$recipe" ]; then
 
 	# Compress the image
 	echo "Compress image directory"
-	cd build && tar -cjf $(basename "${recipe%.*}.tar.bz2") $(basename ${imagefile})
+	cd build && tar -cjf $(basename "${recipe%.*}.tar.bz2") $(basename ${imagefile}) && cd ..
+
+	# Build SIF
+	cd build && singularity build "${recipename%.*}.simg" $(basename ${imagefile}) && cd ..
     fi
 
 else

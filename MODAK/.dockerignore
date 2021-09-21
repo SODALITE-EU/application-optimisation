@@ -1,1 +1,5 @@
 app/pyMODAK
+db/*.db
+**/__pycache__
+.pytest_cache
+log/*.log

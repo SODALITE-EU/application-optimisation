@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Remove old database
+      docker_container:
+        name: "{{ alias }}"
+        state: absent
+    - name: Make sure database directory exists
+      file:
+        path: "{{ path | dirname }}"
+        state: directory
+    - name: Install sample database
+      copy:
+        dest: "{{ path }}"
+        src: modakdb.sql
+    - name: Change permissions    
+      file:
+        path: "{{ path }}"
+        mode: 0755   
