@@ -1,7 +1,6 @@
 import logging
 import os
 
-from MODAK_gcloud import TransferData
 from opt_dsl_reader import OptDSLReader
 
 
@@ -15,6 +14,8 @@ class Tuner:
         self._tune_script_link = ""
         self._upload = upload
         if self._upload:
+            from MODAK_gcloud import TransferData
+
             self._drop = TransferData()
 
     def encode_tune(self, opt_json_obj, jobfile: str):
