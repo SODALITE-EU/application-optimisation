@@ -78,11 +78,11 @@ class MODAK:
         logging.info("Adding autotuning scripts")
         gen_t.add_tuner(upload=self._upload)
 
-        logging.info("Applying optimisations " + str(self._map.get_opts()))
+        logging.info(f"Applying optimisations {self._map.get_opts()}")
         opts = self._enf.enforce_opt(self._map.get_opts())
         for opt in opts:
-            for i in range(0, opt.shape[0]):
-                gen_t.add_optscript(opt["script_name"][i], opt["script_loc"][i])
+            for idx in range(0, opt.shape[0]):
+                gen_t.add_optscript(opt["script_name"][idx], opt["script_loc"][idx])
 
         logging.info("Adding application run")
         gen_t.add_apprun()
