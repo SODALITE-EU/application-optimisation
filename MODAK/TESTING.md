@@ -10,7 +10,7 @@ To build the MODAK API container from the locally checked out source code and
 bring up the API server together with the database, run the following:
 
 ```console
-$ docker built -t modakopt/modak:api .
+$ docker build -t modakopt/modak:api .
 $ docker compose up
 ```
 
