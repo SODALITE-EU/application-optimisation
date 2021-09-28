@@ -4,14 +4,15 @@ The MODAK (Model Optimized Deployment of Applications in Containers) package, a 
 
 ## Directory structure
 
-Contains all components for the Application Optimizer
-* [AI](AI) - Artificial Intelligence Training and Inference
-* [MPI](MPI) - MPI applications
-* [Performance-Model](Performance-Model) - Infrastructure and Application Performance model
-* [MODAK](MODAK) - the main application optimizer
-* [use-cases](use-cases) - SODALITE Use case applications
-* [iac-model-repo](iac-model-repo) - Model repository
-* [containers](containers) - Containers definition files
+Contains all components for the Application Optimizer:
 
-# How to use MODAK
+*   [AI](AI) - Artificial Intelligence Training and Inference
+*   [MPI](MPI) - MPI applications
+*   [Performance-Model](Performance-Model) - Infrastructure and Application Performance model
+*   [MODAK](MODAK) - the main application optimizer
+*   [use-cases](use-cases) - SODALITE Use case applications
+*   [iac-model-repo](iac-model-repo) - Model repository
+*   [containers](containers) - Containers definition files
+
+## How to use MODAK
 Please follow the instructions in the [MODAK](MODAK) directory.
