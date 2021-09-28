@@ -11,7 +11,7 @@ bring up the API server together with the database, run the following:
 
 ```console
 $ docker build -t modakopt/modak:api .
-$ docker compose up
+$ docker-compose up
 ```
 
 ## pre-commit
