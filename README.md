@@ -6,7 +6,7 @@ The MODAK (Model Optimized Deployment of Applications in Containers) package, a 
 
 Contains all components for the Application Optimizer:
 
-*   [AI](AI) - Specific container optimizations for Artificial Intelligence Training and Inference
+*   [AI](AI) - Experimentation with container optimizations for Artificial Intelligence Training and Inference
 *   [Performance-Model](Performance-Model) - Infrastructure and Application Performance model
 *   [MODAK](MODAK) - the main application optimizer
 *   [use-cases](use-cases) - SODALITE Use case applications
