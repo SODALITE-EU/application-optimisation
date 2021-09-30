@@ -11,12 +11,12 @@ from typing import NamedTuple
 
 import jinja2
 
-from enforcer import Enforcer
-from jobfile_generator import JobfileGenerator
-from mapper import Mapper
-from MODAK_driver import MODAK_driver
-from opt_dsl_reader import OptDSLReader
-from settings import DEFAULT_SETTINGS_DIR, Settings
+from .enforcer import Enforcer
+from .jobfile_generator import JobfileGenerator
+from .mapper import Mapper
+from .MODAK_driver import MODAK_driver
+from .opt_dsl_reader import OptDSLReader
+from .settings import DEFAULT_SETTINGS_DIR, Settings
 
 JobScripts = NamedTuple("JobScripts", [("jobscript", str), ("buildscript", str)])
 

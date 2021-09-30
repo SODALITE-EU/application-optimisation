@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
 
-from tuner import Tuner
+from .tuner import Tuner
 
 """Constant to represent the scheduler to use is SLURM"""
 SCHEDULER_SLURM = "slurm"

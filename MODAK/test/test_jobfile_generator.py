@@ -3,7 +3,7 @@ import unittest
 
 import pytest
 
-import jobfile_generator
+from MODAK import jobfile_generator
 
 TEST_STRING = b"""## OPTSCRIPT here ##"""
 

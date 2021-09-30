@@ -1,7 +1,7 @@
 import logging
 import os
 
-from opt_dsl_reader import OptDSLReader
+from .opt_dsl_reader import OptDSLReader
 
 
 class Tuner:

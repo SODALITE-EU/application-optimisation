@@ -8,9 +8,7 @@ from typing import Any, Dict, Optional, Tuple, Union
 import pandas as pd
 
 # from MODAK_sql import MODAK_sql
-from settings import DEFAULT_SETTINGS_DIR, Settings
-
-print("This is the MODAK driver program")
+from .settings import DEFAULT_SETTINGS_DIR, Settings
 
 
 class MODAK_driver:

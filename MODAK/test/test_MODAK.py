@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from MODAK import MODAK
+from MODAK.MODAK import MODAK
 
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -95,7 +95,7 @@ class test_MODAK(unittest.TestCase):
 class test_MODAK_get_buildjob(unittest.TestCase):
     def test_empty(self):
         """Tests an empty job being sent"""
-        with patch("MODAK.MODAK.get_optimisation"):
+        with patch("MODAK.MODAK.MODAK.get_optimisation"):
             expected_return = ""
 
             return_value = MODAK().get_buildjob({})
@@ -106,7 +106,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
         """
         Tests a minimal job (with no build section)
         """
-        with patch("MODAK.MODAK.get_optimisation"):
+        with patch("MODAK.MODAK.MODAK.get_optimisation"):
             injson = {
                 "job": {
                     "job_name": "test_job",
@@ -126,7 +126,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
         """
         Tests a minimal job (with a build section)
         """
-        with patch("MODAK.MODAK.get_optimisation") as p1:
+        with patch("MODAK.MODAK.MODAK.get_optimisation") as p1:
             expected_return = """#! /bin/sh\n# some build script"""
             p1.return_value = (None, expected_return)
             injson = {
@@ -165,7 +165,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
         """
         Tests a minimal job (with a build section)
         """
-        with patch("MODAK.MODAK.get_optimisation") as p1:
+        with patch("MODAK.MODAK.MODAK.get_optimisation") as p1:
             expected_return = """#! /bin/sh\n# some build script"""
             p1.return_value = (None, expected_return)
             injson = {
@@ -197,7 +197,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
         """
         Tests a minimal job (with a build section)
         """
-        with patch("MODAK.MODAK.get_optimisation") as p1:
+        with patch("MODAK.MODAK.MODAK.get_optimisation") as p1:
             expected_return = """#! /bin/sh\n# some build script"""
             p1.return_value = (None, expected_return)
             injson = {
@@ -230,7 +230,7 @@ class test_MODAK_get_buildjob(unittest.TestCase):
         """
         Tests a minimal job (with a build section)
         """
-        with patch("MODAK.MODAK.get_optimisation") as p1:
+        with patch("MODAK.MODAK.MODAK.get_optimisation") as p1:
             expected_return = """#! /bin/sh\n# some build script"""
             p1.return_value = (None, expected_return)
             injson = {

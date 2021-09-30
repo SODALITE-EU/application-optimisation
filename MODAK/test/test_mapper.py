@@ -3,10 +3,10 @@ import pathlib
 import unittest
 from unittest.mock import patch
 
-from mapper import Mapper
-from MODAK_driver import MODAK_driver
-from opt_dsl_reader import OptDSLReader
-from settings import Settings
+from MODAK.mapper import Mapper
+from MODAK.MODAK_driver import MODAK_driver
+from MODAK.opt_dsl_reader import OptDSLReader
+from MODAK.settings import Settings
 
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from flask import (  # redirect,; session,; url_for,
     Flask,
@@ -7,7 +7,7 @@ from flask import (  # redirect,; session,; url_for,
     request,
 )
 
-from MODAK import MODAK
+from .MODAK import MODAK
 
 app = Flask(__name__)
 

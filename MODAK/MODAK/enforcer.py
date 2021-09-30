@@ -1,6 +1,6 @@
 import logging
 
-from MODAK_driver import MODAK_driver
+from .MODAK_driver import MODAK_driver
 
 
 class Enforcer:

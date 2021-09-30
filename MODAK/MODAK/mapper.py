@@ -2,9 +2,9 @@ import json
 import logging
 from typing import List, Mapping
 
-from MODAK_driver import MODAK_driver
-from opt_dsl_reader import OptDSLReader
-from settings import Settings
+from .MODAK_driver import MODAK_driver
+from .opt_dsl_reader import OptDSLReader
+from .settings import Settings
 
 
 class Mapper:

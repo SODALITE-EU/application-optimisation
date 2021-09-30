@@ -2,7 +2,7 @@ import json
 import pathlib
 import unittest
 
-from opt_dsl_reader import OptDSLReader
+from MODAK.opt_dsl_reader import OptDSLReader
 
 # The current files' directory
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
