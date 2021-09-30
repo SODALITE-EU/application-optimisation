@@ -3,9 +3,9 @@
 import json
 import sys
 
-sys.path.append("src")
+sys.path.append(".")
 
-from MODAK import MODAK  # noqa:E402
+from MODAK.MODAK import MODAK  # noqa:E402
 
 m = MODAK()
 dsl_file = "test/input/mpi_test.json"

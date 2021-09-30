@@ -41,17 +41,24 @@ MODAK output consists of:
 
 ### Server API and database
 
-A [database](db) is provided for checking purposes.  It requires a MariaDB/MySQL server running, hence Docker is recommended (minimal version 18.09). The same container deploy the MODAK API server.
+A [database](db) is contained for checking purposes. To start the API server with the database, Docker is recommended (minimal version 18.09):
+
 ```console
 $ docker build -t modakopt/modak:api .
 $ docker-compose up
 ```
-MODAK is provided as a Python module. An example is provided [here](examples/example.py). You can run it by opening a shell within the container:
+
+after which the API will be available on http://localhost:5000
+
+Alternatively, one can directly interact with the components provided as Python modules. Again, to avoid installing anything except for Docker itself,
+you can run it by opening a shell within the container:
+
 ```console
 $ docker exec -ti modak_restapi_1 /bin/bash
+$ # the following command is now run inside the docker
 $ examples/example.py
-This is the MODAK driver program
-JobScripts(jobscript=PosixPath('output/mpi_test_20210929104842.sh'), buildscript='output/mpi_test_build_20210929104842.sh')
+JobScripts(jobscript=PosixPath('output/mpi_test_20210930172612.sh'), buildscript='output/mpi_test_build_20210930172612.sh')
+...
 ```
 The output are two job submission scripts that you can use to submit to a batch scheduler like SLURM or Torque.
 MODAK expects the singularity containers to be pulled in to `$SINGULARITY_DIR` (define the directory).

@@ -51,5 +51,5 @@ After activating the environment, install the packages and run the tests:
 ```console
 $ pip install -r requirements.txt
 $ (cd db ; ./tosqlite.py )
-$ PYTHONPATH=src pytest -v
+$ pytest -v
 ```
