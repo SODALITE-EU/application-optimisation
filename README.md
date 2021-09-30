@@ -13,5 +13,22 @@ Contains all components for the Application Optimizer:
 *   [iac-model-repo](iac-model-repo) - Model repository
 *   [containers](containers) - Containers definition files
 
+## Setup
+
+For development you need the `pre-commit` tools.
+This registers the `pre-commit` hooks for the current git checkout such
+that tools like `black` or `flake8` are run automatically on commit.
+
+```console
+$ pip install pre-commit
+$ pre-commit install --install-hooks
+```
+
+To manually check that the current tree is clean:
+
+```console
+$ pre-commit run -a
+```
+
 ## How to use MODAK
 Please follow the instructions in the [MODAK](MODAK) directory.
