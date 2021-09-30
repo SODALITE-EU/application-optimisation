@@ -49,7 +49,6 @@ class MODAK:
         job_name = job_json_data.get("job").get("job_options").get("job_name")
         if job_name is None:
             job_name = job_json_data.get("job").get("application").get("app_tag", "job")
-        # job_json_data.get('job').get('application').get('container_runtime')
 
         logging.info("Generating job file header")
         job_file = (

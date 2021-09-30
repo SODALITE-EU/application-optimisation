@@ -17,7 +17,6 @@
     },
     "application": {
       "app_tag": "skyline-extraction-training",
-      "container_runtime": "tensorflow/tensorflow:2.1.0-gpu-py3",
       "app_type": "python",
       "executable": "python3 resnet/resnet_imagenet_main.py",
       "arguments": "--data_dir=/mnt/nfs/home/karthee/AI/data/tf_records/train/ -batch_size=96 --train_epochs=3 --train_steps=10 --use_synthetic_data=false"

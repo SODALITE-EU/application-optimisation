@@ -17,7 +17,6 @@
     },
     "application": {
       "app_tag": "mpi_test",
-      "container_runtime": "docker://ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof",
       "app_type": "hpc",
       "executable": "./xthi",
       "arguments": "",

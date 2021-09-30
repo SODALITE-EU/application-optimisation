@@ -17,7 +17,6 @@
     },
     "application": {
       "app_tag": "mpi_test",
-      "container_runtime": "",
       "app_type": "hpc",
       "executable": "./xthi",
       "arguments": "",

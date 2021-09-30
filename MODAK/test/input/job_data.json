@@ -28,7 +28,6 @@
     },
     "application": {
       "app_tag": "",
-      "container_runtime": "ubuntu:18_04",
       "app_type": "mpi",
       "executable": "test_mpi",
       "arguments": "a b c",

@@ -16,7 +16,6 @@
     },
     "application": {
       "app_tag": "resnet-benchmark",
-      "container_runtime": "tensorflow/tensorflow:2.1.0-gpu-py3",
       "executable": "./resnet_benchmark.sh"
     },
     "optimisation": {
