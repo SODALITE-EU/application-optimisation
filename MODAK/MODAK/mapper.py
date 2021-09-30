@@ -190,9 +190,9 @@ class Mapper:
         config = opt_dsl.get_app_config()
         logging.info("Config section: " + str(config))
         parallel = config["parallelisation"]
-        logging.info("Parallelisation" + str(parallel))
+        logging.info(f"Parallelisation {parallel}")
         opts = opt_dsl.get_opt_list(parallel)
-        logging.info("optimisations: " + str(opts))
+        logging.info(f"optimisations: {opts}")
         app_name = opts.get("library")
 
         # TODO: this changes original values from the request, but
@@ -294,32 +294,3 @@ class Mapper:
             opts.extend(opt_nodes)
 
         return opts
-
-
-def main():
-    driver = MODAK_driver()
-    m = Mapper(driver)
-    print("Test mapper main")
-
-    # target_string = u'{"enable_opt_build":"false","cpu_type":"x86","acc_type":"nvidia"}'
-    # opt_string = u'{"version":"3.1.3","mpicc":"true","mpic++":"true","mpifort":"true"}'
-    # m.add_optimisation('ethcscs_openmpi_3.1.3', 'hpc_mpi',
-    #                    json.loads(target_string), json.loads(opt_string))
-
-    # m.add_container('ethcscs_openmpi_3.1.3', 'ethcscs/openmpi:3.1.3')
-
-    # dsl_file = "../test/input/map_container.json"
-    # with open(dsl_file) as json_file:
-    #     map_data = json.load(json_file)
-    #     m.add_optcontainer(map_data)
-
-    with open("../test/input/mpi_solver.json") as json_file:
-        job_data = json.load(json_file)
-        print(job_data)
-        reader = OptDSLReader(job_data["job"])
-        dsl_code = m.decode_hpc_opt(reader)
-        print(dsl_code)
-
-
-if __name__ == "__main__":
-    main()
