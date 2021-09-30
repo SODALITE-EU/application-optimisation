@@ -63,7 +63,7 @@ class MODAK_driver:
                 raise
 
         # self.__init_IaC_modelrepo(install)
-        if Settings.QUITE_SERVER_LOGS:
+        if Settings.QUIET_SERVER_LOGS:
             self._quiet_logs()
 
         logging.info("Successfully initialised driver")

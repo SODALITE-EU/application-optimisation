@@ -23,9 +23,9 @@ class SettingsNamespace(SimpleNamespace):
             config = ConfigParser()
             config.read(my_conf_file)
             self.MODE = config.get("modak", "mode")
-            self.QUITE_SERVER_LOGS = False
-            if config.get("modak", "quite_server_log") == "true":
-                self.QUITE_SERVER_LOGS = True
+            self.QUIET_SERVER_LOGS = False
+            if config.get("modak", "quiet_server_log") == "true":
+                self.QUIET_SERVER_LOGS = True
             self.PRODUCTION = self.MODE == "prod"
 
             section = self.MODE
