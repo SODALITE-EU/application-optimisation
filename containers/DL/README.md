@@ -1,5 +1,6 @@
 This folder contains AI related experimentations:
 * containers - all optimised container for different AI frameworks
+* published - containers published on dockerhub
 * test - files to test containers
 
 Results of the experimentations were published at

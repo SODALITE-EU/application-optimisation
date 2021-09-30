@@ -204,7 +204,7 @@ curl --header "Content-Type: application/json"   --request POST   --data '{
 }'   http://34.eightnine.53.105:fivethousand/optimise
 ```
  
-Example:AI training
+Example: DL training
  
 ```
 curl --header "Content-Type: application/json" \
