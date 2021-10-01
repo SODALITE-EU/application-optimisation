@@ -1,0 +1,111 @@
+DEBUT(LANG='EN')
+
+
+mesh = LIRE_MAILLAGE(identifier=u'0:1',
+                     UNITE=2)
+
+model = AFFE_MODELE(identifier=u'1:1',
+                    AFFE=(_F(GROUP_MA=('GrL2_Volumes', 'GrL1_Volumes', 'GrIVD_L1L2_Volumes'),
+                             MODELISATION=('3D', ),
+                             PHENOMENE='MECANIQUE'),
+                          _F(GROUP_MA=('GrIVD_L1L2_Edges', 'GrL1_Edges'),
+                             MODELISATION=('POU_D_E', ),
+                             PHENOMENE='MECANIQUE')),
+                    MAILLAGE=mesh)
+
+elemprop = AFFE_CARA_ELEM(identifier=u'2:1',
+                          MODELE=model,
+                          POUTRE=_F(CARA=('HY', 'HZ'),
+                                    GROUP_MA=('GrIVD_L1L2_Edges', 'GrL1_Edges'),
+                                    SECTION='RECTANGLE',
+                                    VALE=(1.0, 1.0)))
+
+Bone = DEFI_MATERIAU(identifier=u'3:1',
+                     ELAS=_F(E=5600.0,
+                             NU=0.3))
+
+C_Fix = DEFI_MATERIAU(identifier=u'4:1',
+                      ELAS=_F(E=1000.0,
+                              NU=0.3))
+
+Cartilag = DEFI_MATERIAU(identifier=u'5:1',
+                         ELAS=_F(E=1000.0,
+                                 NU=0.45))
+
+fieldmat = AFFE_MATERIAU(identifier=u'6:1',
+                         AFFE=(_F(GROUP_MA=('GrL2_Volumes', 'GrL1_Volumes'),
+                                  MATER=(Bone, )),
+                               _F(GROUP_MA=('GrIVD_L1L2_Edges', 'GrL1_Edges'),
+                                  MATER=(C_Fix, )),
+                               _F(GROUP_MA=('GrIVD_L1L2_Volumes', ),
+                                  MATER=(Cartilag, ))),
+                         MAILLAGE=mesh,
+                         MODELE=model)
+
+func = DEFI_FONCTION(identifier=u'7:1',
+                     NOM_PARA='INST',
+                     VALE=(0.0, 0.0, 1.0, 1.0))
+
+listr = DEFI_LIST_REEL(identifier=u'8:1',
+                       DEBUT=0.0,
+                       INTERVALLE=_F(JUSQU_A=1.0,
+                                     NOMBRE=10))
+
+load = AFFE_CHAR_MECA(identifier=u'9:1',
+                      DDL_IMPO=(_F(DRX=0.0,
+                                   DRY=0.0,
+                                   DRZ=0.0,
+                                   DX=0.0,
+                                   DY=0.0,
+                                   DZ=0.0,
+                                   GROUP_NO=('L1_FN', 'IVD_L1L2_FN')),
+                                _F(DX=0.0,
+                                   DY=0.0,
+                                   DZ=0.0,
+                                   GROUP_NO=('L2_Lower_Nodes', ))),
+                      FORCE_NODALE=_F(FZ=-10.0,
+                                      GROUP_NO=('L1_Upper_Nodes', )),
+                      LIAISON_MAIL=(_F(GROUP_MA_ESCL=('IVD_L1L2_L2_Outer_Face', ),
+                                       GROUP_MA_MAIT=('GrL2_Volumes', ),
+                                       TYPE_RACCORD='MASSIF'),
+                                    _F(GROUP_MA_ESCL=('IVD_L1L2_L1_Outer_Face', ),
+                                       GROUP_MA_MAIT=('GrL1_Volumes', ),
+                                       TYPE_RACCORD='MASSIF')),
+                      MODELE=model)
+
+contact = DEFI_CONTACT(identifier=u'10:1',
+                       FORMULATION='DISCRETE',
+                       MODELE=model,
+                       ZONE=(_F(ALGO_CONT='CONTRAINTE',
+                                GROUP_MA_ESCL=('L2_Upper_Face', ),
+                                GROUP_MA_MAIT=('IVD_L1L2_L2_Inner_Face', )),
+                             _F(ALGO_CONT='CONTRAINTE',
+                                GROUP_MA_ESCL=('L1_Lower_Face', ),
+                                GROUP_MA_MAIT=('IVD_L1L2_L1_Inner_Face', ))))
+
+resnonl = STAT_NON_LINE(identifier=u'11:1',
+                        CARA_ELEM=elemprop,
+                        CHAM_MATER=fieldmat,
+                        CONTACT=contact,
+                        EXCIT=_F(CHARGE=load,
+                                 FONC_MULT=func),
+                        INCREMENT=_F(LIST_INST=listr),
+                        METHODE='NEWTON',
+                        MODELE=model)
+
+unnamed = CALC_CHAMP(identifier=u'12:1',
+                     CHAM_MATER=fieldmat,
+                     CRITERES=('SIEQ_ELGA', ),
+                     DEFORMATION=('EPSI_ELGA', ),
+                     GROUP_MA=('GrL2_Volumes', 'GrL1_Volumes', 'GrIVD_L1L2_Volumes'),
+                     MODELE=model,
+                     RESULTAT=resnonl)
+
+IMPR_RESU(identifier=u'13:1',
+          RESU=(_F(MAILLAGE=mesh,
+                   RESULTAT=resnonl),
+                _F(MAILLAGE=mesh,
+                   RESULTAT=unnamed)),
+          UNITE=80)
+
+FIN()
