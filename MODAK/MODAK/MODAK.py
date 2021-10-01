@@ -46,9 +46,10 @@ class MODAK:
             application["container_runtime"] = new_container
             logging.info("Successfully updated container runtime")
 
-        job_name = job_json_data.get("job").get("job_options").get("job_name")
-        if job_name is None:
-            job_name = job_json_data.get("job").get("application").get("app_tag", "job")
+        # fallback order: job_options/job_name -> application/app_tag -> "job"
+        job_name = job_json_data["job"]["job_options"].get(
+            "job_name", job_json_data["job"]["application"].get("app_tag", "job")
+        )
 
         logging.info("Generating job file header")
         job_file = (
@@ -98,44 +99,19 @@ class MODAK:
         logging.info(f"Build script link: {self._build_link}")
         return JobScripts(self._job_link, self._build_link)
 
-    def job_header(self, job_json_data):
-        logging.info("Generating job file header")
-        logging.info("Processing job data" + str(job_json_data))
-        job_name = job_json_data.get("job").get("job_options").get("job_name")
-        if job_name is None:
-            job_name = "job"
-        job_file = (
-            Settings.OUT_DIR
-            / f"{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
-        )
-        JobfileGenerator(job_json_data, job_file)
-
-        file_to = f"/modak/{job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
-        if self._upload:
-            self._job_link = self._drop.upload_file(file_from=job_file, file_to=file_to)
-        logging.info("Job script link: " + self._job_link)
-        return self._job_link
-
-    def opt_container_runtime(self, job_json_data):
-        logging.info("Mapping optimal container for job data")
-        logging.info("Processing job data" + str(job_json_data))
-        new_container = self._map.map_container(job_json_data)
-        logging.info(f"Optimal container: {new_container}")
-
-        if new_container is not None:
-            application = job_json_data.get("job").get("application")
-            application["container_runtime"] = new_container
-        return new_container
-
     def get_opt_container_runtime(self, job_json_data):
         logging.info("Mapping optimal container for job data")
-        logging.info("Processing job data" + str(job_json_data))
+
+        logging.info(f"Processing job data {job_json_data}")
         opt_reader = OptDSLReader(job_json_data["job"])
-        new_container = ""
+
+        new_container = None
+
         if opt_reader.optimisations_exist():
             new_container = self._map.map_container(job_json_data)
-        logging.info(f"Optimal container: {new_container}")
-        return new_container if new_container else ""
+
+        logging.info(f"Optimal container found: {new_container}")
+        return new_container
 
     def get_buildjob(self, job_json_data):
         logging.info("Creating build script for job")
