@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: ubuntu:16.04
+From: ubuntu:18.04
 
 %help
     This is the container used to run SODALITE (https://www.sodalite.eu/)
@@ -10,6 +10,10 @@ From: ubuntu:16.04
     Version v0.1.0
 
 %environment
+    export LC_ALL="en_US.UTF-8"
+    export PYTHONNOUSERSITE=1
+    export PYTHONIOENCODING=utf8
+
     export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
     export OPENBLAS_MAIN_FREE=1 # Used to avoid Python crash
     export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
@@ -18,6 +22,7 @@ From: ubuntu:16.04
 
     export ASTER_ROOT=/usr/local/workdir/aster
     export ASTER_NUM_THREADS=${ASTER_NUM_THREADS:-1}
+    export ASTER_LOG=${ASTER_LOG:-aster.out}
 
 %runscript
     . ${ASTER_ROOT}/14.4/share/aster/profile.sh
@@ -25,7 +30,7 @@ From: ubuntu:16.04
 
     if test $# -eq 0 || test -z "$@" ; then
         # Open a shell
-	echo "Provide code-aster inpu directory. Opening a shell for the moment..."
+	echo "Provide code-aster input directory (eg. . Opening a shell for the moment..."
         bash -norc
     else
         # pass arguments to run code-aster
@@ -38,7 +43,7 @@ From: ubuntu:16.04
 		     -commandes fort.1 --num_job=1432 --mode=interactif \
 		     --rep_mat=${ASTER_ROOT}/14.4/share/aster/materiau \
 		     --rep_dex=${ASTER_ROOT}/14.4/share/aster/datg \
-		     --numthreads=${ASTER_NUM_THREADS} --suivi_batch --memjeveux=8192.0 --tpmax=3600.0
+		     --numthreads=${ASTER_NUM_THREADS} --suivi_batch --memjeveux=8192.0 --tpmax=3600.0 2>&1 | tee ${ASTER_LOG}
 	cd ${OLDPWD}
     fi
 
@@ -46,6 +51,7 @@ From: ubuntu:16.04
     #
     # First install default packages and clean caches
     #
+    export DEBIAN_FRONTEND=noninteractive
     apt-get update && apt-get -y upgrade --no-install-recommends
     apt-get -y install --no-install-recommends \
                        build-essential wget less gfortran procps \
@@ -62,9 +68,6 @@ From: ubuntu:16.04
     #
     mkdir -p /usr/local/workdir
     cd /usr/local/workdir
-
-#    export OPENBLAS_NUM_THREADS=1
-#    export OPENBLAS_MAIN_FREE=1 # Used to avoid Python crash
 
     # Code Aster install
     export PYTHONIOENCODING=utf8
