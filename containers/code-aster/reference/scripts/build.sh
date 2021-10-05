@@ -4,7 +4,7 @@ IMGBASENAME=code_aster_clinical
 
 echo "Build ${IMGBASENAME} container with Singularity"
 
-cd build
+cd def
 if test -n "$USE_SB"; then
     echo "Build Sandbox image"
     singularity build --sandbox --fakeroot ../${IMGBASENAME}.imgdir ${IMGBASENAME}.def
