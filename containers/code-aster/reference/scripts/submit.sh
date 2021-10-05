@@ -74,7 +74,7 @@ NAMEOUT_PREFIX=code_aster
 
 for inode in $NNODES; do
     for ippn in $PPN; do
-	PREFIXNAME="nodes-${inode}_ppn-${ippn}_ranks-$(( inode * ippn ))-nthreads-1"
+	PREFIXNAME="nodes-${inode}_ppn-${ippn}_nranks-$(( inode * ippn ))-nthreads-1"
 	echo $PREFIXNAME
 
 	BATCH_CMD=${BATCH_CMD_PREFIX}

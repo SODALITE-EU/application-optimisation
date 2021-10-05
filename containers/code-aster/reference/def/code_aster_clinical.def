@@ -17,12 +17,8 @@ From: ubuntu:18.04
     export OPENBLAS_NUM_THREADS=1 # doesn't work with multiple threads
     export OPENBLAS_MAIN_FREE=1 # Used to avoid Python crash
     export OMP_NUM_THREADS=1 # no benefit
-    export OMP_MAX_ACTIVE_LEVELS=1
-    export OMP_PROC_BIND=${OMP_PROC_BIND:-close}
-    export OMP_PLACES=${OMP_PLACES:-cores}
 
     export ASTER_ROOT=/usr/local/workdir/aster
-    export ASTER_LOG=${ASTER_LOG:-aster.out}
 
 %runscript
     . ${ASTER_ROOT}/14.4/share/aster/profile.sh
@@ -33,6 +29,7 @@ From: ubuntu:18.04
 	echo "Provide code-aster input directory (eg. . Opening a shell for the moment..."
         bash -norc
     else
+        export ASTER_LOG=${ASTER_LOG:-aster.out}
         # pass arguments to run code-aster
 	OLDPWD=`pwd`
 	cd "$1"
