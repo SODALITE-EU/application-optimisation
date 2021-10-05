@@ -14,14 +14,14 @@ From: ubuntu:18.04
     export PYTHONNOUSERSITE=1
     export PYTHONIOENCODING=utf8
 
-    export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
+    export OPENBLAS_NUM_THREADS=1 # doesn't work with multiple threads
     export OPENBLAS_MAIN_FREE=1 # Used to avoid Python crash
-    export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+    export OMP_NUM_THREADS=1 # no benefit
+    export OMP_MAX_ACTIVE_LEVELS=1
     export OMP_PROC_BIND=${OMP_PROC_BIND:-close}
     export OMP_PLACES=${OMP_PLACES:-cores}
 
     export ASTER_ROOT=/usr/local/workdir/aster
-    export ASTER_NUM_THREADS=${ASTER_NUM_THREADS:-1}
     export ASTER_LOG=${ASTER_LOG:-aster.out}
 
 %runscript
@@ -37,13 +37,13 @@ From: ubuntu:18.04
 	OLDPWD=`pwd`
 	cd "$1"
 	# Clean previous runs
-	rm -f REPE_OUT/* fort.15 fort.8 fort.80 fort.9 glob.1 info_cpu pick.1 vola.1
+	rm -f REPE_OUT/* fort.15 fort.8 fort.80 fort.9 glob.1 info_cpu pick.1 vola.1 *.out
 	${ASTER_ROOT}/14.4/bin/aster \
 		     ${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \
 		     -commandes fort.1 --num_job=1432 --mode=interactif \
 		     --rep_mat=${ASTER_ROOT}/14.4/share/aster/materiau \
 		     --rep_dex=${ASTER_ROOT}/14.4/share/aster/datg \
-		     --numthreads=${ASTER_NUM_THREADS} --suivi_batch --memjeveux=8192.0 --tpmax=3600.0 2>&1 | tee ${ASTER_LOG}
+		     --numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=3600.0 2>&1 | tee ${ASTER_LOG}
 	cd ${OLDPWD}
     fi
 
