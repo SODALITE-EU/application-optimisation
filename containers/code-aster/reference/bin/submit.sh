@@ -39,43 +39,42 @@ if test `command -v sbatch` > /dev/null; then
 elif test `command -v qsub` > /dev/null; then
     echo "PBS recongnized on $CLUSTER"
     WLM="pbs"
-    BATCH_CMD_PREFIX="qsub -j oe -V -l naccesspolicy=singlejob -lwalltime=${wtime} "
+    BATCH_CMD_PREFIX="qsub -j oe -l naccesspolicy=singlejob -lwalltime=${wtime} "
 else
     echo "Batch system not recongnized!"
     exit
 fi
 set -e
 
+export SUBCMD="mpiexec -bind-to socket -map-by socket "
 # Specific options per cluster
-SUBCMD=
 case $CLUSTER in
     daint)
-	module load daint-mc singularity
+	export MODULES="daint-mc singularity"
 	export SINGULARITY_BIND=/lib64,/opt/cray,/usr/lib64
 	export MPICH_GNI_MALLOC_FALLBACK=1 # drop hugepage support within the container
 	QUEUE=mc
 	BATCH_CMD_PREFIX+="--account=cray --constraint=${QUEUE} --switches=1@01:00:00 "
-	SUBCMD="srun --hint=nomultithread "
+	export SUBCMD="srun --hint=nomultithread "
 	;;
     osprey)
-	module load singularity/3.2.1
-	module load openmpi/gcc/4.0.1
+	export MODULES="singularity/3.2.1 openmpi/gcc/4.0.1"
 	export IBDEVICES='mlx5_0'
 	QUEUE=bdw18
 	BATCH_CMD_PREFIX+="-p ${QUEUE} "
-	SUBCMD="mpirun -bind-to socket -map-by socket --mca oob_tcp_if_include ib0 --mca btl_tcp_if_include ib0 "
+	export SUBCMD="mpirun -bind-to socket -map-by socket --mca oob_tcp_if_include ib0 --mca btl_tcp_if_include ib0 "
+	;;
+    cloudserver) # HLRS testbed
+	export MODULES="compilers/gcc-9.2.0 mpi/mpich-3.3.1-gcc-9.2.0"
+	export SUBCMD="mpiexec "
 	;;
 esac
 
-if test ! -z "${SUBCMD}"; then
-    SUBCMD="-s '${SUBCMD}'"
-fi
-
-NAMEOUT_PREFIX=perfbench
+NAMEOUT_PREFIX=code_aster
 
 for inode in $NNODES; do
     for ippn in $PPN; do
-	PREFIXNAME="nodes${inode}_ppn${ippn}_ranks$(( inode * ippn ))"
+	PREFIXNAME="nodes-${inode}_ppn-${ippn}_ranks-$(( inode * ippn ))-nthreads-1"
 	echo $PREFIXNAME
 
 	BATCH_CMD=${BATCH_CMD_PREFIX}
@@ -96,9 +95,14 @@ for inode in $NNODES; do
 #!/bin/bash -l
 echo "Submission command: ${BATCH_CMD}"
 
+env
+
+module load ${MODULES}
+module list
+
 cd $PWD
 
-PREFIXNAME=${PREFIXNAME} $PWD/bin/run.sh -n $(( inode * ippn )) -l ${LABEL} -q ${QUEUE} ${SUBCMD}
+PREFIXNAME="${PREFIXNAME}" SUBCMD="${SUBCMD}" $PWD/bin/run.sh -l ${LABEL}___${QUEUE}
 
 EOF
 
