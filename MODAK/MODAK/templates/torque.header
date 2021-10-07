@@ -1,69 +1,69 @@
 #PBS -S /bin/bash
 ## START OF HEADER ##
-{% if job_data.job_name is defined %}
+{% if job_data.job_name %}
 #PBS -N {{ job_data.job_name }}
 {% endif %}
-{% if job_data.account is defined %}
+{% if job_data.account %}
 #PBS -A {{ job_data.account }}
 {% endif %}
-{% if job_data.queue is defined %}
+{% if job_data.queue %}
 #PBS -q {{ job_data.queue }}
 {% endif %}
-{% if job_data.wall_time_limit is defined %}
+{% if job_data.wall_time_limit %}
 #PBS -l walltime={{ job_data.wall_time_limit }}
 {% endif %}
-{% if job_data.node_count is defined %}
+{% if job_data.node_count %}
 #PBS -l nodes={{ job_data.node_count }}
-  {%- if job_data.process_count_per_node is defined %}:ppn={{ job_data.process_count_per_node }}{% endif %}
+  {%- if job_data.process_count_per_node %}:ppn={{ job_data.process_count_per_node }}{% endif %}
   {%- if job_data.request_gpus %}:gpus={{ job_data.request_gpus }}{% endif %}
-  {%- if job_data.queue is defined %}:{{ job_data.queue }}{% endif %}
+  {%- if job_data.queue %}:{{ job_data.queue }}{% endif %}
 {% endif +%}
-{% if job_data.core_count is defined %}
+{% if job_data.core_count %}
 #PBS -l procs={{ job_data.core_count }}
 {% endif %}
-{% if job_data.memory_limit is defined %}
+{% if job_data.memory_limit %}
 #PBS -l mem={{ job_data.memory_limit }}
 {% endif %}
-{% if job_data.minimum_memory_per_processor is defined %}:
+{% if job_data.minimum_memory_per_processor %}:
 #PBS -l pmem={{ job_data.minimum_memory_per_processor }}
 {% endif %}
-{% if job_data.request_specific_nodes is defined %}
+{% if job_data.request_specific_nodes %}
 #PBS -l nodes={{ job_data.request_specific_nodes }}
 {% endif %}
-{% if job_data.job_array is defined %}
+{% if job_data.job_array %}
 #PBS -t {{ job_data.job_array }}
 {% endif %}
-{% if job_data.standard_output_file is defined %}
+{% if job_data.standard_output_file %}
 #PBS -o {{ job_data.standard_output_file }}
 {% endif %}
-{% if job_data.standard_error_file is defined %}
+{% if job_data.standard_error_file %}
 #PBS -e {{ job_data.standard_error_file }}
 {% endif %}
-{% if job_data.combine_stdout_stderr is defined %}
+{% if job_data.combine_stdout_stderr %}
 #PBS -j oe
 {% endif %}
-{% if job_data.architecture_constraint is defined %}
+{% if job_data.architecture_constraint %}
 #PBS -l partition={{ job_data.architecture_constraint }}
 {% endif %}
-{% if job_data.copy_environment is defined %}
+{% if job_data.copy_environment %}
 #PBS -V
 {% endif %}
-{% if job_data.copy_environment_variable is defined %}
+{% if job_data.copy_environment_variable %}
 #PBS -v {{ job_data.copy_environment_variable }}
 {% endif %}
-{% if job_data.job_dependency is defined %}
+{% if job_data.job_dependency %}
 #PBS -W {{ job_data.job_dependency }}
 {% endif %}
-{% if job_data.request_event_notification is defined %}
+{% if job_data.request_event_notification %}
 #PBS -m {{ job_data.request_event_notification }}
 {% endif %}
-{% if job_data.email_address is defined %}
+{% if job_data.email_address %}
 #PBS -M {{ job_data.email_address }}
 {% endif %}
-{% if job_data.defer_job is defined %}
+{% if job_data.defer_job %}
 #PBS -a job_data.defer_job
 {% endif %}
-{% if job_data.node_exclusive is defined %}
+{% if job_data.node_exclusive %}
 #PBS -l naccesspolicy=singlejob
 {% endif %}
 ## END OF HEADER ##

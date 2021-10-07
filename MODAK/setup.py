@@ -9,10 +9,13 @@ setup(
         "pydantic[email]",
         "numpy",
         "pandas",
-        "Flask",
         "Jinja2",
-        "gunicorn",
+        "fastapi",
+        "uvicorn",
     ],
+    extras_require={
+        "testing": ["pytest", "pytest-cov"],
+    },
     entry_points={
         "console_scripts": [
             "modak-validate-json = MODAK.cli:validate_json",

@@ -1,9 +1,11 @@
+import pathlib
 import tempfile
 import unittest
 
 import pytest
 
 from MODAK import jobfile_generator
+from MODAK.model import Application, JobOptions
 
 TEST_STRING = b"""## OPTSCRIPT here ##"""
 
@@ -15,15 +17,11 @@ class test_mapper(unittest.TestCase):
         self.optscript.file.write(TEST_STRING)
         self.optscript.file.flush()
         self.jg = jobfile_generator.JobfileGenerator(
-            {
-                "job": {
-                    "job_options": {},
-                    "application": {},
-                    "optimization": {},
-                    "target": {"job_scheduler_type": "torque", "name": "hlrs_testbed"},
-                }
-            },
-            self.outfile.name,
+            # construct empty invalid objects, because we know here we don't need them:
+            application=Application.construct(),
+            job_options=JobOptions.construct(),
+            batch_file=pathlib.Path(self.outfile.name),
+            scheduler="torque",
         )
 
     def test_add_optscript(self):

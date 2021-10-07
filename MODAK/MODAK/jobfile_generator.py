@@ -1,4 +1,3 @@
-import json
 import logging
 import pathlib
 import urllib.request
@@ -6,6 +5,7 @@ from urllib.parse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
 
+from .model import Application, JobOptions, Optimisation
 from .tuner import Tuner
 
 """Constant to represent the scheduler to use is SLURM"""
@@ -110,33 +110,27 @@ class ArgumentConverter:
 
 
 class JobfileGenerator:
-    def __init__(self, job_json_obj, batch_file: str, scheduler: str = None):
+    def __init__(
+        self,
+        application: Application,
+        job_options: JobOptions,
+        batch_file: pathlib.Path,
+        scheduler: str,
+    ):
         """Generates the job files, e.g. PBS and SLURM."""
         logging.info("Initialising job file generator")
         self._batch_file = batch_file
-        self._job_json_obj = job_json_obj
-        self._job_data = job_json_obj.get("job").get("job_options", {})
-        self._app_data = job_json_obj.get("job").get("application", {})
-        self._opt_data = job_json_obj.get("job").get("optimisation", {})
+        self._job_options = job_options
+        self._application = application
+        self._scheduler = scheduler
+
         self._singularity_exec = "singularity exec"
         self.ac = ArgumentConverter()
         # TODO: scheduler type should be derived based on the infrastructure target name
         # TODO: there shall be an entry in the database where scheduler type
         #       is specified in the infrastructure target
 
-        self._target_name = (
-            self._job_json_obj.get("job", {}).get("target", {}).get("name")
-        )
-
         # use an explicitly given scheduler, if provided, otherwise determine from DSL
-        if scheduler is not None:
-            self._scheduler = scheduler
-        else:
-            self._scheduler = (
-                self._job_json_obj.get("job", {})
-                .get("target", {})
-                .get("job_scheduler_type")
-            )
 
         self._env = Environment(
             loader=FileSystemLoader(
@@ -151,18 +145,18 @@ class JobfileGenerator:
         logging.info("Generating torque header")
         template = self._env.get_template("torque.header")
         with self._batch_file.open("w") as fhandle:
-            fhandle.write(template.render(job_data=self._job_data))
+            fhandle.write(template.render(job_data=self._job_options))
 
-        if "node_count" in self._job_data and "request_gpus" in self._job_data:
+        if self._job_options.node_count and self._job_options.request_gpus:
             self._singularity_exec = self._singularity_exec + " --nv"
 
     def _generate_slurm_header(self):
         logging.info("Generating slurm header")
         template = self._env.get_template("slurm.header")
         with self._batch_file.open("w") as fhandle:
-            fhandle.write(template.render(job_data=self._job_data))
+            fhandle.write(template.render(job_data=self._job_options))
 
-        if "request_gpus" in self._job_data:
+        if self._job_options.request_gpus:
             self._singularity_exec = self._singularity_exec + " --nv"
 
     def _generate_bash_header(self):
@@ -171,30 +165,33 @@ class JobfileGenerator:
             fhandle.write("#!/bin/bash\n\n")
 
     def add_job_header(self):
-        if self._job_data and self._scheduler == "torque":
+        if self._scheduler == "torque":
             self._generate_torque_header()
-        elif self._job_data and self._scheduler == "slurm":
+        elif self._scheduler == "slurm":
             self._generate_slurm_header()
         else:
             self._generate_bash_header()
 
-    def add_tuner(self, upload=True):
+    def add_tuner(self, optimisation: Optimisation, upload=True):
         tuner = Tuner(upload)
-        res = tuner.encode_tune(self._job_json_obj, self._batch_file)
+        res = tuner.encode_tune(optimisation, self._batch_file)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")
             return
 
         logging.info("Adding tuner" + str(tuner))
         with self._batch_file.open("a") as fhandle:
-            fhandle.write("\n")
-            fhandle.write("## START OF TUNER ##\n")
-            fhandle.write(f"file={tuner.get_tune_filename()}\n")
-            fhandle.write('[ -f $file ] && rm "$file"\n')
-            fhandle.write(f"wget --no-check-certificate '{tuner.get_tune_link()}'\n")
-            fhandle.write(f"chmod 755 '{tuner.get_tune_filename()}'\n")
-            if "container_runtime" in self._app_data:
-                cont = self._app_data["container_runtime"]
+            fhandle.write(
+                f"""
+## START OF TUNER ##
+file={tuner.get_tune_filename()}
+[ -f $file ] && rm "$file"
+wget --no-check-certificate '{tuner.get_tune_link()}'
+chmod 755 '{tuner.get_tune_filename()}'
+"""
+            )
+            if self._application.container_runtime:
+                cont = self._application.container_runtime
                 fhandle.write(
                     f"\n{self._singularity_exec} "
                     f'"{self.get_sif_filename(cont)}" "{tuner.get_tune_filename()}"'
@@ -206,8 +203,9 @@ class JobfileGenerator:
             logging.info("Successfully added tuner")
 
     def add_optscript(self, scriptfile, scriptlink):
-        logging.info("Adding optimisations " + scriptfile)
-        with open(self._batch_file, "a") as fhandle:
+        logging.info(f"Adding optimisations {scriptfile}")
+        print("add_optscript", scriptfile, scriptlink)
+        with self._batch_file.open("a") as fhandle:
             parsed_url = urlparse(scriptlink)
 
             if parsed_url.scheme == "file":
@@ -247,34 +245,36 @@ source "{scriptfile}"
     def add_apprun(self):
         logging.info("Adding app run")
         with self._batch_file.open("a") as fhandle:
-            exe = self._app_data.get("executable", "")
-            args = self._app_data.get("arguments", "")
+            exe = self._application.executable
+            args = self._application.arguments
+
             if args:
                 exe += f" {args}"
 
             cont_exec_command = ""
-            cont = self._app_data.get("container_runtime", "")
+            cont = self._application.container_runtime
+
             if cont:
                 cont_exec_command = (
                     f'{self._singularity_exec} "{self.get_sif_filename(cont)}"'
                 )
 
-            app_type = self._app_data.get("app_type")
+            if self._application.build:
+                src = self._application.build.src
+                build_command = self._application.build.build_command
 
-            if "build" in self._app_data:
-                src = self._app_data["build"].get("src")
-                build_command = self._app_data["build"].get("build_command")
                 if src[-4:] == ".git":
                     fhandle.write(f"\ngit clone {src}\n")
                 else:
                     fhandle.write(f"\nwget --no-check-certificate {src}\n")
                 fhandle.write(f"\n{cont_exec_command} {build_command}\n")
 
-            if app_type == "mpi" or app_type == "hpc":
-                mpi_ranks = self._app_data.get("mpi_ranks", 1)
-                threads = self._app_data.get("threads", 1)
+            if self._application.app_type in ("mpi", "hpc"):
+                mpi_ranks = self._application.mpi_ranks
+                threads = self._application.threads
                 fhandle.write(f"\nexport OMP_NUM_THREADS={threads}\n")
-                if self._scheduler == "torque" and "openmpi:1.10" in cont:
+
+                if self._scheduler == "torque" and cont and "openmpi:1.10" in cont:
                     fhandle.write(f"{cont_exec_command} mpirun -np {mpi_ranks} {exe}\n")
                 elif self._scheduler == "torque":
                     fhandle.write(f"mpirun -np {mpi_ranks} {cont_exec_command} {exe}\n")
@@ -282,6 +282,7 @@ source "{scriptfile}"
                     fhandle.write(f"srun -n {mpi_ranks} {cont_exec_command} {exe}\n")
                 else:
                     fhandle.write(f"mpirun -np {mpi_ranks} {cont_exec_command} {exe}\n")
+
             else:  # other app types, e.g. python
                 fhandle.write(f"{cont_exec_command} {exe}\n")
 
@@ -290,23 +291,3 @@ source "{scriptfile}"
     def get_sif_filename(self, container: str):
         words = container.split("/")
         return f"$SINGULARITY_DIR/{words[-1].replace(':', '_')}.sif"
-
-
-def main():
-    dsl_file = pathlib.Path("../test/input/tf_snow.json")
-    with dsl_file.open() as json_file:
-        obj = json.load(json_file)
-
-    gen_t = JobfileGenerator(obj, pathlib.Path("../test/torque.pbs"), SCHEDULER_TORQUE)
-    gen_t.add_job_header()
-    gen_t.add_apprun()
-
-    gen_s = JobfileGenerator(obj, pathlib.Path("../test/slurm.batch"), SCHEDULER_SLURM)
-    gen_s.add_job_header()
-    gen_s.add_apprun()
-
-    print(gen_t.get_sif_filename("shub://sodalite-hpe/modak:pytorch-1.5-cpu-pi"))
-
-
-if __name__ == "__main__":
-    main()

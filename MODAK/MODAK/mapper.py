@@ -1,10 +1,21 @@
-import json
 import logging
-from typing import List, Mapping
+from typing import List, Mapping, Optional, cast
 
 from .MODAK_driver import MODAK_driver
-from .opt_dsl_reader import OptDSLReader
+from .model import (
+    AppTypeAITraining,
+    AppTypeHPC,
+    Job,
+    Optimisation,
+    OptimisationBuild,
+    Target,
+)
 from .settings import Settings
+
+
+def _mapping2list(map: Mapping):
+    """Converts a mapping to a list of k1.lower():v1.lower(), k2:v2, ..."""
+    return [f"{str(key).lower()}:{str(value).lower()}" for key, value in map.items()]
 
 
 class Mapper:
@@ -13,26 +24,36 @@ class Mapper:
         self._driver = driver
         self._opts: List[str] = []
 
-    def map_container(self, opt_json_obj):
+    def map_container(self, job: Job) -> Optional[str]:
+        """Get an URI for an optimal container for the given job."""
+
         logging.info("Mapping to optimal container")
-        logging.info(str(opt_json_obj.get("job").get("optimisation")))
-        reader = OptDSLReader(opt_json_obj["job"])
-        app_type = reader.get_app_type()
+        self._opts = []
+
+        assert job.optimisation is not None, "Optimisation data required for mapping"
+
+        logging.info(str(job.optimisation))
         dsl_code = None
 
         try:
-            self._opts.append(f"{opt_json_obj['job']['target']['name'].strip()}:true")
-        except KeyError:
+            self._opts.append(
+                f"{cast(str, cast(Target, job.target).name).strip()}:true"
+            )
+        except AttributeError:
             pass
 
-        if app_type == "ai_training":
+        if job.optimisation.app_type == "ai_training":
             logging.info("Decoding AI training application")
-            dsl_code = self.decode_ai_training_opt(reader)
-        if app_type == "hpc":
+            dsl_code = self.decode_ai_training_opt(cast(Optimisation, job.optimisation))
+        elif job.optimisation.app_type == "hpc":
             logging.info("Decoding HPC application")
-            dsl_code = self.decode_hpc_opt(reader)
+            dsl_code = self.decode_hpc_opt(cast(Optimisation, job.optimisation))
         else:
-            logging.warning("Unknown application type")
+            raise AssertionError(f"app_type {job.optimisation.app_type} not supported")
+
+        if not dsl_code:
+            logging.warning("No valid DSL code found for given job")
+            return None
 
         logging.info(f"Decoded opt code: {dsl_code}")
 
@@ -98,13 +119,8 @@ class Mapper:
     ):
         logging.info("Adding DSL code to Optimisation ")
 
-        target_str = ",".join(
-            f"{str(key).lower()}:{str(value).lower()}" for key, value in target.items()
-        )
-        opt_str = ",".join(
-            f"{str(key).lower()}:{str(value).lower()}"
-            for key, value in optimisation.items()
-        )
+        target_str = ",".join(_mapping2list(target))
+        opt_str = ",".join(_mapping2list(optimisation))
 
         logging.info(f"Target string: '{target_str}'")
         logging.info(f"Opt string: '{opt_str}'")
@@ -137,7 +153,9 @@ class Mapper:
         )
         return True
 
-    def get_container(self, opt_dsl_code: str):
+    def get_container(self, opt_dsl_code: str) -> Optional[str]:
+        """Given a DSL code, return a container URI if found"""
+
         logging.info(f"Get container for opt code: {opt_dsl_code}")
 
         stmt = (
@@ -160,113 +178,81 @@ class Mapper:
         logging.warning("No optimal container found")
         return None
 
-    def get_json_nodes(self, target_str: str):
-        target_str = (
-            target_str.replace("{", "")
-            .replace("}", "")
-            .replace('"', "")
-            .replace("'", "")
-            .replace("\\", "")
-            .replace(" ", "")
+    def decode_hpc_opt(self, opt: Optimisation) -> Optional[str]:
+        logging.info("Decoding HPC optimisation")
+
+        assert opt.app_type == "hpc"
+
+        # the model ensures that for a given config/parallelisation
+        # there is a parallelisation-* submodel
+        optimisations = getattr(
+            opt.app_type_hpc,
+            f"parallelisation_{cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation}",
         )
 
-        if target_str == "":
-            return [""]
-
-        target_nodes = target_str.split(",")
-        return target_nodes
-
-    def decode_hpc_opt(self, opt_dsl: OptDSLReader):
-        logging.info("Decoding HPC optimisation")
-        app_type = opt_dsl.get_app_type()
-        if not app_type == "hpc":
-            return ""
-        if opt_dsl.enable_opt_build():
-            target = opt_dsl.get_opt_build()
-        else:
-            target = '{"cpu_type":"none","acc_type":"none"}'
-            target = "{}"
-
-        config = opt_dsl.get_app_config()
-        logging.info("Config section: " + str(config))
-        parallel = config["parallelisation"]
-        logging.info(f"Parallelisation {parallel}")
-        opts = opt_dsl.get_opt_list(parallel)
-        logging.info(f"optimisations: {opts}")
-        app_name = opts.get("library")
-
-        # TODO: this changes original values from the request, but
-        #       having this still in for the next call enables an artificial constraint
-        opts.pop("library", None)
-
         sqlstr = "SELECT opt_dsl_code FROM optimisation WHERE app_name = %(app_name)s"
 
-        target_nodes = self.get_json_nodes(json.dumps(target))
-        for t in target_nodes:
-            targetstr = f" AND target LIKE '%{t}%'"
-            sqlstr += targetstr
-            logging.info(f"Adding target query '{targetstr}'")
+        if opt.enable_opt_build:
+            target_nodes = _mapping2list(cast(OptimisationBuild, opt.opt_build).dict())
+            for node in target_nodes:
+                targetstr = f" AND target LIKE '%{node}%'"
+                sqlstr += targetstr
+                logging.info(f"Adding target query '{targetstr}'")
 
-        if opt_dsl.enable_opt_build():
+            opt_nodes = _mapping2list(
+                {k: v for k, v in optimisations.dict().items() if k != "library"}
+            )
+            for node in opt_nodes:
+                optstr = f" AND optimisation LIKE '%{node}%'"
+                sqlstr += optstr
+                logging.info(f"Adding opt query '{optstr}'")
+                self._opts.append(node)
+
             sqlstr += " AND target LIKE '%enable_opt_build:true%'"
         else:
             sqlstr += " AND target LIKE '%enable_opt_build:false%'"
 
-        opt_nodes = self.get_json_nodes(json.dumps(opts))
-        for t in opt_nodes:
-            optstr = f" AND optimisation LIKE '%{t}%'"
-            sqlstr += optstr
-            logging.info(f"Adding opt query '{optstr}'")
-            self._opts.append(t)
-
-        df = self._driver.selectSQL(sqlstr, {"app_name": app_name})
+        df = self._driver.selectSQL(sqlstr, {"app_name": optimisations.library})
         if df.size > 0:
             dsl_code = df["opt_dsl_code"][0]
-        else:
-            dsl_code = None
-        logging.info(f"Decoded dsl code :  {dsl_code}")
-        return dsl_code
+            logging.info(f"Decoded DSL code: {dsl_code}")
+            return dsl_code
 
-    def decode_ai_training_opt(self, opt_dsl: OptDSLReader):
+        logging.warning("Failed to find a matching DSL code")
+        return None
+
+    def decode_ai_training_opt(self, opt: Optimisation):
         logging.info("Decoding AI training optimisation")
-        app_type = opt_dsl.get_app_type()
-        if not app_type == "ai_training":
-            return ""
-        config = opt_dsl.get_app_config()
-        logging.info(f"Config section: {config}")
-        data = opt_dsl.get_app_data()
-        logging.info(f"Data section: {data}")
-        ai_framework = config["ai_framework"]
-        if opt_dsl.enable_opt_build():
-            target = opt_dsl.get_opt_build()
-        else:
-            target = '{"cpu_type":"none","acc_type":"none"}'
-            target = "{}"
 
-        optimisation = opt_dsl.get_opt_list(ai_framework)
+        assert opt.app_type == "ai_training"
+
+        app_name = cast(AppTypeAITraining, opt.app_type_ai_training).config.ai_framework
 
         sqlstr = "SELECT opt_dsl_code FROM optimisation WHERE app_name = %(app_name)s"
 
-        target_nodes = self.get_json_nodes(json.dumps(target))
-        for t in target_nodes:
-            targetstr = f" AND target LIKE '%{t}%'"
-            sqlstr += targetstr
-            logging.info(f"Adding target query '{targetstr}'")
+        if opt.enable_opt_build:
+            target_nodes = _mapping2list(cast(OptimisationBuild, opt.opt_build).dict())
+            for node in target_nodes:
+                targetstr = f" AND target LIKE '%{node}%'"
+                sqlstr += targetstr
+                logging.info(f"Adding target query '{targetstr}'")
 
-        if opt_dsl.enable_opt_build():
+            optimisations = getattr(
+                opt.app_type_ai_training, f"ai_framework_{app_name}"
+            )
+            opt_nodes = _mapping2list(optimisations.dict())
+            logging.info(f"Optimisations: '{opt_nodes}'")
+            for node in opt_nodes:
+                optstr = f" AND optimisation LIKE '%{node}%'"
+                sqlstr += optstr
+                logging.info(f"Adding opt query '{optstr}'")
+                self._opts.append(node)
+
             sqlstr += " AND target LIKE '%enable_opt_build:true%'"
         else:
             sqlstr += " AND target LIKE '%enable_opt_build:false%'"
 
-        opt_nodes = self.get_json_nodes(json.dumps(optimisation))
-        logging.info(f"Optimisations: '{opt_nodes}'")
-        for t in opt_nodes:
-            optstr = f" AND optimisation LIKE '%{t}%'"
-            sqlstr += optstr
-            logging.info(f"Adding opt query '{optstr}'")
-            self._opts.append(t)
-
-        df = self._driver.selectSQL(sqlstr, {"app_name": ai_framework})
+        df = self._driver.selectSQL(sqlstr, {"app_name": app_name})
         if df.size > 0:
             dsl_code = df["opt_dsl_code"][0]
         else:
@@ -277,20 +263,27 @@ class Mapper:
     def get_opts(self):
         return self._opts
 
-    def get_decoded_opts(self, opt_json_obj):
+    def get_decoded_opts(self, job: Job):
         opts = []
 
-        try:
-            target_name = opt_json_obj["job"]["target"]["name"].strip()
-            if target_name:
-                opts.append(f"{target_name}:true")
-        except KeyError:
-            pass
+        if job.target:
+            opts.append(f"{job.target.name}:true")
 
-        reader = OptDSLReader(opt_json_obj["job"])
-        opts_list = reader.get_opts_list()
-        if opts_list:
-            opt_nodes = self.get_json_nodes(json.dumps(opts_list))
-            opts.extend(opt_nodes)
+        if job.optimisation:
+            opt = job.optimisation
+            if opt.app_type == "ai_training":
+                app_name = cast(
+                    AppTypeAITraining, opt.app_type_ai_training
+                ).config.ai_framework
+                optimisations = getattr(
+                    opt.app_type_ai_training, f"ai_framework_{app_name}"
+                )
+            elif opt.app_type == "hpc":
+                app_name = cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation
+                optimisations = getattr(opt.app_type_hpc, f"parallelisation_{app_name}")
+            else:
+                raise AssertionError(f"app_type {opt.app_type} not supported")
+
+            opts += _mapping2list(optimisations.dict()) if opt.opt_build else []
 
         return opts

@@ -2,22 +2,57 @@ from datetime import timedelta
 from enum import Enum
 from typing import Any, Dict, Optional
 
-from pydantic import AnyUrl, BaseModel, EmailStr, Field, PositiveInt, root_validator
+from pydantic import (
+    AnyUrl,
+    BaseModel,
+    EmailStr,
+    Extra,
+    Field,
+    PositiveInt,
+    root_validator,
+)
 
 
-class JobOptions(BaseModel):
-    job_name: str
-    wall_time_limit: timedelta
-    node_count: PositiveInt
+class JobOptions(BaseModel, extra=Extra.forbid):
+    job_name: str = "job"
+    wall_time_limit: Optional[timedelta]
+    node_count: Optional[PositiveInt]
+    request_gpus: Optional[PositiveInt]
     core_count: Optional[PositiveInt] = Field(
         description="core count to use when running this job. Passed to the queueing system."
     )
     process_count_per_node: PositiveInt
     standard_output_file: str
-    standard_error_file: str
+    standard_error_file: Optional[str]
     combine_stdout_stderr: bool
-    request_event_notification: str
-    email_address: EmailStr
+    request_event_notification: Optional[str]
+    email_address: Optional[EmailStr]
+    copy_environment: Optional[bool]
+    copy_environment_variable: Optional[str]
+    request_specific_nodes: Optional[str]
+
+    @root_validator
+    def check_app_type(cls, values):  # noqa: B902
+        """Enforce standard_error_file if combine_stdout_stderr is false"""
+
+        if not values["combine_stdout_stderr"] and "standard_error_file" not in values:
+            raise ValueError(
+                "'standard_error_file' must be specified"
+                " unless 'combine_stdout_stderr' is enabled"
+            )
+
+        return values
+
+    @root_validator
+    def check_email_for_notification(cls, values):  # noqa: B902
+        """Check that an email_address is specified when event notification is requested"""
+
+        if values["request_event_notification"] and "email_address" not in values:
+            raise ValueError(
+                "'email_address' must be specified when 'request_event_notification' is enabled"
+            )
+
+        return values
 
 
 class JobSchedulerTypeEnum(str, Enum):
@@ -32,9 +67,10 @@ class ApplicationAppTypeEnum(str, Enum):
 
     mpi = "mpi"
     hpc = "hpc"
+    python = "python"
 
 
-class Target(BaseModel):
+class Target(BaseModel, extra=Extra.forbid):
     """
     Description of the target where this application is going to run.
     If not specified only a Unix shell environment (possibly with mpirun) will be assumed.
@@ -45,25 +81,21 @@ class Target(BaseModel):
         description="Additional keyword to select specific optimisations"
     )
 
-    class Config:
-        extra = "forbid"
 
-
-class ApplicationBuild(BaseModel):
+class ApplicationBuild(BaseModel, extra=Extra.forbid):
     """Source and build commands for the application"""
 
     src: AnyUrl
     build_command: str
-
-    class Config:
-        extra = "forbid"
+    build_parallelism: PositiveInt = 1
 
 
-class Application(BaseModel):
-    app_tag: str
-    app_type: ApplicationAppTypeEnum
+class Application(BaseModel, extra=Extra.forbid):
+    app_tag: Optional[str]  # TODO: unused
+    app_type: Optional[ApplicationAppTypeEnum]
     executable: str
     arguments: Optional[str]
+    container_runtime: Optional[str]
     mpi_ranks: PositiveInt = Field(
         1,  # default
         description=(
@@ -80,60 +112,58 @@ class Application(BaseModel):
     )
     build: Optional[ApplicationBuild]
 
-    class Config:
-        extra = "forbid"
 
-
-class OptimisationBuild(BaseModel):
+class OptimisationBuild(BaseModel, extra=Extra.forbid):
     cpu_type: str
     acc_type: str
 
-    class Config:
-        extra = "forbid"
 
-
-class HPCConfig(BaseModel):
+class HPCConfig(BaseModel, extra=Extra.forbid):
     parallelisation: str
 
-    class Config:
-        extra = "forbid"
 
-
-class ParallelisationMpi(BaseModel):
+class ParallelisationMpi(BaseModel, extra=Extra.forbid):
     library: str
     version: str
 
-    class Config:
-        extra = "forbid"
 
-
-class AppTypeHPC(BaseModel):
+class AppTypeHPC(BaseModel, extra=Extra.forbid):
     config: HPCConfig
     data: Dict[str, Any] = Field(
         default_factory=Dict, description="Application specific data (not formalized)"
     )
     parallelisation_mpi: ParallelisationMpi = Field(..., alias="parallelisation-mpi")
 
-    class Config:
-        extra = "forbid"
+    @root_validator
+    def check_app_type(cls, values):  # noqa: B902
+        """Ensure that for a given parallelisation there is a parallelisation-* submodel."""
+
+        try:
+            parallelisation_name = values["config"].parallelisation
+        except KeyError:
+            # the mandatory attribute verification comes after this,
+            # ignore this error and skip rest of the checks
+            return values
+
+        parallelisation_sec = f"parallelisation-{parallelisation_name}"
+        if not values.get(parallelisation_sec.replace("-", "_")):
+            raise ValueError(
+                f"Required section '{parallelisation_sec}' not found"
+                f" for config/parallelisation '{parallelisation_name}'"
+            )
+        return values
 
 
-class AIFrameworkTensorflow(BaseModel):
+class AIFrameworkTensorflow(BaseModel, extra=Extra.forbid):
     version: str
     xla: bool
 
-    class Config:
-        extra = "forbid"
 
-
-class AITrainingConfig(BaseModel):
+class AITrainingConfig(BaseModel, extra=Extra.forbid):
     ai_framework: str
 
-    class Config:
-        extra = "forbid"
 
-
-class AppTypeAITraining(BaseModel):
+class AppTypeAITraining(BaseModel, extra=Extra.forbid):
     config: AITrainingConfig
     data: Dict[str, Any] = Field(
         default_factory=Dict, description="Application specific data (not formalized)"
@@ -142,11 +172,9 @@ class AppTypeAITraining(BaseModel):
         ..., alias="ai_framework-tensorflow"
     )
 
-    class Config:
-        extra = "forbid"
-
     @root_validator
     def check_app_type(cls, values):  # noqa: B902
+        """Ensure that for a given ai_framework there is a ai_framework-* submodel."""
         try:
             ai_framework_name = values["config"].ai_framework
         except KeyError:
@@ -163,27 +191,21 @@ class AppTypeAITraining(BaseModel):
         return values
 
 
-class OptimisationAutotuning(BaseModel):
+class OptimisationAutotuning(BaseModel, extra=Extra.forbid):
     tuner: str
     input: str
 
-    class Config:
-        extra = "forbid"
 
-
-class Optimisation(BaseModel):
+class Optimisation(BaseModel, extra=Extra.forbid):
     enable_opt_build: bool
     enable_autotuning: Optional[bool] = False
     app_type: str
-    opt_build: OptimisationBuild
+    opt_build: Optional[OptimisationBuild]
     app_type_hpc: Optional[AppTypeHPC] = Field(alias="app_type-hpc")
     app_type_ai_training: Optional[AppTypeAITraining] = Field(
         alias="app_type-ai_training"
     )
     autotuning: Optional[OptimisationAutotuning]
-
-    class Config:
-        extra = "forbid"
 
     @root_validator
     def check_app_type(cls, values):  # noqa: B902
@@ -200,16 +222,16 @@ class Optimisation(BaseModel):
         return values
 
 
-class Job(BaseModel):
+class Job(BaseModel, extra=Extra.forbid):
     """The toplevel Job object"""
 
     job_options: JobOptions
     target: Optional[Target]
     application: Application
-    optimisation: Optimisation
-
-    class Config:
-        extra = "forbid"
+    optimisation: Optional[Optimisation]
+    job_script: Optional[str]  # the generated job_script
+    build_script: Optional[str]  # the generated build_script
+    job_content: Optional[str]  # the content of the generated job_script
 
 
 class JobModel(BaseModel):

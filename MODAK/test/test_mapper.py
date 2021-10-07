@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from MODAK.mapper import Mapper
 from MODAK.MODAK_driver import MODAK_driver
-from MODAK.opt_dsl_reader import OptDSLReader
+from MODAK.model import JobModel
 from MODAK.settings import Settings
 
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
@@ -58,32 +58,32 @@ class test_mapper(unittest.TestCase):
 
     def test_map_container_ai(self):
         dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
-        # dsl_file = "../test/input/mpi_solver.json"
-        with dsl_file.open() as json_file:
-            opt_json_obj = json.load(json_file)
-            new_container = self.m.map_container(opt_json_obj)
-            self.assertEqual(
-                new_container, "docker.io://modakopt/modak:tensorflow-2.1-gpu-src"
-            )
+
+        model = JobModel.parse_raw(dsl_file.read_text())
+        new_container = self.m.map_container(model.job)
+        self.assertEqual(
+            new_container, "docker.io://modakopt/modak:tensorflow-2.1-gpu-src"
+        )
 
     def test_map_container_hpc(self):
-        with SCRIPT_DIR.joinpath("input/mpi_solver.json").open() as json_file:
-            job_data = json.load(json_file)
-            reader = OptDSLReader(job_data["job"])
-            dsl_code = self.m.decode_hpc_opt(reader)
-            self.assertEqual(dsl_code, "mpich_ub1804_cuda101_mpi314_gnugprof")
+        model = JobModel.parse_raw(
+            SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text()
+        )
+        assert model.job.optimisation
+
+        dsl_code = self.m.decode_hpc_opt(model.job.optimisation)
+        self.assertEqual(dsl_code, "mpich_ub1804_cuda101_mpi314_gnugprof")
 
     def test_map_container_aliased(self):
         dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
 
         with patch.object(Settings, "IMAGE_HUB_ALIASES", {"docker": "docker.invalid"}):
-            with dsl_file.open() as json_file:
-                opt_json_obj = json.load(json_file)
-                new_container = self.m.map_container(opt_json_obj)
-                self.assertEqual(
-                    new_container,
-                    "docker.invalid://modakopt/modak:tensorflow-2.1-gpu-src",
-                )
+            model = JobModel.parse_raw(dsl_file.read_text())
+            new_container = self.m.map_container(model.job)
+            self.assertEqual(
+                new_container,
+                "docker.invalid://modakopt/modak:tensorflow-2.1-gpu-src",
+            )
 
     # def test_add_container(self):
     #     map_id = self.m.add_container('TF_PIP_XLA',
@@ -92,7 +92,3 @@ class test_mapper(unittest.TestCase):
     #                               (map_id, ))
     #     self.assertEqual(df.count(), 1)
     #     self.assertEqual(df.select('opt_dsl_code').collect()[0][0], 'TF_PIP_XLA')
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -16,10 +16,6 @@ export PATH="${SLURM_SUBMIT_DIR}:${PATH}"
 module load mpi/openmpi-x86_64
 ## MODAK: END HLRS TESTBED ##
 
-## MODAK: START HLRS TESTBED ##
-module load mpi/openmpi-x86_64
-## MODAK: END HLRS TESTBED ##
-
 
 wget --no-check-certificate https://raw.githubusercontent.com/olcf/XC30-Training/master/affinity/Xthi.c
 
