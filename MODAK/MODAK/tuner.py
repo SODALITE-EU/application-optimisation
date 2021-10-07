@@ -1,7 +1,8 @@
 import logging
 import os
+import pathlib
 
-from .opt_dsl_reader import OptDSLReader
+from .model import Optimisation
 
 
 class Tuner:
@@ -18,7 +19,7 @@ class Tuner:
 
             self._drop = TransferData()
 
-    def encode_tune(self, opt_json_obj, jobfile: str):
+    def encode_tune(self, optimisation: Optimisation, jobfile: pathlib.Path):
         logging.warning("Tuning not yet supported")
         return False
 
@@ -85,14 +86,3 @@ class Tuner:
 
     def get_tune_filename(self):
         return os.path.basename(self._tune_script_file)
-
-
-def main():
-    t = Tuner()
-    reader = OptDSLReader("../conf/tf_optimisation_dsl.json")
-    t.encode_tune(reader, "../test/job.pbs")
-    print("Test tuner main")
-
-
-if __name__ == "__main__":
-    main()

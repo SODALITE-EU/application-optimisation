@@ -13,4 +13,4 @@ VOLUME /opt/app/db
 
 ENV PYTHONPATH "${PYTHONPATH}:/opt/app"
 EXPOSE 5000
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "MODAK.app:app"]
+CMD ["uvicorn", "--host", "0.0.0.0", "--port", "5000", "--access-log", "MODAK.app:app"]

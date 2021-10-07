@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
-import json
 import pathlib
 import sys
 from typing import Any, Dict
 
 from MODAK.MODAK import MODAK
+from MODAK.model import JobModel
 from MODAK.settings import DEFAULT_SETTINGS_DIR
 
 parser = argparse.ArgumentParser(description="Generate MODAK output given a DSL file")
@@ -41,18 +41,20 @@ print(f"Output file: '{args.ofile.name}'", file=sys.stderr)
 
 m = MODAK(args.config)
 
-job_data = json.load(args.ifile)
-link = m.optimise(job_data)
+model = JobModel.parse_raw(args.ifile.read())
+
+link = m.optimise(model.job)
 
 json_dump_opts: Dict[str, Any] = {}
 if args.ofile == sys.stdout:
     json_dump_opts["indent"] = 2
 
-print(f"Job script location: {link}", file=sys.stderr)
-job_data["job"].update(
-    {"job_script": str(link.jobscript), "build_script": str(link.buildscript)}
-)
-json.dump(job_data, args.ofile, **json_dump_opts)
+print(f"Job script location: {link.jobscript}", file=sys.stderr)
+print(f"Job script location: {link.buildscript}", file=sys.stderr)
+model.job.job_script = link.jobscript
+model.job.build_script = link.buildscript
+
+args.ofile.write(model.json(**json_dump_opts))
 
 if args.ofile == sys.stdout:
     args.ofile.write("\n")

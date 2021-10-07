@@ -1,72 +1,72 @@
 #!/bin/bash
 ## START OF HEADER ##
-{% if job_data.job_name is defined %}
+{% if job_data.job_name %}
 #SBATCH -J {{ job_data.job_name }}
 {% endif %}
-{% if job_data.account is defined %}
+{% if job_data.account %}
 #SBATCH -A {{ job_data.account }}
 {% endif %}
-{% if job_data.queue is defined %}
+{% if job_data.queue %}
 #SBATCH --partition={{ job_data.queue }}
 {% endif %}
-{% if job_data.wall_time_limit is defined %}
+{% if job_data.wall_time_limit %}
 #SBATCH --time={{ job_data.wall_time_limit }}
 {% endif %}
-{% if job_data.node_count is defined %}
+{% if job_data.node_count %}
 #SBATCH -N {{ job_data.node_count }}
 {% endif %}
-{% if job_data.core_count is defined %}
+{% if job_data.core_count %}
 #SBATCH -n {{ job_data.core_count }}
 {% endif %}
-{% if job_data.process_count_per_node is defined %}
+{% if job_data.process_count_per_node %}
 #SBATCH --ntasks-per-node={{ job_data.process_count_per_node }}
 {% endif %}
-{% if job_data.core_count_per_process is defined %}
+{% if job_data.core_count_per_process %}
 #SBATCH --cpus-per-task={{ job_data.core_count_per_process }}
 {% endif %}
-{% if job_data.memory_limit is defined %}
+{% if job_data.memory_limit %}
 #SBATCH --mem={{ job_data.memory_limit }}
 {% endif %}
-{% if job_data.minimum_memory_per_processor is defined %}
+{% if job_data.minimum_memory_per_processor %}
 #SBATCH --mem-per-cpu={{ job_data.minimum_memory_per_processor }}
 {% endif %}
-{% if job_data.request_gpus is defined %}
+{% if job_data.request_gpus %}
 #SBATCH --gres=gpu:{{ job_data.request_gpus }}
 {% endif %}
-{% if job_data.request_specific_nodes is defined %}
+{% if job_data.request_specific_nodes %}
 #SBATCH --nodelist={{ job_data.request_specific_nodes }}
 {% endif %}
-{% if job_data.job_array is defined %}
+{% if job_data.job_array %}
 #SBATCH -a {{ job_data.job_array }}
 {% endif %}
-{% if job_data.standard_output_file is defined %}
+{% if job_data.standard_output_file %}
 #SBATCH --output={{ job_data.standard_output_file }}
 {% endif %}
-{% if job_data.standard_error_file is defined %}
+{% if job_data.standard_error_file %}
 #SBATCH -error={{ job_data.standard_error_file }}
 {% endif %}
-{% if job_data.architecture_constraint is defined %}
+{% if job_data.architecture_constraint %}
 #SBATCH -C {{ job_data.architecture_constraint }}
 {% endif %}
-{% if job_data.copy_environment is defined %}
+{% if job_data.copy_environment %}
 #SBATCH --export=ALL
 {% endif %}
-{% if job_data.copy_environment_variable is defined %}
+{% if job_data.copy_environment_variable %}
 #SBATCH --export={{ job_data.copy_environment_variable }}
 {% endif %}
-{% if job_data.job_dependency is defined %}
+{% if job_data.job_dependency %}
 #SBATCH --dependency={{ job_data.job_dependency }}
 {% endif %}
-{% if job_data.request_event_notification is defined %}
+{% if job_data.request_event_notification %}
 #SBATCH --mail-type={{ job_data.request_event_notification }}
 {% endif %}
-{% if job_data.email_address is defined %}
+{% if job_data.email_address %}
 #SBATCH --mail-user={{ job_data.email_address }}
 {% endif %}
-{% if job_data.defer_job is defined %}
+{% if job_data.defer_job %}
 #SBATCH --begin={{ job_data.defer_job }}
 {% endif %}
-{% if job_data.node_exclusive is defined %}
+{% if job_data.node_exclusive %}
 #SBATCH --exclusive
 {% endif %}
 ## END OF HEADER ##

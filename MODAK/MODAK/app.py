@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 
-from flask import (  # redirect,; session,; url_for,
-    Flask,
-    jsonify,
-    render_template,
-    request,
-)
+import pathlib
 
-from .MODAK import MODAK
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
 
-app = Flask(__name__)
+from MODAK.MODAK import MODAK
+from MODAK.model import JobModel
+
+BASE_PATH = pathlib.Path(__file__).resolve().parent
+app = FastAPI()
+templates = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+@app.get("/")
+async def index(request: Request):
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+        },
+    )
 
 
 # # Route for handling the login page logic
@@ -36,87 +42,34 @@ def index():
 #     return redirect(url_for('home'))
 
 
-@app.route("/optimise", methods=["POST"])
-def modak_optimise():
-    if request.is_json:
-        # Parse the JSON into a Python dictionary
-        req = request.get_json()
-        # Print the dictionary
-        print(req)
-        m = MODAK()
-        job_data = req
-        link = m.optimise(job_data)
-
-        job_data["job"].update({"job_script": link})
-
-        return jsonify(job_data)
+@app.post("/optimise", response_model=JobModel, response_model_exclude_none=True)
+async def optimise(model: JobModel):
+    m = MODAK()
+    model.job.job_script, model.job.build_script = m.optimise(model.job)
+    return model
 
 
-@app.route("/get_image", methods=["POST"])
-def modak_get_image():
-    if request.is_json:
-        # Parse the JSON into a Python dictionary
-        req = request.get_json()
-        # Print the dictionary
-        print(req)
-        m = MODAK()
-        job_data = req
-        container_runtime = m.get_opt_container_runtime(job_data)
-
-        job_data["job"].update({"container_runtime": container_runtime})
-
-        return jsonify(job_data)
+@app.post("/get_image", response_model=JobModel, response_model_exclude_none=True)
+async def get_image(model: JobModel):
+    m = MODAK()
+    container_runtime = m.get_opt_container_runtime(model.job)
+    model.job.application.container_runtime = container_runtime
+    return model
 
 
-@app.route("/get_job_content", methods=["POST"])
-def modak_get_job_content():
-    if request.is_json:
-        # Parse the JSON into a Python dictionary
-        req = request.get_json()
-        # Print the dictionary
-        print(req)
-        m = MODAK()
-        job_data = req
-        _, job_content = m.get_optimisation(job_data)
-
-        job_data["job"].update({"job_content": job_content})
-
-        return jsonify(job_data)
+@app.post("/get_build", response_model=JobModel, response_model_exclude_none=True)
+async def get_build(model: JobModel):
+    m = MODAK()
+    model.job.build_script = m.get_buildjob(model.job)
+    return model
 
 
-@app.route("/get_build", methods=["POST"])
-def modak_get_build():
-    if request.is_json:
-        # Parse the JSON into a Python dictionary
-        req = request.get_json()
-        # Print the dictionary
-        m = MODAK()
-        job_data = req
-
-        build_content = m.get_buildjob(job_data)
-        job_data["job"]["build_script"] = build_content
-
-        res = jsonify(job_data)
-        return res
-
-
-@app.route("/get_optimisation", methods=["POST"])
-def modak_get_optimisation():
-    if request.is_json:
-        # Parse the JSON into a Python dictionary
-        req = request.get_json()
-        # Print the dictionary
-        print(req)
-        m = MODAK()
-        job_data = req
-
-        container_runtime, job_content = m.get_optimisation(job_data)
-        job_data["job"].update(
-            {"container_runtime": container_runtime, "job_content": job_content}
-        )
-
-        return jsonify(job_data)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.post(
+    "/get_optimisation", response_model=JobModel, response_model_exclude_none=True
+)
+def modak_get_optimisation(model: JobModel):
+    m = MODAK()
+    model.job.application.container_runtime, model.job.job_content = m.get_optimisation(
+        model.job
+    )
+    return model
