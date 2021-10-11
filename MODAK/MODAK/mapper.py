@@ -269,21 +269,26 @@ class Mapper:
         if job.target:
             opts.append(f"{job.target.name}:true")
 
-        if job.optimisation:
-            opt = job.optimisation
+        opt = job.optimisation
+
+        if opt and opt.opt_build:
             if opt.app_type == "ai_training":
-                app_name = cast(
+                app_name_ai = cast(
                     AppTypeAITraining, opt.app_type_ai_training
                 ).config.ai_framework
                 optimisations = getattr(
-                    opt.app_type_ai_training, f"ai_framework_{app_name}"
+                    opt.app_type_ai_training,
+                    f"ai_framework_{app_name_ai}",
                 )
             elif opt.app_type == "hpc":
-                app_name = cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation
-                optimisations = getattr(opt.app_type_hpc, f"parallelisation_{app_name}")
+                app_name_hpc = cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation
+                optimisations = getattr(
+                    opt.app_type_hpc,
+                    f"parallelisation_{app_name_hpc}",
+                )
             else:
                 raise AssertionError(f"app_type {opt.app_type} not supported")
 
-            opts += _mapping2list(optimisations.dict()) if opt.opt_build else []
+            opts += _mapping2list(optimisations.dict())
 
         return opts

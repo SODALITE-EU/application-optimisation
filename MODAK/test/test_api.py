@@ -31,7 +31,7 @@ def test_get_image():
     assert "container_runtime" not in req_content["job"]["application"]
     response = client.post("/get_image", json=req_content)
     assert response.status_code == 200
-    assert response.json()["job"]["application"]["container_runtime"]
+    assert "container_runtime" in response.json()["job"]["application"]
 
 
 def test_get_build():

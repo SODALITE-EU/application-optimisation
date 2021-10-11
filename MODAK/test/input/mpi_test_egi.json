@@ -33,7 +33,7 @@
       "app_type":"hpc",
       "opt_build": {
         "cpu_type": "x86",
-        "acc_type": ""
+        "acc_type": "nvidia"
       },
       "app_type-hpc": {
         "config":{

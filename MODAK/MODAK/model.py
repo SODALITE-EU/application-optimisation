@@ -70,7 +70,7 @@ class ApplicationAppTypeEnum(str, Enum):
     python = "python"
 
 
-class Target(BaseModel, extra=Extra.forbid):
+class Target(BaseModel):
     """
     Description of the target where this application is going to run.
     If not specified only a Unix shell environment (possibly with mpirun) will be assumed.
@@ -81,6 +81,10 @@ class Target(BaseModel, extra=Extra.forbid):
         description="Additional keyword to select specific optimisations"
     )
 
+    class Config:
+        extra = "forbid"
+        use_enum_values = True
+
 
 class ApplicationBuild(BaseModel, extra=Extra.forbid):
     """Source and build commands for the application"""
@@ -90,7 +94,7 @@ class ApplicationBuild(BaseModel, extra=Extra.forbid):
     build_parallelism: PositiveInt = 1
 
 
-class Application(BaseModel, extra=Extra.forbid):
+class Application(BaseModel):
     app_tag: Optional[str]  # TODO: unused
     app_type: Optional[ApplicationAppTypeEnum]
     executable: str
@@ -112,14 +116,46 @@ class Application(BaseModel, extra=Extra.forbid):
     )
     build: Optional[ApplicationBuild]
 
+    class Config:
+        extra = "forbid"
+        use_enum_values = True
 
-class OptimisationBuild(BaseModel, extra=Extra.forbid):
-    cpu_type: str
-    acc_type: str
+
+class OptimisationBuildCpuTypeEnum(str, Enum):
+    x86 = "x86"
+    arm = "arm"
+    amd = "amd"
+    power = "power"
 
 
-class HPCConfig(BaseModel, extra=Extra.forbid):
-    parallelisation: str
+class OptimisationBuildAccTypeEnum(str, Enum):
+    nvidia = "nvidia"
+    amd = "amd"
+    fpga = "fpga"
+
+
+class OptimisationBuild(BaseModel):
+    cpu_type: OptimisationBuildCpuTypeEnum
+    acc_type: Optional[OptimisationBuildAccTypeEnum]
+
+    class Config:
+        extra = "forbid"
+        use_enum_values = True
+
+
+class HPCConfigParallelisationEnum(str, Enum):
+    mpi = "mpi"
+    openmp = "openmp"
+    opencc = "opencc"
+    opencl = "opencl"
+
+
+class HPCConfig(BaseModel):
+    parallelisation: HPCConfigParallelisationEnum
+
+    class Config:
+        extra = "forbid"
+        use_enum_values = True
 
 
 class ParallelisationMpi(BaseModel, extra=Extra.forbid):
@@ -127,9 +163,10 @@ class ParallelisationMpi(BaseModel, extra=Extra.forbid):
     version: str
 
 
+# TODO: define for openmp, opencc, opencl based on TOSCA/DSL
 class AppTypeHPC(BaseModel, extra=Extra.forbid):
     config: HPCConfig
-    data: Dict[str, Any] = Field(
+    data: Dict[str, Any] = Field(  # TODO: specified in TOSCA/DSL
         default_factory=Dict, description="Application specific data (not formalized)"
     )
     parallelisation_mpi: ParallelisationMpi = Field(..., alias="parallelisation-mpi")
@@ -154,18 +191,33 @@ class AppTypeHPC(BaseModel, extra=Extra.forbid):
         return values
 
 
+# TODO: Keras & Pytorch based on TOSCA/DSL
 class AIFrameworkTensorflow(BaseModel, extra=Extra.forbid):
     version: str
     xla: bool
 
 
-class AITrainingConfig(BaseModel, extra=Extra.forbid):
-    ai_framework: str
+class AITrainingConfigFrameworkEnum(str, Enum):
+    tensorflow = "tensorflow"
+    pytorch = "pytorch"
+    keras = "keras"
+    cntk = "cntk"
+    mxnet = "mxnet"
+
+
+class AITrainingConfig(BaseModel):
+    ai_framework: AITrainingConfigFrameworkEnum
+    # DSL has type: str/enum here # TODO: unused
+    # DSL has distributed_training: bool  # TODO" unused
+
+    class Config:
+        extra = "forbid"
+        use_enum_values = True
 
 
 class AppTypeAITraining(BaseModel, extra=Extra.forbid):
     config: AITrainingConfig
-    data: Dict[str, Any] = Field(
+    data: Dict[str, Any] = Field(  # TODO: in TOSCA?DSL specified but unused
         default_factory=Dict, description="Application specific data (not formalized)"
     )
     ai_framework_tensorflow: AIFrameworkTensorflow = Field(
@@ -196,10 +248,16 @@ class OptimisationAutotuning(BaseModel, extra=Extra.forbid):
     input: str
 
 
-class Optimisation(BaseModel, extra=Extra.forbid):
+class OptimisationAppTypeEnum(str, Enum):
+    ai_training = "ai_training"
+    hpc = "hpc"
+    # TODO: big_data, ai_inference
+
+
+class Optimisation(BaseModel):
     enable_opt_build: bool
-    enable_autotuning: Optional[bool] = False
-    app_type: str
+    enable_autotuning: bool = False
+    app_type: OptimisationAppTypeEnum
     opt_build: Optional[OptimisationBuild]
     app_type_hpc: Optional[AppTypeHPC] = Field(alias="app_type-hpc")
     app_type_ai_training: Optional[AppTypeAITraining] = Field(
@@ -220,6 +278,10 @@ class Optimisation(BaseModel, extra=Extra.forbid):
             raise ValueError("The app_type-* attributes are mutually exclusive")
 
         return values
+
+    class Config:
+        extra = "forbid"
+        use_enum_values = True
 
 
 class Job(BaseModel, extra=Extra.forbid):
