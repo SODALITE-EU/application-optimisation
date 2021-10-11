@@ -60,7 +60,7 @@ class test_mapper(unittest.TestCase):
         dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
 
         model = JobModel.parse_raw(dsl_file.read_text())
-        new_container = self.m.map_container(model.job)
+        new_container = self.m.map_container(model.job.optimisation, model.job.target)
         self.assertEqual(
             new_container, "docker.io://modakopt/modak:tensorflow-2.1-gpu-src"
         )
@@ -79,7 +79,9 @@ class test_mapper(unittest.TestCase):
 
         with patch.object(Settings, "IMAGE_HUB_ALIASES", {"docker": "docker.invalid"}):
             model = JobModel.parse_raw(dsl_file.read_text())
-            new_container = self.m.map_container(model.job)
+            new_container = self.m.map_container(
+                model.job.optimisation, model.job.target
+            )
             self.assertEqual(
                 new_container,
                 "docker.invalid://modakopt/modak:tensorflow-2.1-gpu-src",

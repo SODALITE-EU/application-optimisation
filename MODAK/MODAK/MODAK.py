@@ -38,7 +38,9 @@ class MODAK:
     def optimise(self, job: Job):
         logging.info(f"Processing job data {job}")
         logging.info("Mapping to optimal container")
-        new_container = self._map.map_container(job)
+
+        assert job.optimisation, "Optimisation job data required"
+        new_container = self._map.map_container(job.optimisation, job.target)
         logging.info(f"Optimal container: {new_container}")
 
         if new_container is not None:
@@ -111,7 +113,7 @@ class MODAK:
         new_container = None
 
         if job.optimisation:
-            new_container = self._map.map_container(job)
+            new_container = self._map.map_container(job.optimisation, job.target)
 
         logging.info(f"Optimal container found: {new_container}")
         return new_container
@@ -180,7 +182,7 @@ class MODAK:
             logging.info("Adding autotuning scripts")
             gen_t.add_tuner(self._upload)
 
-        decoded_opts = self._map.get_decoded_opts(job)
+        decoded_opts = self._map.get_decoded_opts(job.optimisation, job.target)
         logging.info(f"Applying optimisations {decoded_opts}")
         opts = self._enf.enforce_opt(decoded_opts)
         for opt in opts:

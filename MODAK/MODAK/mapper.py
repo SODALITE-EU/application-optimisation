@@ -5,7 +5,6 @@ from .MODAK_driver import MODAK_driver
 from .model import (
     AppTypeAITraining,
     AppTypeHPC,
-    Job,
     Optimisation,
     OptimisationBuild,
     Target,
@@ -24,32 +23,30 @@ class Mapper:
         self._driver = driver
         self._opts: List[str] = []
 
-    def map_container(self, job: Job) -> Optional[str]:
+    def map_container(
+        self, optimisation: Optimisation, target: Optional[Target] = None
+    ) -> Optional[str]:
         """Get an URI for an optimal container for the given job."""
 
         logging.info("Mapping to optimal container")
         self._opts = []
 
-        assert job.optimisation is not None, "Optimisation data required for mapping"
-
-        logging.info(str(job.optimisation))
+        logging.info(str(optimisation))
         dsl_code = None
 
         try:
-            self._opts.append(
-                f"{cast(str, cast(Target, job.target).name).strip()}:true"
-            )
+            self._opts.append(f"{cast(str, cast(Target, target).name).strip()}:true")
         except AttributeError:
             pass
 
-        if job.optimisation.app_type == "ai_training":
+        if optimisation.app_type == "ai_training":
             logging.info("Decoding AI training application")
-            dsl_code = self.decode_ai_training_opt(cast(Optimisation, job.optimisation))
-        elif job.optimisation.app_type == "hpc":
+            dsl_code = self.decode_ai_training_opt(optimisation)
+        elif optimisation.app_type == "hpc":
             logging.info("Decoding HPC application")
-            dsl_code = self.decode_hpc_opt(cast(Optimisation, job.optimisation))
+            dsl_code = self.decode_hpc_opt(optimisation)
         else:
-            raise AssertionError(f"app_type {job.optimisation.app_type} not supported")
+            raise AssertionError(f"app_type {optimisation.app_type} not supported")
 
         if not dsl_code:
             logging.warning("No valid DSL code found for given job")
@@ -263,13 +260,13 @@ class Mapper:
     def get_opts(self):
         return self._opts
 
-    def get_decoded_opts(self, job: Job):
+    def get_decoded_opts(
+        self, opt: Optional[Optimisation] = None, target: Optional[Target] = None
+    ):
         opts = []
 
-        if job.target:
-            opts.append(f"{job.target.name}:true")
-
-        opt = job.optimisation
+        if target:
+            opts.append(f"{target.name}:true")
 
         if opt and opt.opt_build:
             if opt.app_type == "ai_training":
