@@ -6,11 +6,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-
+RUN pip install -e .
 RUN db/tosqlite.py -C db/
 
 VOLUME /opt/app/db
 
-ENV PYTHONPATH "${PYTHONPATH}:/opt/app"
 EXPOSE 5000
 CMD ["uvicorn", "--host", "0.0.0.0", "--port", "5000", "--access-log", "MODAK.app:app"]

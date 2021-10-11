@@ -18,7 +18,9 @@ setup(
     },
     entry_points={
         "console_scripts": [
+            "modak = MODAK.cli:modak",
             "modak-validate-json = MODAK.cli:validate_json",
+            "modak-openapi = MODAK.cli:openapi",
         ],
     },
 )

@@ -49,7 +49,7 @@ to avoid conflicts with other packages.
 After activating the environment, install the packages and run the tests:
 
 ```console
-$ pip install -r requirements.txt
+$ pip install -e .
 $ (cd db ; ./tosqlite.py )
 $ pytest -v
 ```

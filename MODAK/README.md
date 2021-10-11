@@ -35,30 +35,54 @@ MODAK requires the following inputs:
 MODAK output consists of:
 
 -   a job script (for batch submission)
+-   a build script if required
 -   the path of the optimized container
 -   the scaling efficiency (for an MPI parallel application)
 -   Set of autotuning parameters
 
-### Server API and database
+### Test database
 
-A [database](db) is contained for checking purposes. To start the API server with the database, Docker is recommended (minimal version 18.09):
+A pre-populated [database](db) is contained for checking purposes. To start the API server with the database, Docker is recommended (minimal version 18.09):
 
 ```console
 $ docker build -t modakopt/modak:api .
 $ docker-compose up
 ```
 
-after which the API will be available on http://localhost:5000
+after which the API will be available on http://localhost:5000.
+The automatically generated API documentation on http://localhost:5000/docs permits interactive use of the API.
 
-Alternatively, one can directly interact with the components provided as Python modules. Again, to avoid installing anything except for Docker itself,
-you can run it by opening a shell within the container:
+An alternative is to use the CLI either with one of the test input JSON files or your own.
 
 ```console
-$ docker exec -ti modak_restapi_1 /bin/bash
-$ # the following command is now run inside the docker
-$ examples/example.py
-JobScripts(jobscript=PosixPath('output/mpi_test_20210930172612.sh'), buildscript='output/mpi_test_build_20210930172612.sh')
+$ docker exec -ti MODAK_restapi_1 modak -i test/input/mpi_test.json
+Input file: 'test/input/mpi_test.json'
+Output file: '<stdout>'
+Job script location: output/mpi_test_20211011143159.sh
+Job script location: output/mpi_test_build_20211011143159
+{
+  "job": {
+    "job_options": {
 ...
+  }
+}
 ```
-The output are two job submission scripts that you can use to submit to a batch scheduler like SLURM or Torque.
-MODAK expects the singularity containers to be pulled in to `$SINGULARITY_DIR` (define the directory).
+
+Or with your own input file:
+
+```console
+$ cat my_input.json | docker exec -ti MODAK_restapi_1 modak
+```
+In the `examples/` folder you can find examples on how to use MODAK from Python directly. 
+```
+The generated output files (scripts for SLURM, Torque or Bash) will be located inside the image in `outputs/`,
+hence you have to use `docker cp` or setup a bind mount to `/opt/app/output` to get them.
+
+For Singularity: MODAK expects the singularity containers to be pulled in to `$SINGULARITY_DIR` (define the directory).
+
+### Other tools
+
+Other included tools are:
+
+-   `modak-validate-json` ... to only validate JSON files
+-   `modak-openapi` ... to generate an OpenAPI schema
