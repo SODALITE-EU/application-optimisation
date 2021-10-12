@@ -1,11 +1,7 @@
-#!/usr/bin/env python3
-
 import logging
 import re
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple, Union
-
-import pandas as pd
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # from MODAK_sql import MODAK_sql
 from .settings import DEFAULT_SETTINGS_DIR, Settings
@@ -72,39 +68,9 @@ class MODAK_driver:
         except AttributeError:
             pass
 
-    def applySQL(
-        self, sqlstr: str, query_params: Optional[Union[Tuple, Dict[str, Any]]] = None
-    ):
-        sqlstr = re.sub(r"\s{2,}", " ", sqlstr.replace("\n", " "))
-
-        if Settings.DB_DIALECT == "sqlite":
-            sqlstr = re.sub(r"%\((?P<key>[^\)]+)\)s", r":\g<key>", sqlstr)
-            sqlstr = sqlstr.replace("%s", "?")
-
-        if not sqlstr:
-            logging.error("Empty or invalid sql string")
-            raise ValueError("Empty or invalid SQL statement")
-
-        try:
-            logging.info(f"Executing : {sqlstr}")
-            # cur = self.cnx.cursor()
-            # cur.execute(sqlstr)
-            # # Put it all to a data frame
-            # sql_data = pd.DataFrame(data=cur.fetchall(), index=None,
-            #                         columns=cur.column_names)
-            sql_data = pd.read_sql(sqlstr, self.cnx, params=query_params)
-            logging.info("Successfully executed SQL")
-            return sql_data
-        except AttributeError:
-            logging.warning("No connected database")
-            return pd.DataFrame()
-        except Exception:
-            logging.exception("Error executing SQL")
-            raise
-
     def selectSQL(
         self, sqlstr: str, query_params: Optional[Union[Tuple, Dict[str, Any]]] = None
-    ):
+    ) -> List[Tuple[Any, ...]]:
         sqlstr = re.sub(r"\s{2,}", " ", sqlstr.replace("\n", " "))
 
         if Settings.DB_DIALECT == "sqlite":
@@ -115,22 +81,19 @@ class MODAK_driver:
             logging.error("Empty or invalid sql string")
             raise ValueError("Empty or invalid SQL statement")
 
+        logging.info(f"Selecting : {sqlstr}")
         try:
-            logging.info(f"Selecting : {sqlstr}")
-            # cur = self.cnx.cursor()
-            # cur.execute(sqlstr)
-            # # Put it all to a data frame
-            # sql_data = pd.DataFrame(data=cur.fetchall(), index=None,
-            #                         columns=cur.column_names)
-            sql_data = pd.read_sql(sqlstr, self.cnx, params=query_params)
+            if query_params:
+                cursor = self.cnx.execute(sqlstr, query_params)
+            else:
+                cursor = self.cnx.execute(sqlstr)
+
             logging.info("Successfully selected SQL")
-            return sql_data
-        except AttributeError:
-            logging.warning("No connected database")
-            return pd.DataFrame()
         except Exception:
             logging.exception("Error executing SQL")
             raise
+
+        return cursor.fetchall()
 
     def updateSQL(
         self, sqlstr, query_params: Optional[Union[Tuple, Dict[str, Any]]] = None
@@ -162,14 +125,3 @@ class MODAK_driver:
 
     def _quiet_logs(self):
         pass
-
-
-def main():
-    print("Test MODAK driver")
-    driver = MODAK_driver()
-    df = driver.applySQL("SELECT * FROM optimisation")
-    print(df["app_name"])
-
-
-if __name__ == "__main__":
-    main()

@@ -77,10 +77,8 @@ class MODAK:
             gen_t.add_tuner(job.optimisation, upload=self._upload)
 
         logging.info(f"Applying optimisations {self._map.get_opts()}")
-        opts = self._enf.enforce_opt(self._map.get_opts())
-        for opt in opts:
-            for idx in range(0, opt.shape[0]):
-                gen_t.add_optscript(opt["script_name"][idx], opt["script_loc"][idx])
+        for opt in self._enf.enforce_opt(self._map.get_opts()):
+            gen_t.add_optscript(opt.script_name, opt.script_loc)
 
         logging.info("Adding application run")
         gen_t.add_apprun()
@@ -184,10 +182,8 @@ class MODAK:
 
         decoded_opts = self._map.get_decoded_opts(job.optimisation, job.target)
         logging.info(f"Applying optimisations {decoded_opts}")
-        opts = self._enf.enforce_opt(decoded_opts)
-        for opt in opts:
-            for i in range(0, opt.shape[0]):
-                gen_t.add_optscript(opt["script_name"][i], opt["script_loc"][i])
+        for opt in self._enf.enforce_opt(decoded_opts):
+            gen_t.add_optscript(opt.script_name, opt.script_loc)
 
         logging.info("Adding application run")
         gen_t.add_apprun()
