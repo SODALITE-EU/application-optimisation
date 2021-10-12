@@ -34,12 +34,12 @@ class test_mapper(unittest.TestCase):
             json.loads(target_string),
             json.loads(opt_string),
         )
-        df = self.driver.applySQL(
+        data = self.driver.selectSQL(
             "SELECT app_name FROM optimisation WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
         )
-        self.assertEqual(df.size, 1)
-        print(df["app_name"][0])
-        self.assertEqual(df["app_name"][0], "tensorflow")
+        self.assertEqual(len(data), 1)
+        print(data[0][0])
+        self.assertEqual(data[0][0], "tensorflow")
 
     def test_add_container(self):
         self.driver.updateSQL(
@@ -48,13 +48,11 @@ class test_mapper(unittest.TestCase):
         self.m.add_container(
             "TF_PIP_XLA", "AI/containers/tensorflow/tensorflow_pip_xla"
         )
-        df = self.driver.applySQL(
+        data = self.driver.selectSQL(
             "SELECT container_file FROM mapper WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
         )
-        self.assertEqual(df.size, 1)
-        self.assertEqual(
-            df["container_file"][0], "AI/containers/tensorflow/tensorflow_pip_xla"
-        )
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0][0], "AI/containers/tensorflow/tensorflow_pip_xla")
 
     def test_map_container_ai(self):
         dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"

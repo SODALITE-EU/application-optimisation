@@ -7,8 +7,6 @@ setup(
     include_package_data=True,
     install_requires=[
         "pydantic[email]",
-        "numpy",
-        "pandas",
         "Jinja2",
         "fastapi",
         "uvicorn",
@@ -18,7 +16,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "modak = MODAK.cli:modak",
+            "modak = MODAK.cli:validate_json",
             "modak-validate-json = MODAK.cli:validate_json",
             "modak-openapi = MODAK.cli:openapi",
         ],

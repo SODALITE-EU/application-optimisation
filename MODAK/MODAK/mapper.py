@@ -159,11 +159,11 @@ class Mapper:
             "SELECT container_file, image_type, image_hub FROM mapper"
             " WHERE opt_dsl_code=%s ORDER BY map_id desc limit 1"
         )
-        df = self._driver.applySQL(stmt, (opt_dsl_code,))
+        data = self._driver.selectSQL(stmt, (opt_dsl_code,))
 
-        if df.size > 0:
-            container_file = df["container_file"][0]
-            image_hub = df["image_hub"][0]
+        if data:
+            container_file = data[0][0]
+            image_hub = data[0][2]
 
             # replace the image hub with the alias if available
             image_hub = Settings.IMAGE_HUB_ALIASES.get(image_hub, image_hub)
@@ -209,16 +209,16 @@ class Mapper:
         else:
             sqlstr += " AND target LIKE '%enable_opt_build:false%'"
 
-        df = self._driver.selectSQL(sqlstr, {"app_name": optimisations.library})
-        if df.size > 0:
-            dsl_code = df["opt_dsl_code"][0]
+        data = self._driver.selectSQL(sqlstr, {"app_name": optimisations.library})
+        if data:
+            dsl_code = data[0][0]
             logging.info(f"Decoded DSL code: {dsl_code}")
             return dsl_code
 
         logging.warning("Failed to find a matching DSL code")
         return None
 
-    def decode_ai_training_opt(self, opt: Optimisation):
+    def decode_ai_training_opt(self, opt: Optimisation) -> Optional[str]:
         logging.info("Decoding AI training optimisation")
 
         assert opt.app_type == "ai_training"
@@ -249,11 +249,12 @@ class Mapper:
         else:
             sqlstr += " AND target LIKE '%enable_opt_build:false%'"
 
-        df = self._driver.selectSQL(sqlstr, {"app_name": app_name})
-        if df.size > 0:
-            dsl_code = df["opt_dsl_code"][0]
+        data = self._driver.selectSQL(sqlstr, {"app_name": app_name})
+        if data:
+            dsl_code = data[0][0]
         else:
             dsl_code = None
+
         logging.info(f"Decoded dsl code '{dsl_code}'")
         return dsl_code
 

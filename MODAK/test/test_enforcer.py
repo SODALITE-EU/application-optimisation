@@ -9,11 +9,9 @@ def test_enforce_opt():
 
     driver = MODAK_driver()
     enforcer = Enforcer(driver)
-    opts = ["version:2.1", "xla:true"]
-    dfs = enforcer.enforce_opt(opts)
+    opts = enforcer.enforce_opt(["version:2.1", "xla:true"])
 
-    assert dfs, "empty set returned"
-    for df in dfs:
-        for idx in range(0, df.shape[0]):
-            assert df["script_name"][idx], "script_name empty while it shouldn't be"
-            assert df["script_loc"][idx], "script_loc empty while it shouldn't be"
+    assert opts, "empty set returned"
+    for opt in opts:
+        assert opt.script_name, "script_name empty while it shouldn't be"
+        assert opt.script_loc, "script_loc empty while it shouldn't be"
