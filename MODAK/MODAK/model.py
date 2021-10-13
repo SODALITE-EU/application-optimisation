@@ -99,7 +99,12 @@ class Application(BaseModel):
     app_type: Optional[ApplicationAppTypeEnum]
     executable: str
     arguments: Optional[str]
-    container_runtime: Optional[str]
+    container_runtime: Optional[str] = Field(
+        description=(
+            "Will be filled/overwritten in the response"
+            " if an optimised container was found."
+        )
+    )
     mpi_ranks: PositiveInt = Field(
         1,  # default
         description=(
@@ -291,9 +296,15 @@ class Job(BaseModel, extra=Extra.forbid):
     target: Optional[Target]
     application: Application
     optimisation: Optional[Optimisation]
-    job_script: Optional[str]  # the generated job_script
-    build_script: Optional[str]  # the generated build_script
-    job_content: Optional[str]  # the content of the generated job_script
+    job_script: Optional[str] = Field(
+        description="A link to the job script generated for the request"
+    )
+    build_script: Optional[str] = Field(
+        description="The content of the build script generated for the request"
+    )
+    job_content: Optional[str] = Field(
+        description="The content of the job script generated for the request"
+    )
 
 
 class JobModel(BaseModel):
