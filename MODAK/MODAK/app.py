@@ -9,7 +9,7 @@ from MODAK.MODAK import MODAK
 from MODAK.model import JobModel
 
 BASE_PATH = pathlib.Path(__file__).resolve().parent
-app = FastAPI()
+app = FastAPI(title="MODAK Application Optimizer")
 templates = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
 
