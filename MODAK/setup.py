@@ -18,7 +18,7 @@ setup(
         "console_scripts": [
             "modak = MODAK.cli:validate_json",
             "modak-validate-json = MODAK.cli:validate_json",
-            "modak-openapi = MODAK.cli:openapi",
+            "modak-schema = MODAK.cli:schema",
         ],
     },
 )

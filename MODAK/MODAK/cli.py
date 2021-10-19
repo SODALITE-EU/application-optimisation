@@ -36,8 +36,19 @@ def validate_json():
         sys.exit(1)
 
 
-def openapi():
-    parser = argparse.ArgumentParser(description="Generate the OpenAPI schema")
+def schema():
+    parser = argparse.ArgumentParser(description="Generate different schema documents")
+    parser.add_argument(
+        "schema",
+        metavar="<SCHEMA>",
+        type=str,
+        choices=("openapi", "dsl"),
+        default="openapi",
+        help=(
+            "The schema to generate: 'openapi' for the complete web OpenAPI/Swagger schema,"
+            " 'dsl' for the JSON schema for the DSL"
+        ),
+    )
     parser.add_argument(
         "outfile",
         metavar="<FILE>",
@@ -53,20 +64,24 @@ def openapi():
         help="Do not pretty print the generated JSON.",
     )
     args = parser.parse_args()
-    openapi_schema = get_openapi(
-        title=app.title,
-        version=app.version,
-        openapi_version=app.openapi_version,
-        description=app.description,
-        routes=app.routes,
-    )
+
+    if args.schema == "openapi":
+        json_schema = get_openapi(
+            title=app.title,
+            version=app.version,
+            openapi_version=app.openapi_version,
+            description=app.description,
+            routes=app.routes,
+        )
+    elif args.schema == "dsl":
+        json_schema = JobModel.schema()
 
     dumpopts = {}
 
     if not args.raw:
         dumpopts["indent"] = 2
 
-    json.dump(openapi_schema, args.outfile, **dumpopts)
+    json.dump(json_schema, args.outfile, **dumpopts)
 
 
 def modak():
