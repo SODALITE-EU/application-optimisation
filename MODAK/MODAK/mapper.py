@@ -176,6 +176,8 @@ class Mapper:
         return None
 
     def decode_hpc_opt(self, opt: Optimisation) -> Optional[str]:
+        """Get a DSL code for the given optimisation values for the HPC app_type"""
+
         logging.info("Decoding HPC optimisation")
 
         assert opt.app_type == "hpc"
@@ -219,6 +221,8 @@ class Mapper:
         return None
 
     def decode_ai_training_opt(self, opt: Optimisation) -> Optional[str]:
+        """Get a DSL code for the given optimisation values for the ai_training app_type"""
+
         logging.info("Decoding AI training optimisation")
 
         assert opt.app_type == "ai_training"
@@ -259,11 +263,21 @@ class Mapper:
         return dsl_code
 
     def get_opts(self):
+        """
+        Get the list of opts ("k:v" with k:v from either config.parallelisation
+        or ai_framework-*) after decoding from a request via decode_*
+        """
+
         return self._opts
 
     def get_decoded_opts(
         self, opt: Optional[Optimisation] = None, target: Optional[Target] = None
     ):
+        """
+        Get a list of strings from the respectives optimisation type config.*
+        section of keys&values. Also includes target.name:true if the target is
+        specified.
+        """
         opts = []
 
         if target:
