@@ -14,6 +14,8 @@ from pydantic import (
 
 
 class JobOptions(BaseModel, extra=Extra.forbid):
+    """Options to pass to the queueing system"""
+
     job_name: str = "job"
     wall_time_limit: Optional[timedelta]
     node_count: Optional[PositiveInt]
@@ -21,10 +23,10 @@ class JobOptions(BaseModel, extra=Extra.forbid):
     core_count: Optional[PositiveInt] = Field(
         description="core count to use when running this job. Passed to the queueing system."
     )
-    process_count_per_node: PositiveInt
-    standard_output_file: str
+    process_count_per_node: PositiveInt = 1
+    standard_output_file: str = "job.out"
     standard_error_file: Optional[str]
-    combine_stdout_stderr: bool
+    combine_stdout_stderr: bool = True
     request_event_notification: Optional[str]
     email_address: Optional[EmailStr]
     copy_environment: Optional[bool]
@@ -55,15 +57,15 @@ class JobOptions(BaseModel, extra=Extra.forbid):
         return values
 
 
-class JobSchedulerTypeEnum(str, Enum):
-    """Type of queueing system."""
+class JobSchedulerType(str, Enum):
+    """Supported types of queueing systems."""
 
     slurm = "slurm"
     torque = "torque"
 
 
-class ApplicationAppTypeEnum(str, Enum):
-    """Type of application."""
+class ApplicationAppType(str, Enum):
+    """Supported types of applications."""
 
     mpi = "mpi"
     hpc = "hpc"
@@ -73,13 +75,24 @@ class ApplicationAppTypeEnum(str, Enum):
 class Target(BaseModel):
     """
     Description of the target where this application is going to run.
-    If not specified only a Unix shell environment (possibly with mpirun) will be assumed.
+    If nothing is specified only a Unix shell environment will be assumed.
     """
 
-    job_scheduler_type: JobSchedulerTypeEnum
-    name: Optional[str] = Field(
-        description="Additional keyword to select specific optimisations"
+    job_scheduler_type: Optional[JobSchedulerType] = Field(
+        description="The queuing system to target if the infrastructure name is not specified"
     )
+    name: Optional[str] = Field(description="The target infrastructure")
+
+    @root_validator
+    def check_one(cls, values):  # noqa: B902
+        """Check that exactly one of the 2 attributes is set"""
+
+        if (values.get("job_scheduler_type") is None) and (values.get("name") is None):
+            raise ValueError(
+                "at least one of 'job_scheduler_type' and 'name' must be specified"
+            )
+
+        return values
 
     class Config:
         extra = "forbid"
@@ -89,14 +102,21 @@ class Target(BaseModel):
 class ApplicationBuild(BaseModel, extra=Extra.forbid):
     """Source and build commands for the application"""
 
-    src: AnyUrl
-    build_command: str
-    build_parallelism: PositiveInt = 1
+    src: AnyUrl = Field(description="Source URL for the application" "")
+    build_command: str = Field(
+        description=(
+            "commands (shell script) to build the application, use"
+            " {{BUILD_PARALLELISM}} to obtain number of parallel build jobs"
+        )
+    )
+    build_parallelism: PositiveInt = Field(
+        1, description="Number of parallel build jobs"
+    )
 
 
 class Application(BaseModel):
     app_tag: Optional[str]  # TODO: unused
-    app_type: Optional[ApplicationAppTypeEnum]
+    app_type: Optional[ApplicationAppType] = Field(description="this applications type")
     executable: str
     arguments: Optional[str]
     container_runtime: Optional[str] = Field(
@@ -119,36 +139,51 @@ class Application(BaseModel):
             " Set before mpirun or srun."
         ),
     )
-    build: Optional[ApplicationBuild]
+    build: Optional[ApplicationBuild] = Field(
+        description=(
+            "Build information in case on-site rebuilding of"
+            " the application is desired and possible"
+        )
+    )
 
     class Config:
         extra = "forbid"
         use_enum_values = True
 
 
-class OptimisationBuildCpuTypeEnum(str, Enum):
+class OptimisationBuildCpuType(str, Enum):
+    """Supported CPU ISAs"""
+
     x86 = "x86"
     arm = "arm"
     amd = "amd"
     power = "power"
 
 
-class OptimisationBuildAccTypeEnum(str, Enum):
+class OptimisationBuildAccType(str, Enum):
+    """Supported accelerators"""
+
     nvidia = "nvidia"
     amd = "amd"
     fpga = "fpga"
 
 
 class OptimisationBuild(BaseModel):
-    cpu_type: OptimisationBuildCpuTypeEnum
-    acc_type: Optional[OptimisationBuildAccTypeEnum]
+    cpu_type: OptimisationBuildCpuType = Field(
+        description="The CPU to optimise the build for"
+    )
+    acc_type: Optional[OptimisationBuildAccType] = Field(
+        description="The accelerator to optimise the build for"
+    )
 
     class Config:
         extra = "forbid"
         use_enum_values = True
 
 
-class HPCConfigParallelisationEnum(str, Enum):
+class HPCConfigParallelisation(str, Enum):
+    """Supported parallelisations"""
+
     mpi = "mpi"
     openmp = "openmp"
     opencc = "opencc"
@@ -156,7 +191,9 @@ class HPCConfigParallelisationEnum(str, Enum):
 
 
 class HPCConfig(BaseModel):
-    parallelisation: HPCConfigParallelisationEnum
+    parallelisation: HPCConfigParallelisation = Field(
+        description="Parallelisation used in this HPC application"
+    )
 
     class Config:
         extra = "forbid"
@@ -170,9 +207,11 @@ class ParallelisationMpi(BaseModel, extra=Extra.forbid):
 
 # TODO: define for openmp, opencc, opencl based on TOSCA/DSL
 class AppTypeHPC(BaseModel, extra=Extra.forbid):
+    """HPC-specific configuration for optimisation"""
+
     config: HPCConfig
     data: Dict[str, Any] = Field(  # TODO: specified in TOSCA/DSL
-        default_factory=Dict, description="Application specific data (not formalized)"
+        default_factory=dict, description="Application specific data"
     )
     parallelisation_mpi: ParallelisationMpi = Field(..., alias="parallelisation-mpi")
 
@@ -202,7 +241,7 @@ class AIFrameworkTensorflow(BaseModel, extra=Extra.forbid):
     xla: bool
 
 
-class AITrainingConfigFrameworkEnum(str, Enum):
+class AITrainingConfigFramework(str, Enum):
     tensorflow = "tensorflow"
     pytorch = "pytorch"
     keras = "keras"
@@ -211,7 +250,7 @@ class AITrainingConfigFrameworkEnum(str, Enum):
 
 
 class AITrainingConfig(BaseModel):
-    ai_framework: AITrainingConfigFrameworkEnum
+    ai_framework: AITrainingConfigFramework
     # DSL has type: str/enum here # TODO: unused
     # DSL has distributed_training: bool  # TODO" unused
 
@@ -223,7 +262,7 @@ class AITrainingConfig(BaseModel):
 class AppTypeAITraining(BaseModel, extra=Extra.forbid):
     config: AITrainingConfig
     data: Dict[str, Any] = Field(  # TODO: in TOSCA?DSL specified but unused
-        default_factory=Dict, description="Application specific data (not formalized)"
+        default_factory=dict, description="Application specific data"
     )
     ai_framework_tensorflow: AIFrameworkTensorflow = Field(
         ..., alias="ai_framework-tensorflow"
@@ -253,7 +292,9 @@ class OptimisationAutotuning(BaseModel, extra=Extra.forbid):
     input: str
 
 
-class OptimisationAppTypeEnum(str, Enum):
+class OptimisationAppType(str, Enum):
+    """Supported application types for optimisation."""
+
     ai_training = "ai_training"
     hpc = "hpc"
     # TODO: big_data, ai_inference
@@ -262,7 +303,7 @@ class OptimisationAppTypeEnum(str, Enum):
 class Optimisation(BaseModel):
     enable_opt_build: bool
     enable_autotuning: bool = False
-    app_type: OptimisationAppTypeEnum
+    app_type: OptimisationAppType = Field(description="Application type")
     opt_build: Optional[OptimisationBuild]
     app_type_hpc: Optional[AppTypeHPC] = Field(alias="app_type-hpc")
     app_type_ai_training: Optional[AppTypeAITraining] = Field(
@@ -304,6 +345,9 @@ class Job(BaseModel, extra=Extra.forbid):
     )
     job_content: Optional[str] = Field(
         description="The content of the job script generated for the request"
+    )
+    build_content: Optional[str] = Field(
+        description="The content of the build script generated for the request"
     )
 
 
