@@ -14,7 +14,7 @@ help() {
 export ASTER_DIR="Case_prep-3_Segments-4mm-2mm"
 export ASTER_INPUT="Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com"
 
-ASTER_LABEL=${ASTER_DIR}__${ASTER_INPUT}___
+ASTER_LABEL=${ASTER_DIR}___${ASTER_INPUT}
 
 while getopts "l:hcr" OPTION; do
     case $OPTION in

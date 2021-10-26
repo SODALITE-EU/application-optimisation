@@ -102,7 +102,7 @@ module list
 
 cd $PWD
 
-PREFIXNAME="${PREFIXNAME}" SUBCMD="${SUBCMD}" $PWD/bin/run.sh -l ${LABEL}___${QUEUE}
+PREFIXNAME="${PREFIXNAME}" SUBCMD="${SUBCMD}" $PWD/scripts/run.sh -l ${LABEL}___${QUEUE}
 
 EOF
 
