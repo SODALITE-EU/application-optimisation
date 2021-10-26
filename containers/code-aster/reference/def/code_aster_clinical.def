@@ -26,10 +26,12 @@ From: ubuntu:18.04
 
     if test $# -eq 0 || test -z "$@" ; then
         # Open a shell
-	echo "Provide code-aster input directory (eg. . Opening a shell for the moment..."
+	echo "Provide code-aster input directory! Opening a shell for the moment..."
         bash -norc
     else
-        export ASTER_LOG=${ASTER_LOG:-aster.out}
+        export ASTER_LOG=${ASTER_LOG:-"aster.out"}
+	export ASTER_INPUT=${ASTER_INPUT:-"fort.1"}
+	export ASTER_TPMAX=${ASTER_TPMAX:-"3600.0"}
         # pass arguments to run code-aster
 	OLDPWD=`pwd`
 	cd "$1"
@@ -37,10 +39,10 @@ From: ubuntu:18.04
 	rm -f REPE_OUT/* fort.15 fort.8 fort.80 fort.9 glob.1 info_cpu pick.1 vola.1 *.out
 	${ASTER_ROOT}/14.4/bin/aster \
 		     ${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \
-		     -commandes fort.1 --num_job=1432 --mode=interactif \
+		     -commandes ${ASTER_INPUT} --num_job=1432 --mode=interactif \
 		     --rep_mat=${ASTER_ROOT}/14.4/share/aster/materiau \
 		     --rep_dex=${ASTER_ROOT}/14.4/share/aster/datg \
-		     --numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=3600.0 2>&1 | tee ${ASTER_LOG}
+		     --numthreads=1 --suivi_batch --memjeveux=8192.0 --tpmax=${ASTER_TPMAX} 2>&1 | tee ${ASTER_LOG}
 	cd ${OLDPWD}
     fi
 

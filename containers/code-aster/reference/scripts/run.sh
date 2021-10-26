@@ -9,7 +9,12 @@ help() {
     exit
 }
 
-ASTER_INPUT=L1L2_NonLinear_prepared
+#export ASTER_DIR=L1L2_NonLinear_prepared
+#export ASTER_INPUT="fort.1"
+export ASTER_DIR="Case_prep-3_Segments-4mm-2mm"
+export ASTER_INPUT="Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com"
+
+ASTER_LABEL=${ASTER_DIR}__${ASTER_INPUT}___
 
 while getopts "l:hcr" OPTION; do
     case $OPTION in
@@ -18,12 +23,12 @@ while getopts "l:hcr" OPTION; do
 	    ;;
 	c)
 	    echo "Clean output files."
-	    rm -rf ${ASTER_INPUT}___*
+	    rm -rf ${ASTER_LABEL}___*
 	    exit
 	    ;;
 	r)
 	    echo "show results"
-	    grep -H TOTAL_JOB ${ASTER_INPUT}___*/aster___*.out | awk -F':' '{print $1":"$6}'
+	    grep -H TOTAL_JOB ${ASTER_LABEL}___*/aster___*.out | awk -F':' '{print $1":"$6}'
 	    exit
 	    ;;
 	*|h)
@@ -57,10 +62,10 @@ LABEL=${LABEL:-`echo $HOSTNAME | sed -e "s/[0-9]//g" | cut -f 1 -d '.'`"___defau
 LABEL=${PREFIXNAME}"___"${LABEL}
 timestamp=$(date '+%Y%m%d%H%M')
 
-ASTER_OUTPUT=${ASTER_INPUT}"___"$LABEL"___"$timestamp
+ASTER_OUTPUT=${ASTER_LABEL}"___"$LABEL"___"$timestamp
 
 rm -rf ${ASTER_OUTPUT}
-cp -r ${ASTER_INPUT} ${ASTER_OUTPUT}
+cp -r ${ASTER_DIR} ${ASTER_OUTPUT}
 
 export ASTER_LOG=aster"___"$LABEL"___"$timestamp.out
 

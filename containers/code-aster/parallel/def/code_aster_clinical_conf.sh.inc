@@ -1,1 +1,0 @@
-MPI_DIST=MPICH
