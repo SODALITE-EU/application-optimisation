@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import pathlib
 import sys
 from typing import Any, Dict
@@ -112,7 +113,22 @@ def modak():
         default=DEFAULT_SETTINGS_DIR / "iac-model.ini",
         help=f"Configuration file (default: {DEFAULT_SETTINGS_DIR / 'iac-model.ini'}",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Enable verbose logging output",
+        action="count",
+        dest="loglevel",
+        default=0,
+    )
     args = parser.parse_args()
+
+    loglevel = logging.WARNING
+    if args.loglevel >= 2:
+        loglevel = logging.DEBUG
+    elif args.loglevel > 1:
+        loglevel = logging.INFO
+    logging.basicConfig(level=loglevel, force=True)
 
     print(f"Input file: '{args.ifile.name}'", file=sys.stderr)
     print(f"Output file: '{args.ofile.name}'", file=sys.stderr)
