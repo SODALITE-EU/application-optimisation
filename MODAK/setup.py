@@ -10,13 +10,21 @@ setup(
         "Jinja2",
         "fastapi",
         "uvicorn",
+        "sqlalchemy",
     ],
     extras_require={
         "testing": ["pytest", "pytest-cov"],
+        "docs": [
+            "sphinx",
+            "autodoc_pydantic",
+            "sphinx-rtd-theme",
+            "myst_parser",
+            "autoapi",
+        ],
     },
     entry_points={
         "console_scripts": [
-            "modak = MODAK.cli:validate_json",
+            "modak = MODAK.cli:modak",
             "modak-validate-json = MODAK.cli:validate_json",
             "modak-schema = MODAK.cli:schema",
         ],

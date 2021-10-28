@@ -1,15 +1,3 @@
-BEGIN EXCLUSIVE TRANSACTION;
-
-DROP TABLE IF EXISTS `optimisation`;
-CREATE TABLE `optimisation` (
-	`opt_dsl_code` varchar(255) NOT NULL,
-	`app_name` varchar(255) DEFAULT NULL,
-	`target` varchar(5000) DEFAULT NULL,
-	`optimisation` varchar(5000) DEFAULT NULL,
-	`version` varchar(255) DEFAULT NULL,
-	PRIMARY KEY (`opt_dsl_code`)
-) WITHOUT ROWID;
-
 INSERT INTO `optimisation` VALUES
   ('ethcscs_openmpi_3.1.3','openmpi','enable_opt_build:true,cpu_type:x86,acc_type:nvidia,','version:3.1.3,mpicc:true,mpic++:true,mpifort:true,','3.1.3'),
   ('modak-pytorch-1.5-cpu-pip','pytorch','enable_opt_build:true|cpu_type:none|acc_type:none|','version:1.5|',NULL),
@@ -42,18 +30,6 @@ INSERT INTO `optimisation` VALUES
   ('TF_PIP_XLA','tensorflow','cpu_type:x86,acc_type:nvidia,','xla:true,version:1.1,','');
 
 
-DROP TABLE IF EXISTS `mapper`;
-CREATE TABLE `mapper` (
-	`map_id` int,
-	`opt_dsl_code` varchar(255) NOT NULL,
-	`container_file` varchar(255) DEFAULT NULL,
-	`image_type` varchar(255) DEFAULT NULL,
-	`image_hub` varchar(255) DEFAULT NULL,
-	`src` varchar(255) DEFAULT NULL,
-	PRIMARY KEY (`map_id`),
-	CONSTRAINT `opt_dsl_code` FOREIGN KEY (`opt_dsl_code`) REFERENCES `optimisation` (`opt_dsl_code`)
-);
-
 INSERT INTO `mapper` VALUES
   (1,'modak-pytorch-1.5-cpu-pip','modakopt/modak:pytorch-1.5-cpu-pip','docker','docker','none'),
   (2,'modak-pytorch-1.5-cpu-src','modakopt/modak:pytorch-1.5-cpu-src','docker','docker','none'),
@@ -85,19 +61,7 @@ INSERT INTO `mapper` VALUES
   (39,'mvapich_ub1804_cuda101_mpi22_osu','ethcscs/mvapich:ub1804_cuda101_mpi22_osu','docker','docker','none'),
   (48,'pottava_openmpi:1.10','pottava/openmpi:1.10','docker','docker','none');
 
-DROP TABLE IF EXISTS `optscript`;
-CREATE TABLE `optscript` (
-	`opt_code` varchar(255) NOT NULL,
-	`script_name` varchar(255) DEFAULT NULL,
-	`script_loc` varchar(5000) DEFAULT NULL,
-	`stage` int DEFAULT NULL,
-	PRIMARY KEY (`opt_code`)
-) WITHOUT ROWID;
-
 INSERT INTO `optscript` VALUES
   ('egi','set_default_egi.sh','file://modak-builtin/set_default_egi.sh',0),
   ('hlrs_testbed','set_default_hlrs_testbed.sh','file://modak-builtin/set_default_hlrs_testbed.sh',0),
   ('xla','enable_xla.sh','file://modak-builtin/enable_xla.sh',0);
-
-
-COMMIT;

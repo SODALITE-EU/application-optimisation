@@ -1,6 +1,10 @@
 import logging
 from typing import List, Mapping, Optional, cast
 
+from sqlalchemy import insert, select
+
+from .db import Map
+from .db import Optimisation as OptimisationDB
 from .MODAK_driver import MODAK_driver
 from .model import (
     AppTypeAITraining,
@@ -81,34 +85,16 @@ class Mapper:
         src: str = "",
     ):
         logging.info("Adding container to mapper ")
-        stmt = """
-            INSERT INTO `mapper`
-             (`map_id`, `opt_dsl_code`, `container_file`, `image_type`, `image_hub`, `src`)
-             VALUES
-             (NULL, %(opt_dsl_code)s, %(container_file)s,
-              %(image_type)s, %(image_hub)s, %(src)s)
-            """
 
-        logging.info(
-            stmt
-            % {
-                "opt_dsl_code": opt_dsl_code,
-                "container_file": container_file,
-                "image_type": image_type,
-                "image_hub": image_hub,
-                "src": src,
-            }
+        stmt = insert(Map).values(
+            opt_dsl_code=opt_dsl_code,
+            container_file=container_file,
+            image_type=image_type,
+            image_hub=image_hub,
+            src=src,
         )
-        self._driver.updateSQL(
-            stmt,
-            {
-                "opt_dsl_code": opt_dsl_code,
-                "container_file": container_file,
-                "image_type": image_type,
-                "image_hub": image_hub,
-                "src": src,
-            },
-        )
+        self._driver.updateSQL(stmt)
+
         return True
 
     def add_optimisation(
@@ -122,32 +108,15 @@ class Mapper:
         logging.info(f"Target string: '{target_str}'")
         logging.info(f"Opt string: '{opt_str}'")
 
-        stmt = """
-            INSERT INTO `optimisation`
-              (`opt_dsl_code`, `app_name`, `target`, `optimisation`, `version`)
-            VALUES
-              (%(opt_dsl_code)s, %(app_name)s, %(target)s, %(optimisation)s, %(version)s)
-            """
+        stmt = insert(OptimisationDB).values(
+            opt_dsl_code=opt_dsl_code,
+            app_name=app_name,
+            target=target_str,
+            optimisation=opt_str,
+            version="",
+        )
 
-        logging.info(
-            stmt.format(
-                opt_dsl_code=opt_dsl_code,
-                app_name=app_name,
-                target=target_str,
-                optimisation=opt_str,
-                version="",
-            )
-        )
-        self._driver.updateSQL(
-            stmt,
-            {
-                "opt_dsl_code": opt_dsl_code,
-                "app_name": app_name,
-                "target": target_str,
-                "optimisation": opt_str,
-                "version": "",
-            },
-        )
+        self._driver.updateSQL(stmt)
         return True
 
     def get_container(self, opt_dsl_code: str) -> Optional[str]:
@@ -156,10 +125,12 @@ class Mapper:
         logging.info(f"Get container for opt code: {opt_dsl_code}")
 
         stmt = (
-            "SELECT container_file, image_type, image_hub FROM mapper"
-            " WHERE opt_dsl_code=%s ORDER BY map_id desc limit 1"
+            select(Map.container_file, Map.image_type, Map.image_hub)
+            .where(Map.opt_dsl_code == opt_dsl_code)
+            .order_by(Map.map_id.desc())
+            .limit(1)
         )
-        data = self._driver.selectSQL(stmt, (opt_dsl_code,))
+        data = self._driver.selectSQL(stmt)
 
         if data:
             container_file = data[0][0]
@@ -189,29 +160,27 @@ class Mapper:
             f"parallelisation_{cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation}",
         )
 
-        sqlstr = "SELECT opt_dsl_code FROM optimisation WHERE app_name = %(app_name)s"
+        stmt = select(OptimisationDB.opt_dsl_code).where(
+            OptimisationDB.app_name == optimisations.library
+        )
 
         if opt.enable_opt_build:
             target_nodes = _mapping2list(cast(OptimisationBuild, opt.opt_build).dict())
             for node in target_nodes:
-                targetstr = f" AND target LIKE '%{node}%'"
-                sqlstr += targetstr
-                logging.info(f"Adding target query '{targetstr}'")
+                stmt = stmt.where(OptimisationDB.target.like(f"%{node}%"))
 
             opt_nodes = _mapping2list(
                 {k: v for k, v in optimisations.dict().items() if k != "library"}
             )
             for node in opt_nodes:
-                optstr = f" AND optimisation LIKE '%{node}%'"
-                sqlstr += optstr
-                logging.info(f"Adding opt query '{optstr}'")
+                stmt = stmt.where(OptimisationDB.optimisation.like(f"%{node}%"))
                 self._opts.append(node)
 
-            sqlstr += " AND target LIKE '%enable_opt_build:true%'"
+            stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:true%"))
         else:
-            sqlstr += " AND target LIKE '%enable_opt_build:false%'"
+            stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:false%"))
 
-        data = self._driver.selectSQL(sqlstr, {"app_name": optimisations.library})
+        data = self._driver.selectSQL(stmt)
         if data:
             dsl_code = data[0][0]
             logging.info(f"Decoded DSL code: {dsl_code}")
@@ -229,14 +198,14 @@ class Mapper:
 
         app_name = cast(AppTypeAITraining, opt.app_type_ai_training).config.ai_framework
 
-        sqlstr = "SELECT opt_dsl_code FROM optimisation WHERE app_name = %(app_name)s"
+        stmt = select(OptimisationDB.opt_dsl_code).where(
+            OptimisationDB.app_name == app_name
+        )
 
         if opt.enable_opt_build:
             target_nodes = _mapping2list(cast(OptimisationBuild, opt.opt_build).dict())
             for node in target_nodes:
-                targetstr = f" AND target LIKE '%{node}%'"
-                sqlstr += targetstr
-                logging.info(f"Adding target query '{targetstr}'")
+                stmt = stmt.where(OptimisationDB.target.like(f"%{node}%"))
 
             optimisations = getattr(
                 opt.app_type_ai_training, f"ai_framework_{app_name}"
@@ -244,16 +213,14 @@ class Mapper:
             opt_nodes = _mapping2list(optimisations.dict())
             logging.info(f"Optimisations: '{opt_nodes}'")
             for node in opt_nodes:
-                optstr = f" AND optimisation LIKE '%{node}%'"
-                sqlstr += optstr
-                logging.info(f"Adding opt query '{optstr}'")
+                stmt = stmt.where(OptimisationDB.optimisation.like(f"%{node}%"))
                 self._opts.append(node)
 
-            sqlstr += " AND target LIKE '%enable_opt_build:true%'"
+            stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:true%"))
         else:
-            sqlstr += " AND target LIKE '%enable_opt_build:false%'"
+            stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:false%"))
 
-        data = self._driver.selectSQL(sqlstr, {"app_name": app_name})
+        data = self._driver.selectSQL(stmt)
         if data:
             dsl_code = data[0][0]
         else:

@@ -2,6 +2,9 @@ import logging
 from collections import namedtuple
 from typing import List
 
+from sqlalchemy import select
+
+from .db import OptScript
 from .MODAK_driver import MODAK_driver
 
 EnforcerEntry = namedtuple("EnforcerEntry", ["script_name", "script_loc", "stage"])
@@ -25,10 +28,9 @@ class Enforcer:
             opt_key, opt_value = opt.split(":")
 
             if "true" in opt_value:
-                oneopt_data = self._driver.selectSQL(
-                    "SELECT script_name, script_loc, stage FROM optscript"
-                    " WHERE opt_code = %s",
-                    (opt_key,),
-                )
+                stmt = select(
+                    OptScript.script_name, OptScript.script_loc, OptScript.stage
+                ).where(OptScript.opt_code == opt_key)
+                oneopt_data = self._driver.selectSQL(stmt)
                 data += [EnforcerEntry(*e) for e in oneopt_data]
         return data

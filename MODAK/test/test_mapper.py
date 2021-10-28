@@ -3,6 +3,9 @@ import pathlib
 import unittest
 from unittest.mock import patch
 
+from sqlalchemy import delete, select
+
+from MODAK.db import Map, Optimisation
 from MODAK.mapper import Mapper
 from MODAK.MODAK_driver import MODAK_driver
 from MODAK.model import JobModel
@@ -22,12 +25,11 @@ class test_mapper(unittest.TestCase):
     def test_add_opt(self):
         target_string = '{"cpu_type":"x86","acc_type":"nvidia"}'
         opt_string = '{"xla":true,"version":"1.1"}'
-        self.driver.updateSQL(
-            "DELETE FROM mapper WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
-        )
-        self.driver.updateSQL(
-            "DELETE FROM optimisation WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
-        )
+
+        stmt = delete(Optimisation).where(
+            Optimisation.opt_dsl_code == "TF_PIP_XLA"
+        )  # no need to delete Mapper, since DB is set to CASCADE
+        self.driver.updateSQL(stmt)
         self.m.add_optimisation(
             "TF_PIP_XLA",
             "tensorflow",
@@ -35,21 +37,22 @@ class test_mapper(unittest.TestCase):
             json.loads(opt_string),
         )
         data = self.driver.selectSQL(
-            "SELECT app_name FROM optimisation WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
+            select(Optimisation.app_name).where(
+                Optimisation.opt_dsl_code == "TF_PIP_XLA"
+            )
         )
         self.assertEqual(len(data), 1)
         print(data[0][0])
         self.assertEqual(data[0][0], "tensorflow")
 
     def test_add_container(self):
-        self.driver.updateSQL(
-            "DELETE FROM mapper WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
-        )
+        stmt = delete(Map).where(Map.opt_dsl_code == "TF_PIP_XLA")
+        self.driver.updateSQL(stmt)
         self.m.add_container(
             "TF_PIP_XLA", "AI/containers/tensorflow/tensorflow_pip_xla"
         )
         data = self.driver.selectSQL(
-            "SELECT container_file FROM mapper WHERE opt_dsl_code = %s", ("TF_PIP_XLA",)
+            select(Map.container_file).where(Map.opt_dsl_code == "TF_PIP_XLA")
         )
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0][0], "AI/containers/tensorflow/tensorflow_pip_xla")
