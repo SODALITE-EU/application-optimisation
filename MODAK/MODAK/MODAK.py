@@ -56,7 +56,7 @@ class MODAK:
             job.application,
             job.job_options,
             batch_file=job_file,
-            scheduler=job.target.job_scheduler_type if job.target else "",
+            scheduler=str(job.target.job_scheduler_type) if job.target else "",
         )
 
         logging.info("Adding job header")
@@ -170,7 +170,7 @@ class MODAK:
             job.application,
             job.job_options,
             batch_file=job_file,
-            scheduler=job.target.job_scheduler_type if job.target else "",
+            scheduler=str(job.target.job_scheduler_type) if job.target else "",
         )
 
         logging.info("Adding job header")

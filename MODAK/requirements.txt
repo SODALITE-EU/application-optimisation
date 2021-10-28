@@ -1,7 +1,7 @@
 Jinja2==3.0.1
 pydantic[email]==1.8.2
 fastapi==0.68.2
-
+sqlalchemy==1.4.25
 pytest==6.2.4
 pytest-cov==2.12.1
 

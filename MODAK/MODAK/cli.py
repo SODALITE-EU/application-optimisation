@@ -7,7 +7,10 @@ from typing import Any, Dict
 
 from fastapi.openapi.utils import get_openapi
 from pydantic import ValidationError
+from sqlalchemy.dialects import sqlite
+from sqlalchemy.schema import CreateTable
 
+from . import db
 from .app import app
 from .MODAK import MODAK
 from .model import JobModel
@@ -37,17 +40,26 @@ def validate_json():
         sys.exit(1)
 
 
+def _print_json(json_data, outfile, raw=False):
+    dumpopts = {}
+
+    if not raw:
+        dumpopts["indent"] = 2
+
+    json.dump(json_data, outfile, **dumpopts)
+
+
 def schema():
     parser = argparse.ArgumentParser(description="Generate different schema documents")
     parser.add_argument(
         "schema",
         metavar="<SCHEMA>",
         type=str,
-        choices=("openapi", "dsl"),
+        choices=("openapi", "dsl", "sql"),
         default="openapi",
         help=(
             "The schema to generate: 'openapi' for the complete web OpenAPI/Swagger schema,"
-            " 'dsl' for the JSON schema for the DSL"
+            " 'dsl' for the JSON schema for the DSL, 'sql' for the database schema."
         ),
     )
     parser.add_argument(
@@ -74,15 +86,19 @@ def schema():
             description=app.description,
             routes=app.routes,
         )
+        _print_json(json_schema, args.outfile, args.raw)
     elif args.schema == "dsl":
         json_schema = JobModel.schema()
+        _print_json(json_schema, args.outfile, args.raw)
 
-    dumpopts = {}
-
-    if not args.raw:
-        dumpopts["indent"] = 2
-
-    json.dump(json_schema, args.outfile, **dumpopts)
+    elif args.schema == "sql":
+        for tbl in db.__all__:
+            print(
+                CreateTable(getattr(getattr(db, tbl), "__table__")).compile(
+                    dialect=sqlite.dialect()
+                ),
+                file=args.outfile,
+            )
 
 
 def modak():
