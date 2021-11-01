@@ -1,7 +1,6 @@
 import argparse
 import json
 import logging
-import pathlib
 import sys
 from typing import Any, Dict
 
@@ -14,7 +13,6 @@ from . import db
 from .app import app
 from .MODAK import MODAK
 from .model import JobModel
-from .settings import DEFAULT_SETTINGS_DIR
 
 
 def validate_json():
@@ -122,14 +120,6 @@ def modak():
         help="Output file (default: write to stdout)",
     )
     parser.add_argument(
-        "-c",
-        "--config",
-        metavar="CONFIGFILE",
-        type=pathlib.Path,
-        default=DEFAULT_SETTINGS_DIR / "iac-model.ini",
-        help=f"Configuration file (default: {DEFAULT_SETTINGS_DIR / 'iac-model.ini'}",
-    )
-    parser.add_argument(
         "-v",
         "--verbose",
         help="Enable verbose logging output",
@@ -149,7 +139,7 @@ def modak():
     print(f"Input file: '{args.ifile.name}'", file=sys.stderr)
     print(f"Output file: '{args.ofile.name}'", file=sys.stderr)
 
-    m = MODAK(args.config)
+    m = MODAK()
 
     model = JobModel.parse_raw(args.ifile.read())
 
