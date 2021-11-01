@@ -6,4 +6,4 @@ profile = 'black'
 
 [tool.mypy]
 ignore_missing_imports = true
-plugins = 'pydantic.mypy'
+plugins = ['pydantic.mypy', 'sqlalchemy.ext.mypy.plugin']

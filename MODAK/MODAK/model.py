@@ -1,6 +1,7 @@
 from datetime import timedelta
 from enum import Enum
 from typing import Any, Dict, Optional
+from uuid import UUID
 
 from pydantic import (
     AnyUrl,
@@ -357,3 +358,36 @@ class JobModel(BaseModel):
     class Config:
         title = "MODAK Job schema"
         extra = "forbid"
+
+
+class ScriptConditions(BaseModel):
+    pass
+
+
+class ScriptData(BaseModel):
+    pass
+
+
+class Script(BaseModel):
+    id: UUID
+    description: str
+    conditions: ScriptConditions
+    data: ScriptData
+
+    class Config:
+        orm_mode = True
+
+
+class ScriptIn(BaseModel):
+    description: str
+    conditions: ScriptConditions
+    data: ScriptData
+
+
+class ScriptList(BaseModel):
+    id: UUID
+    description: str
+    conditions: ScriptConditions
+
+    class Config:
+        orm_mode = True
