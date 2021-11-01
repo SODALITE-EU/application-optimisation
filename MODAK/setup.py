@@ -10,10 +10,10 @@ setup(
         "Jinja2",
         "fastapi",
         "uvicorn",
-        "sqlalchemy",
+        "sqlalchemy[asyncio,aiosqlite]",
     ],
     extras_require={
-        "testing": ["pytest", "pytest-cov"],
+        "testing": ["pytest", "pytest-cov", "sqlalchemy[mypy]"],
         "docs": [
             "sphinx",
             "autodoc_pydantic",
