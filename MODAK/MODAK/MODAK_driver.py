@@ -22,14 +22,13 @@ class MODAK_driver:
     )
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
-    def __init__(self, conf_file=DEFAULT_SETTINGS_DIR / "iac-model.ini", install=False):
+    def __init__(self):
         logging.info("Initialising driver")
-        Settings.initialise(conf_file)
 
-        logging.info("Connecting to model repo using DB dialect: {Settings.DB_DIALECT}")
-        assert Settings.DB_DIALECT == "sqlite", "only SQLite is currently supported"
+        logging.info("Connecting to model repo using DB dialect: {Settings.db_dialect}")
+        assert Settings.db_dialect == "sqlite", "only SQLite is currently supported"
 
-        self._engine = sa.create_engine(f"sqlite:///{Settings.DB_PATH}")
+        self._engine = sa.create_engine(f"sqlite:///{Settings.db_path}")
         logging.info("Successfully initialised driver")
 
     def selectSQL(self, stmt: str) -> List[Tuple[Any, ...]]:

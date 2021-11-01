@@ -137,7 +137,7 @@ class Mapper:
             image_hub = data[0][2]
 
             # replace the image hub with the alias if available
-            image_hub = Settings.IMAGE_HUB_ALIASES.get(image_hub, image_hub)
+            image_hub = Settings.image_hub_aliases.get(image_hub, image_hub)
 
             container_link = f"{image_hub}://{container_file}"
             logging.info(f"Container link: {container_link}")

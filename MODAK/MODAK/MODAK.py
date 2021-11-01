@@ -1,5 +1,4 @@
 import logging
-import pathlib
 from copy import deepcopy
 from datetime import datetime
 from typing import NamedTuple, cast
@@ -11,20 +10,16 @@ from .jobfile_generator import JobfileGenerator
 from .mapper import Mapper
 from .MODAK_driver import MODAK_driver
 from .model import ApplicationBuild, Job
-from .settings import DEFAULT_SETTINGS_DIR, Settings
+from .settings import Settings
 
 JobScripts = NamedTuple("JobScripts", [("jobscript", str), ("buildscript", str)])
 
 
 class MODAK:
-    def __init__(
-        self,
-        conf_file: pathlib.Path = DEFAULT_SETTINGS_DIR / "iac-model.ini",
-        upload=False,
-    ):
+    def __init__(self, upload=False):
         """General MODAK class."""
         logging.info("Intialising MODAK")
-        self._driver = MODAK_driver(conf_file)
+        self._driver = MODAK_driver()
         self._map = Mapper(self._driver)
         self._enf = Enforcer(self._driver)
         self._job_link = ""
@@ -49,7 +44,7 @@ class MODAK:
 
         logging.info("Generating job file header")
         job_file = (
-            Settings.OUT_DIR
+            Settings.out_dir
             / f"{job.job_options.job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         gen_t = JobfileGenerator(
@@ -65,7 +60,7 @@ class MODAK:
         logging.info("Generating build file")
         buildjob = self.get_buildjob(job)
         build_file = (
-            Settings.OUT_DIR
+            Settings.out_dir
             / f"{job.job_options.job_name}_build_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
 
@@ -163,7 +158,7 @@ class MODAK:
 
         logging.info("Generating job file header")
         job_file = (
-            Settings.OUT_DIR
+            Settings.out_dir
             / f"{job.job_options.job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         gen_t = JobfileGenerator(

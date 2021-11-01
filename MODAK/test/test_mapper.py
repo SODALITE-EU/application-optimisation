@@ -78,7 +78,7 @@ class test_mapper(unittest.TestCase):
     def test_map_container_aliased(self):
         dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
 
-        with patch.object(Settings, "IMAGE_HUB_ALIASES", {"docker": "docker.invalid"}):
+        with patch.object(Settings, "image_hub_aliases", {"docker": "docker.invalid"}):
             model = JobModel.parse_raw(dsl_file.read_text())
             new_container = self.m.map_container(
                 model.job.optimisation, model.job.target
