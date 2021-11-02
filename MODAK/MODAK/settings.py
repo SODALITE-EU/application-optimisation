@@ -23,14 +23,14 @@ def configparser_settings_source(settings: BaseSettings) -> Dict[str, Any]:
         config.read(conf_file)
 
         data: Dict[str, Any] = {
-            "mode": config.get("modak", "mode"),
+            "mode": config["modak"]["mode"],
         }
 
-        data["quiet_server_logs"] = config.get("modak", "quiet_server_log") == "true"
+        data["quiet_server_logs"] = config["modak"]["quiet_server_log"] == "true"
 
-        section = data["mode"]
-        logging.info(f"Reading section {section} of ini file ")
-        data["db_uri"] = config.get(section, "db_uri")
+        section = config[data["mode"]]
+        logging.info(f"Reading section {data['mode']} of ini file ")
+        data["db_uri"] = section["db_uri"]
 
         match = re.match(
             r"(?P<dialect>mysql|sqlite)://"
@@ -58,8 +58,14 @@ def configparser_settings_source(settings: BaseSettings) -> Dict[str, Any]:
         else:
             raise AssertionError(f"Invalid dialect: {match['dialect']}")
 
-        data["out_dir"] = pathlib.Path(config.get(section, "out_dir"))
+        data["out_dir"] = pathlib.Path(section["out_dir"])
         logging.info("out dir : {data['out_dir']}")
+
+        if "google_credentials" in section:
+            data["google_credentials"] = section["google_credentials"]
+
+        if "dropbox_access_token" in section:
+            data["dropbox_access_token"] = section["dropbox_access_token"]
 
         sa_section = f"{data['mode']}.image_hub_aliases"
         data["image_hub_aliases"] = (
@@ -88,6 +94,9 @@ class SettingsBase(BaseSettings):
     db_path: Optional[pathlib.Path]
     out_dir: pathlib.Path
     image_hub_aliases: Dict[str, str]
+
+    google_credentials: Optional[pathlib.Path]
+    dropbox_access_token: Optional[str]
 
     class Config:
         env_file_encoding = "utf-8"
