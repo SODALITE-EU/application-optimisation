@@ -1,0 +1,155 @@
+[hpccrnm@node-2 SnowWatch-SODALITE]$ singularity exec -B /workspace/hpccrnm:/workspace/hpccrnm --nv /mnt/nfs/home/hpccrnm/soda/workdir/tf_2.2 python3 SkylineExtraction-training/peaklens-gpuopt_training.py 
+2.2.3
+2021-10-07 13:36:53.796561: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcuda.so.1
+2021-10-07 13:36:54.340942: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1561] Found device 0 with properties: 
+pciBusID: 0000:03:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-10-07 13:36:54.342108: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2021-10-07 13:36:54.344983: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10
+2021-10-07 13:36:54.347651: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcufft.so.10
+2021-10-07 13:36:54.348425: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcurand.so.10
+2021-10-07 13:36:54.351040: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusolver.so.10
+2021-10-07 13:36:54.352621: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusparse.so.10
+2021-10-07 13:36:54.357611: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+2021-10-07 13:36:54.358953: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1703] Adding visible gpu devices: 0
+PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+2021-10-07 13:36:58.769221: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 2200090000 Hz
+2021-10-07 13:36:58.773591: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x5890c20 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-10-07 13:36:58.773636: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2021-10-07 13:36:58.864647: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x36633b0 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2021-10-07 13:36:58.864679: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): GeForce GTX 1080 Ti, Compute Capability 6.1
+2021-10-07 13:36:58.865590: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1561] Found device 0 with properties: 
+pciBusID: 0000:03:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-10-07 13:36:58.865671: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2021-10-07 13:36:58.865688: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10
+2021-10-07 13:36:58.865703: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcufft.so.10
+2021-10-07 13:36:58.865716: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcurand.so.10
+2021-10-07 13:36:58.865729: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusolver.so.10
+2021-10-07 13:36:58.865740: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusparse.so.10
+2021-10-07 13:36:58.865753: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+2021-10-07 13:36:58.867052: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1703] Adding visible gpu devices: 0
+2021-10-07 13:36:58.867102: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2021-10-07 13:36:58.868169: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1102] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-10-07 13:36:58.868183: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1108]      0 
+2021-10-07 13:36:58.868193: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1121] 0:   N 
+2021-10-07 13:36:58.869605: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1247] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10378 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:03:00.0, compute capability: 6.1)
+Training split loaded (1,699,328 images).
+Validation split loaded (424,448 images).
+Test split loaded (530,944 images).
+Model: "deep_nn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d (Conv2D)              (None, 24, 24, 20)        2180      
+_________________________________________________________________
+max_pooling2d (MaxPooling2D) (None, 12, 12, 20)        0         
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 8, 8, 50)          25050     
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 4, 4, 50)          0         
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 1, 1, 500)         400500    
+_________________________________________________________________
+re_lu (ReLU)                 (None, 1, 1, 500)         0         
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 1, 1, 2)           1002      
+_________________________________________________________________
+reshape (Reshape)            (None, None, 2)           0         
+_________________________________________________________________
+softmax (Softmax)            (None, None, 2)           0         
+=================================================================
+Total params: 428,732
+Trainable params: 428,732
+Non-trainable params: 0
+_________________________________________________________________
+2021-10-07 13:43:37.170832: I tensorflow/core/profiler/lib/profiler_session.cc:159] Profiler session started.
+2021-10-07 13:43:37.170884: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1363] Profiler found 1 GPUs
+2021-10-07 13:43:37.174592: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcupti.so.10.1'; dlerror: libcupti.so.10.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /usr/local/nvidia/lib:/usr/local/nvidia/lib64:/.singularity.d/libs
+2021-10-07 13:43:37.174617: E tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1408] function cupti_interface_->Subscribe( &subscriber_, (CUpti_CallbackFunc)ApiCallback, this)failed with error CUPTI could not be loaded or symbol could not be found.
+2021-10-07 13:43:37.174630: E tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1447] function cupti_interface_->ActivityRegisterCallbacks( AllocCuptiActivityBuffer, FreeCuptiActivityBuffer)failed with error CUPTI could not be loaded or symbol could not be found.
+2021-10-07 13:43:37.174674: E tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1430] function cupti_interface_->EnableCallback( 0 , subscriber_, CUPTI_CB_DOMAIN_DRIVER_API, cbid)failed with error CUPTI could not be loaded or symbol could not be found.
+tensorboard --logdir=./graphs/PeakLens_original/train
+Epoch 1/5
+2021-10-07 13:43:47.766041: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 457399 of 1699377
+2021-10-07 13:43:57.766030: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 951134 of 1699377
+2021-10-07 13:44:07.766037: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 1396518 of 1699377
+2021-10-07 13:44:14.367955: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:233] Shuffle buffer filled.
+2021-10-07 13:44:14.391098: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+2021-10-07 13:44:15.605223: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10
+2021-10-07 13:44:15.842882: I tensorflow/core/profiler/lib/profiler_session.cc:159] Profiler session started.
+2021-10-07 13:44:15.842953: E tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1408] function cupti_interface_->Subscribe( &subscriber_, (CUpti_CallbackFunc)ApiCallback, this)failed with error CUPTI could not be loaded or symbol could not be found.
+2021-10-07 13:44:15.842969: E tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1447] function cupti_interface_->ActivityRegisterCallbacks( AllocCuptiActivityBuffer, FreeCuptiActivityBuffer)failed with error CUPTI could not be loaded or symbol could not be found.
+   1/6639 [..............................] - ETA: 0s - loss: 2.2970 - accuracy: 0.55862021-10-07 13:44:15.851222: E tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1430] function cupti_interface_->EnableCallback( 0 , subscriber_, CUPTI_CB_DOMAIN_DRIVER_API, cbid)failed with error CUPTI could not be loaded or symbol could not be found.
+2021-10-07 13:44:15.852001: I tensorflow/core/profiler/internal/gpu/device_tracer.cc:216]  GpuTracer has collected 0 callback api events and 0 activity events.
+2021-10-07 13:44:15.856042: I tensorflow/core/profiler/rpc/client/save_profile.cc:168] Creating directory: ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_07_13_44_15
+2021-10-07 13:44:15.890140: I tensorflow/core/profiler/rpc/client/save_profile.cc:174] Dumped gzipped tool data for trace.json.gz to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_07_13_44_15/node-2.novalocal.trace.json.gz
+2021-10-07 13:44:15.891039: I tensorflow/core/profiler/utils/event_span.cc:288] Generation of step-events took 0 ms
+
+2021-10-07 13:44:15.966161: I tensorflow/python/profiler/internal/profiler_wrapper.cc:87] Creating directory: ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_07_13_44_15Dumped tool data for overview_page.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_07_13_44_15/node-2.novalocal.overview_page.pb
+Dumped tool data for input_pipeline.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_07_13_44_15/node-2.novalocal.input_pipeline.pb
+Dumped tool data for tensorflow_stats.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_07_13_44_15/node-2.novalocal.tensorflow_stats.pb
+Dumped tool data for kernel_stats.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_07_13_44_15/node-2.novalocal.kernel_stats.pb
+
+6638/6639 [============================>.] - ETA: 0s - loss: 0.2228 - accuracy: 0.9278  
+Epoch 00001: val_loss improved from inf to 0.18772, saving model to ./checkpoint/original/weights.01-0.19.hdf5
+6639/6639 [==============================] - 48s 7ms/step - loss: 0.2228 - accuracy: 0.9278 - val_loss: 0.1877 - val_accuracy: 0.9295
+Epoch 2/5
+2021-10-07 13:45:15.954263: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 448821 of 1699377
+2021-10-07 13:45:25.954271: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 936622 of 1699377
+2021-10-07 13:45:35.954240: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 1411004 of 1699377
+2021-10-07 13:45:42.025496: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:233] Shuffle buffer filled.
+6637/6639 [============================>.] - ETA: 0s - loss: 0.1506 - accuracy: 0.9457 
+Epoch 00002: val_loss improved from 0.18772 to 0.14303, saving model to ./checkpoint/original/weights.02-0.14.hdf5
+6639/6639 [==============================] - 47s 7ms/step - loss: 0.1506 - accuracy: 0.9457 - val_loss: 0.1430 - val_accuracy: 0.9489
+Epoch 3/5
+2021-10-07 13:46:39.288559: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 365523 of 1699377
+2021-10-07 13:46:49.288535: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 862067 of 1699377
+2021-10-07 13:46:59.288574: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 1333642 of 1699377
+2021-10-07 13:47:07.625461: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:233] Shuffle buffer filled.
+6632/6639 [============================>.] - ETA: 0s - loss: 0.1345 - accuracy: 0.9508 
+Epoch 00003: val_loss improved from 0.14303 to 0.13217, saving model to ./checkpoint/original/weights.03-0.13.hdf5
+6639/6639 [==============================] - 47s 7ms/step - loss: 0.1345 - accuracy: 0.9508 - val_loss: 0.1322 - val_accuracy: 0.9516
+Epoch 4/5
+2021-10-07 13:48:04.621098: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 393711 of 1699377
+2021-10-07 13:48:14.621131: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 902153 of 1699377
+2021-10-07 13:48:24.621084: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 1388709 of 1699377
+2021-10-07 13:48:31.459637: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:233] Shuffle buffer filled.
+6634/6639 [============================>.] - ETA: 0s - loss: 0.1262 - accuracy: 0.9537 
+Epoch 00004: val_loss improved from 0.13217 to 0.13044, saving model to ./checkpoint/original/weights.04-0.13.hdf5
+6639/6639 [==============================] - 48s 7ms/step - loss: 0.1262 - accuracy: 0.9537 - val_loss: 0.1304 - val_accuracy: 0.9525
+Epoch 5/5
+2021-10-07 13:49:29.114431: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 475952 of 1699377
+2021-10-07 13:49:39.114431: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 990416 of 1699377
+2021-10-07 13:49:49.114491: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 1495222 of 1699377
+2021-10-07 13:49:53.316310: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:233] Shuffle buffer filled.
+6632/6639 [============================>.] - ETA: 0s - loss: 0.1201 - accuracy: 0.9557 
+Epoch 00005: val_loss did not improve from 0.13044
+6639/6639 [==============================] - 48s 7ms/step - loss: 0.1201 - accuracy: 0.9557 - val_loss: 0.1341 - val_accuracy: 0.9510
+Elapsed 424.138 seconds.
+Using TensorFlow backend.
+2021-10-07 13:50:51.695146: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:184] Filling up shuffle buffer (this may take a while): 446032 of 531021
+2021-10-07 13:50:53.476306: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:233] Shuffle buffer filled.
+2075/2075 - 5s - loss: 0.1800 - accuracy: 0.9318
+Restored model, accuracy: 93.18%
+2021-10-07 13:50:58.594177: I tensorflow/core/grappler/devices.cc:55] Number of eligible GPUs (core count >= 8, compute capability >= 0.0): 1
+2021-10-07 13:50:58.594327: I tensorflow/core/grappler/clusters/single_machine.cc:356] Starting new session
+2021-10-07 13:50:58.595703: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1561] Found device 0 with properties: 
+pciBusID: 0000:03:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-10-07 13:50:58.595783: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudart.so.10.1
+2021-10-07 13:50:58.595799: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10
+2021-10-07 13:50:58.595814: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcufft.so.10
+2021-10-07 13:50:58.595829: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcurand.so.10
+2021-10-07 13:50:58.595843: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusolver.so.10
+2021-10-07 13:50:58.595855: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcusparse.so.10
+2021-10-07 13:50:58.595868: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+2021-10-07 13:50:58.596955: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1703] Adding visible gpu devices: 0
+2021-10-07 13:50:58.596996: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1102] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-10-07 13:50:58.597003: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1108]      0 
+2021-10-07 13:50:58.597009: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1121] 0:   N 
+2021-10-07 13:50:58.598138: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1247] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10378 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:03:00.0, compute capability: 6.1)
+2021-10-07 13:50:58.605154: I tensorflow/core/grappler/optimizers/meta_optimizer.cc:797] Optimization results for grappler item: graph_to_optimize
+2021-10-07 13:50:58.605194: I tensorflow/core/grappler/optimizers/meta_optimizer.cc:799]   function_optimizer: function_optimizer did nothing. time = 0.002ms.
+2021-10-07 13:50:58.605200: I tensorflow/core/grappler/optimizers/meta_optimizer.cc:799]   function_optimizer: function_optimizer did nothing. time = 0ms.
+Model saved at ./protobufs/PeakLens_original.pb

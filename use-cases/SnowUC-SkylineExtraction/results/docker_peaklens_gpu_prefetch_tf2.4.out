@@ -1,0 +1,482 @@
+[hpccrnm@node-2 SnowWatch-SODALITE]$ singularity exec --nv /mnt/nfs/home/hpccrnm/soda/docker/tensorflow_2.4.3-gpu.sif python3 SkylineExtraction-training/peaklens-gpuopt_training.py 
+2021-10-14 14:59:05.252924: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+2.4.3
+2021-10-14 14:59:08.285103: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-10-14 14:59:08.286312: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcuda.so.1
+2021-10-14 14:59:08.815075: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties: 
+pciBusID: 0000:03:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-10-14 14:59:08.815118: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+2021-10-14 14:59:08.969123: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.11
+2021-10-14 14:59:08.969227: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.11
+2021-10-14 14:59:09.028204: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcufft.so.10
+2021-10-14 14:59:09.091705: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcurand.so.10
+2021-10-14 14:59:09.219893: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusolver.so.10
+2021-10-14 14:59:09.270627: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusparse.so.11
+2021-10-14 14:59:09.272267: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.8
+2021-10-14 14:59:09.279207: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1862] Adding visible gpu devices: 0
+PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+2021-10-14 14:59:17.004908: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-10-14 14:59:17.009716: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-10-14 14:59:17.011211: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties: 
+pciBusID: 0000:03:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-10-14 14:59:17.011247: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+2021-10-14 14:59:17.011369: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.11
+2021-10-14 14:59:17.011392: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.11
+2021-10-14 14:59:17.011412: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcufft.so.10
+2021-10-14 14:59:17.011430: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcurand.so.10
+2021-10-14 14:59:17.011448: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusolver.so.10
+2021-10-14 14:59:17.011478: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusparse.so.11
+2021-10-14 14:59:17.011497: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.8
+2021-10-14 14:59:17.012807: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1862] Adding visible gpu devices: 0
+2021-10-14 14:59:17.012834: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+2021-10-14 14:59:19.753561: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1261] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-10-14 14:59:19.753650: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1267]      0 
+2021-10-14 14:59:19.753658: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1280] 0:   N 
+2021-10-14 14:59:19.755866: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1406] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10271 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:03:00.0, compute capability: 6.1)
+Training split loaded (1,699,328 images).
+Validation split loaded (424,448 images).
+Test split loaded (530,944 images).
+Model: "deep_nn"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d (Conv2D)              (None, 24, 24, 20)        2180      
+_________________________________________________________________
+max_pooling2d (MaxPooling2D) (None, 12, 12, 20)        0         
+_________________________________________________________________
+conv2d_1 (Conv2D)            (None, 8, 8, 50)          25050     
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 4, 4, 50)          0         
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 1, 1, 500)         400500    
+_________________________________________________________________
+re_lu (ReLU)                 (None, 1, 1, 500)         0         
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 1, 1, 2)           1002      
+_________________________________________________________________
+reshape (Reshape)            (None, 1, 2)              0         
+_________________________________________________________________
+softmax (Softmax)            (None, 1, 2)              0         
+=================================================================
+Total params: 428,732
+Trainable params: 428,732
+Non-trainable params: 0
+_________________________________________________________________
+2021-10-14 14:59:23.796546: I tensorflow/core/profiler/lib/profiler_session.cc:136] Profiler session initializing.
+2021-10-14 14:59:23.796575: I tensorflow/core/profiler/lib/profiler_session.cc:155] Profiler session started.
+2021-10-14 14:59:23.796600: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1365] Profiler found 1 GPUs
+2021-10-14 14:59:23.831637: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcupti.so.11.0
+2021-10-14 14:59:23.992570: I tensorflow/core/profiler/lib/profiler_session.cc:172] Profiler session tear down.
+2021-10-14 14:59:23.992746: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1487] CUPTI activity buffer flushed
+tensorboard --logdir=./graphs/PeakLens_original/train
+2021-10-14 14:59:24.176939: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)
+2021-10-14 14:59:24.177430: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 2200090000 Hz
+Epoch 1/5
+2021-10-14 14:59:34.674201: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 181822 of 1699377
+2021-10-14 14:59:44.674138: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 284411 of 1699377
+2021-10-14 14:59:54.674666: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 361437 of 1699377
+2021-10-14 15:00:04.674241: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 426813 of 1699377
+2021-10-14 15:00:14.675909: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 484977 of 1699377
+2021-10-14 15:00:24.674796: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 537753 of 1699377
+2021-10-14 15:00:34.675007: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 586282 of 1699377
+2021-10-14 15:00:44.674466: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 630972 of 1699377
+2021-10-14 15:00:54.675568: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 666133 of 1699377
+2021-10-14 15:01:04.674864: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 708219 of 1699377
+2021-10-14 15:01:14.674328: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 766491 of 1699377
+2021-10-14 15:01:24.675485: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 819930 of 1699377
+2021-10-14 15:01:34.674881: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 869296 of 1699377
+2021-10-14 15:01:44.674715: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 915576 of 1699377
+2021-10-14 15:01:54.676575: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 950436 of 1699377
+2021-10-14 15:02:04.674134: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 994237 of 1699377
+2021-10-14 15:02:14.674686: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1054643 of 1699377
+2021-10-14 15:02:24.674367: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1112700 of 1699377
+2021-10-14 15:02:34.674221: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1164976 of 1699377
+2021-10-14 15:02:44.674339: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1212541 of 1699377
+2021-10-14 15:02:54.674346: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1249661 of 1699377
+2021-10-14 15:03:04.674203: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1297004 of 1699377
+2021-10-14 15:03:14.674793: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1358624 of 1699377
+2021-10-14 15:03:24.674105: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1413703 of 1699377
+2021-10-14 15:03:34.674158: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1463055 of 1699377
+2021-10-14 15:03:44.675810: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1509092 of 1699377
+2021-10-14 15:03:54.674531: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1545732 of 1699377
+2021-10-14 15:04:04.674504: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1592023 of 1699377
+2021-10-14 15:04:14.674763: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1655508 of 1699377
+2021-10-14 15:04:22.446692: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+2021-10-14 15:04:22.514300: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.8
+2021-10-14 15:04:32.604465: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.11
+2021-10-14 15:04:34.817658: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.11
+      1/Unknown - 311s 311s/step - loss: 18.6531 - accuracy: 0.34382021-10-14 15:04:34.978287: I tensorflow/core/profiler/lib/profiler_session.cc:136] Profiler session initializing.
+2021-10-14 15:04:34.978320: I tensorflow/core/profiler/lib/profiler_session.cc:155] Profiler session started.
+      2/Unknown - 311s 431ms/step - loss: 17.0223 - accuracy: 0.43162021-10-14 15:04:35.396330: I tensorflow/core/profiler/lib/profiler_session.cc:71] Profiler session collecting data.
+2021-10-14 15:04:35.397004: I tensorflow/core/profiler/internal/gpu/cupti_tracer.cc:1487] CUPTI activity buffer flushed
+2021-10-14 15:04:35.537709: I tensorflow/core/profiler/internal/gpu/cupti_collector.cc:228]  GpuTracer has collected 127 callback api events and 115 activity events. 
+2021-10-14 15:04:35.541379: I tensorflow/core/profiler/lib/profiler_session.cc:172] Profiler session tear down.
+2021-10-14 15:04:35.562668: I tensorflow/core/profiler/rpc/client/save_profile.cc:137] Creating directory: ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35
+2021-10-14 15:04:35.596657: I tensorflow/core/profiler/rpc/client/save_profile.cc:143] Dumped gzipped tool data for trace.json.gz to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35/node-2.novalocal.trace.json.gz
+2021-10-14 15:04:35.603908: I tensorflow/core/profiler/rpc/client/save_profile.cc:137] Creating directory: ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35
+2021-10-14 15:04:35.630193: I tensorflow/core/profiler/rpc/client/save_profile.cc:143] Dumped gzipped tool data for memory_profile.json.gz to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35/node-2.novalocal.memory_profile.json.gz
+2021-10-14 15:04:35.658100: I tensorflow/core/profiler/rpc/client/capture_profile.cc:251] Creating directory: ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35Dumped tool data for xplane.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35/node-2.novalocal.xplane.pb
+Dumped tool data for overview_page.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35/node-2.novalocal.overview_page.pb
+Dumped tool data for input_pipeline.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35/node-2.novalocal.input_pipeline.pb
+Dumped tool data for tensorflow_stats.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35/node-2.novalocal.tensorflow_stats.pb
+Dumped tool data for kernel_stats.pb to ./graphs/PeakLens_original/train/train/plugins/profile/2021_10_14_15_04_35/node-2.novalocal.kernel_stats.pb
+
+   6639/Unknown - 342s 5ms/step - loss: 0.4015 - accuracy: 0.90902021-10-14 15:05:18.829118: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 98698 of 424683
+2021-10-14 15:05:28.830102: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 175667 of 424683
+2021-10-14 15:05:38.830344: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 233266 of 424683
+2021-10-14 15:05:48.829530: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 301422 of 424683
+2021-10-14 15:05:58.829409: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 374362 of 424683
+2021-10-14 15:06:06.762117: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6639/6639 [==============================] - 406s 14ms/step - loss: 0.4015 - accuracy: 0.9090 - val_loss: 0.1607 - val_accuracy: 0.9429
+
+Epoch 00001: val_loss improved from inf to 0.16070, saving model to ./checkpoint/original/weights.01-0.16.hdf5
+Epoch 2/5
+2021-10-14 15:06:20.437506: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 56948 of 1699377
+2021-10-14 15:06:30.437117: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 108599 of 1699377
+2021-10-14 15:06:40.437543: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 150899 of 1699377
+2021-10-14 15:06:50.438113: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 196461 of 1699377
+2021-10-14 15:07:00.436393: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 257035 of 1699377
+2021-10-14 15:07:10.437044: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 310568 of 1699377
+2021-10-14 15:07:20.438417: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 359425 of 1699377
+2021-10-14 15:07:30.436821: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 404775 of 1699377
+2021-10-14 15:07:40.436708: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 440440 of 1699377
+2021-10-14 15:07:50.437091: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 479915 of 1699377
+2021-10-14 15:08:00.436560: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 528770 of 1699377
+2021-10-14 15:08:10.436309: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 588716 of 1699377
+2021-10-14 15:08:20.437808: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 643661 of 1699377
+2021-10-14 15:08:30.436660: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 693137 of 1699377
+2021-10-14 15:08:40.439978: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 733562 of 1699377
+2021-10-14 15:08:50.436591: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 775928 of 1699377
+2021-10-14 15:09:00.436510: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 833441 of 1699377
+2021-10-14 15:09:10.437457: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 892661 of 1699377
+2021-10-14 15:09:20.436682: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 946603 of 1699377
+2021-10-14 15:09:30.437543: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 995648 of 1699377
+2021-10-14 15:09:40.436572: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1034490 of 1699377
+2021-10-14 15:09:50.436377: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1076048 of 1699377
+2021-10-14 15:10:00.436650: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1131981 of 1699377
+2021-10-14 15:10:10.436518: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1190539 of 1699377
+2021-10-14 15:10:20.436721: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1242872 of 1699377
+2021-10-14 15:10:30.440495: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1277893 of 1699377
+2021-10-14 15:10:40.437437: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1299642 of 1699377
+2021-10-14 15:10:50.436833: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1319140 of 1699377
+2021-10-14 15:11:00.437172: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1338803 of 1699377
+2021-10-14 15:11:10.436427: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1358764 of 1699377
+2021-10-14 15:11:20.436533: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1378897 of 1699377
+2021-10-14 15:11:30.436403: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1404079 of 1699377
+2021-10-14 15:11:40.440011: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1426020 of 1699377
+2021-10-14 15:11:50.438562: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1445373 of 1699377
+2021-10-14 15:12:00.437547: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1465459 of 1699377
+2021-10-14 15:12:10.436390: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1489854 of 1699377
+2021-10-14 15:12:20.436694: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1524251 of 1699377
+2021-10-14 15:12:30.436501: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1555903 of 1699377
+2021-10-14 15:12:40.438756: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1580830 of 1699377
+2021-10-14 15:12:50.438290: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1601930 of 1699377
+2021-10-14 15:13:00.437062: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1627422 of 1699377
+2021-10-14 15:13:10.436660: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1659011 of 1699377
+2021-10-14 15:13:20.437857: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1692329 of 1699377
+2021-10-14 15:13:22.533344: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6630/6639 [============================>.] - ETA: 0s - loss: 0.1530 - accuracy: 0.94492021-10-14 15:14:05.325783: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 28417 of 424683
+2021-10-14 15:14:15.325107: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 63283 of 424683
+2021-10-14 15:14:25.326444: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 95099 of 424683
+2021-10-14 15:14:35.327521: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 121918 of 424683
+2021-10-14 15:14:45.325295: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 154494 of 424683
+2021-10-14 15:14:55.325705: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 184755 of 424683
+2021-10-14 15:15:05.324957: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 211281 of 424683
+2021-10-14 15:15:15.326245: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 243860 of 424683
+2021-10-14 15:15:25.327694: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 273221 of 424683
+2021-10-14 15:15:35.325865: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 303509 of 424683
+2021-10-14 15:15:45.325195: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 336637 of 424683
+2021-10-14 15:15:55.326131: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 364529 of 424683
+2021-10-14 15:16:05.326741: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 389859 of 424683
+2021-10-14 15:16:15.325907: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 421389 of 424683
+2021-10-14 15:16:16.427130: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6639/6639 [==============================] - 609s 27ms/step - loss: 0.1530 - accuracy: 0.9449 - val_loss: 0.1445 - val_accuracy: 0.9484
+
+Epoch 00002: val_loss improved from 0.16070 to 0.14455, saving model to ./checkpoint/original/weights.02-0.14.hdf5
+Epoch 3/5
+2021-10-14 15:16:30.056341: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 25072 of 1699377
+2021-10-14 15:16:40.056711: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 47957 of 1699377
+2021-10-14 15:16:50.056991: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 74738 of 1699377
+2021-10-14 15:17:00.058601: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 104029 of 1699377
+2021-10-14 15:17:10.056548: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 133901 of 1699377
+2021-10-14 15:17:20.056431: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 165074 of 1699377
+2021-10-14 15:17:30.057261: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 190279 of 1699377
+2021-10-14 15:17:40.057200: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 212549 of 1699377
+2021-10-14 15:17:50.059286: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 238493 of 1699377
+2021-10-14 15:18:00.056212: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 266589 of 1699377
+2021-10-14 15:18:10.057867: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 294304 of 1699377
+2021-10-14 15:18:20.056907: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 324477 of 1699377
+2021-10-14 15:18:30.057368: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 350119 of 1699377
+2021-10-14 15:18:40.056370: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 372794 of 1699377
+2021-10-14 15:18:50.056156: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 399522 of 1699377
+2021-10-14 15:19:00.057498: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 427512 of 1699377
+2021-10-14 15:19:10.056097: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 455458 of 1699377
+2021-10-14 15:19:20.056783: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 486423 of 1699377
+2021-10-14 15:19:30.056347: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 511671 of 1699377
+2021-10-14 15:19:40.057642: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 533013 of 1699377
+2021-10-14 15:19:50.057070: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 558764 of 1699377
+2021-10-14 15:20:00.056105: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 585247 of 1699377
+2021-10-14 15:20:10.056174: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 612780 of 1699377
+2021-10-14 15:20:20.056100: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 644133 of 1699377
+2021-10-14 15:20:30.056439: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 679069 of 1699377
+2021-10-14 15:20:40.056733: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 732667 of 1699377
+2021-10-14 15:20:50.056784: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 788886 of 1699377
+2021-10-14 15:21:00.056672: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 836729 of 1699377
+2021-10-14 15:21:10.058122: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 865708 of 1699377
+2021-10-14 15:21:20.062029: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 896855 of 1699377
+2021-10-14 15:21:30.056319: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 922796 of 1699377
+2021-10-14 15:21:40.056964: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 945790 of 1699377
+2021-10-14 15:21:50.056155: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 974049 of 1699377
+2021-10-14 15:22:00.056096: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1001215 of 1699377
+2021-10-14 15:22:10.057888: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1028196 of 1699377
+2021-10-14 15:22:20.057469: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1055769 of 1699377
+2021-10-14 15:22:30.056101: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1074080 of 1699377
+2021-10-14 15:22:40.056674: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1091260 of 1699377
+2021-10-14 15:22:50.056794: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1108675 of 1699377
+2021-10-14 15:23:00.056124: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1126383 of 1699377
+2021-10-14 15:23:10.057063: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1149032 of 1699377
+2021-10-14 15:23:20.056541: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1181819 of 1699377
+2021-10-14 15:23:30.057094: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1209923 of 1699377
+2021-10-14 15:23:40.057334: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1242314 of 1699377
+2021-10-14 15:23:50.058108: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1275218 of 1699377
+2021-10-14 15:24:00.060592: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1303213 of 1699377
+2021-10-14 15:24:10.056576: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1331342 of 1699377
+2021-10-14 15:24:20.056224: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1362652 of 1699377
+2021-10-14 15:24:30.057823: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1389880 of 1699377
+2021-10-14 15:24:40.056365: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1412590 of 1699377
+2021-10-14 15:24:50.057528: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1441709 of 1699377
+2021-10-14 15:25:00.056515: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1468203 of 1699377
+2021-10-14 15:25:10.056519: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1495276 of 1699377
+2021-10-14 15:25:20.057064: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1525042 of 1699377
+2021-10-14 15:25:30.057797: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1551134 of 1699377
+2021-10-14 15:25:40.056134: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1572900 of 1699377
+2021-10-14 15:25:50.056105: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1596142 of 1699377
+2021-10-14 15:26:00.057271: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1624407 of 1699377
+2021-10-14 15:26:10.058081: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1653057 of 1699377
+2021-10-14 15:26:20.056271: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1684783 of 1699377
+2021-10-14 15:26:25.195680: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6639/6639 [==============================] - ETA: 0s - loss: 0.1353 - accuracy: 0.95072021-10-14 15:27:06.331928: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 26807 of 424683
+2021-10-14 15:27:16.332051: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 59284 of 424683
+2021-10-14 15:27:26.332598: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 88703 of 424683
+2021-10-14 15:27:36.332004: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 113694 of 424683
+2021-10-14 15:27:46.332428: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 138234 of 424683
+2021-10-14 15:27:56.333044: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 168019 of 424683
+2021-10-14 15:28:06.332453: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 194237 of 424683
+2021-10-14 15:28:16.332335: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 226337 of 424683
+2021-10-14 15:28:26.332952: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 256611 of 424683
+2021-10-14 15:28:36.332543: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 285027 of 424683
+2021-10-14 15:28:46.333520: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 320334 of 424683
+2021-10-14 15:28:56.332604: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 350403 of 424683
+2021-10-14 15:29:06.332246: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 376729 of 424683
+2021-10-14 15:29:16.331996: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 408334 of 424683
+2021-10-14 15:29:21.628629: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6639/6639 [==============================] - 785s 27ms/step - loss: 0.1353 - accuracy: 0.9507 - val_loss: 0.1309 - val_accuracy: 0.9533
+
+Epoch 00003: val_loss improved from 0.14455 to 0.13093, saving model to ./checkpoint/original/weights.03-0.13.hdf5
+Epoch 4/5
+2021-10-14 15:29:35.687468: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 24529 of 1699377
+2021-10-14 15:29:45.686546: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 47058 of 1699377
+2021-10-14 15:29:55.685154: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 76583 of 1699377
+2021-10-14 15:30:05.687064: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 103847 of 1699377
+2021-10-14 15:30:15.685186: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 135120 of 1699377
+2021-10-14 15:30:25.687014: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 163194 of 1699377
+2021-10-14 15:30:35.685100: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 186586 of 1699377
+2021-10-14 15:30:45.686596: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 211982 of 1699377
+2021-10-14 15:30:55.686142: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 241742 of 1699377
+2021-10-14 15:31:05.685438: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 268026 of 1699377
+2021-10-14 15:31:15.686268: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 297427 of 1699377
+2021-10-14 15:31:25.687654: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 323312 of 1699377
+2021-10-14 15:31:35.685151: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 348657 of 1699377
+2021-10-14 15:31:45.685969: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 375741 of 1699377
+2021-10-14 15:31:55.685668: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 404851 of 1699377
+2021-10-14 15:32:05.691624: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 430329 of 1699377
+2021-10-14 15:32:15.686958: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 459894 of 1699377
+2021-10-14 15:32:25.685485: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 486263 of 1699377
+2021-10-14 15:32:35.685652: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 512116 of 1699377
+2021-10-14 15:32:45.688204: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 539913 of 1699377
+2021-10-14 15:32:55.686061: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 569910 of 1699377
+2021-10-14 15:33:05.685688: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 596040 of 1699377
+2021-10-14 15:33:15.686853: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 625307 of 1699377
+2021-10-14 15:33:25.687035: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 651969 of 1699377
+2021-10-14 15:33:35.685464: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 677022 of 1699377
+2021-10-14 15:33:45.685739: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 715052 of 1699377
+2021-10-14 15:33:55.685179: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 769014 of 1699377
+2021-10-14 15:34:05.688128: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 818119 of 1699377
+2021-10-14 15:34:15.686243: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 861698 of 1699377
+2021-10-14 15:34:25.685697: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 889328 of 1699377
+2021-10-14 15:34:35.688051: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 912246 of 1699377
+2021-10-14 15:34:45.686246: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 941669 of 1699377
+2021-10-14 15:34:55.685254: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 979547 of 1699377
+2021-10-14 15:35:05.687094: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1011375 of 1699377
+2021-10-14 15:35:15.685763: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1038768 of 1699377
+2021-10-14 15:35:25.688358: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1059620 of 1699377
+2021-10-14 15:35:35.687836: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1077470 of 1699377
+2021-10-14 15:35:45.687798: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1099365 of 1699377
+2021-10-14 15:35:55.685143: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1124840 of 1699377
+2021-10-14 15:36:05.688100: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1155387 of 1699377
+2021-10-14 15:36:15.685117: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1183167 of 1699377
+2021-10-14 15:36:25.687243: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1205413 of 1699377
+2021-10-14 15:36:35.692974: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1223925 of 1699377
+2021-10-14 15:36:45.688047: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1251980 of 1699377
+2021-10-14 15:36:55.685696: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1289796 of 1699377
+2021-10-14 15:37:05.686094: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1325525 of 1699377
+2021-10-14 15:37:15.687106: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1354606 of 1699377
+2021-10-14 15:37:25.686027: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1378200 of 1699377
+2021-10-14 15:37:35.685764: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1396948 of 1699377
+2021-10-14 15:37:45.685593: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1423119 of 1699377
+2021-10-14 15:37:55.686117: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1460127 of 1699377
+2021-10-14 15:38:05.685617: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1495324 of 1699377
+2021-10-14 15:38:15.685165: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1523837 of 1699377
+2021-10-14 15:38:25.688305: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1546934 of 1699377
+2021-10-14 15:38:35.688682: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1565069 of 1699377
+2021-10-14 15:38:45.685138: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1589904 of 1699377
+2021-10-14 15:38:55.686001: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1627072 of 1699377
+2021-10-14 15:39:05.685262: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1660346 of 1699377
+2021-10-14 15:39:15.685228: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1688525 of 1699377
+2021-10-14 15:39:19.813326: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6633/6639 [============================>.] - ETA: 0s - loss: 0.1262 - accuracy: 0.95382021-10-14 15:40:01.089040: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 32916 of 424683
+2021-10-14 15:40:11.091012: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 62331 of 424683
+2021-10-14 15:40:21.088832: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 86997 of 424683
+2021-10-14 15:40:31.090170: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 106219 of 424683
+2021-10-14 15:40:41.087142: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 127588 of 424683
+2021-10-14 15:40:51.087068: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 162712 of 424683
+2021-10-14 15:41:01.086694: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 200400 of 424683
+2021-10-14 15:41:11.087060: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 234533 of 424683
+2021-10-14 15:41:21.087149: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 261664 of 424683
+2021-10-14 15:41:31.087356: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 282151 of 424683
+2021-10-14 15:41:41.086687: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 309429 of 424683
+2021-10-14 15:41:51.087448: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 342092 of 424683
+2021-10-14 15:42:01.087118: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 374729 of 424683
+2021-10-14 15:42:11.088486: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 407726 of 424683
+2021-10-14 15:42:17.390653: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6639/6639 [==============================] - 775s 27ms/step - loss: 0.1262 - accuracy: 0.9538 - val_loss: 0.1287 - val_accuracy: 0.9536
+
+Epoch 00004: val_loss improved from 0.13093 to 0.12870, saving model to ./checkpoint/original/weights.04-0.13.hdf5
+Epoch 5/5
+2021-10-14 15:42:31.170637: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 19182 of 1699377
+2021-10-14 15:42:41.171041: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 40208 of 1699377
+2021-10-14 15:42:51.170602: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 73576 of 1699377
+2021-10-14 15:43:01.170651: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 111530 of 1699377
+2021-10-14 15:43:11.172746: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 140737 of 1699377
+2021-10-14 15:43:21.171529: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 163340 of 1699377
+2021-10-14 15:43:31.170650: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 183519 of 1699377
+2021-10-14 15:43:41.171908: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 205225 of 1699377
+2021-10-14 15:43:51.169824: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 242290 of 1699377
+2021-10-14 15:44:01.170100: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 279454 of 1699377
+2021-10-14 15:44:11.170474: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 308175 of 1699377
+2021-10-14 15:44:21.171528: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 331013 of 1699377
+2021-10-14 15:44:31.171052: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 350392 of 1699377
+2021-10-14 15:44:41.169945: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 371350 of 1699377
+2021-10-14 15:44:51.170464: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 406750 of 1699377
+2021-10-14 15:45:01.169956: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 442694 of 1699377
+2021-10-14 15:45:11.169733: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 473324 of 1699377
+2021-10-14 15:45:21.170526: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 496682 of 1699377
+2021-10-14 15:45:31.169751: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 516748 of 1699377
+2021-10-14 15:45:41.169672: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 538332 of 1699377
+2021-10-14 15:45:51.170915: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 573103 of 1699377
+2021-10-14 15:46:01.170500: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 609720 of 1699377
+2021-10-14 15:46:11.169799: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 639240 of 1699377
+2021-10-14 15:46:21.170387: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 662603 of 1699377
+2021-10-14 15:46:31.170659: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 682347 of 1699377
+2021-10-14 15:46:41.171048: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 703069 of 1699377
+2021-10-14 15:46:51.169930: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 737526 of 1699377
+2021-10-14 15:47:01.170509: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 774714 of 1699377
+2021-10-14 15:47:11.169692: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 825831 of 1699377
+2021-10-14 15:47:21.169750: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 869800 of 1699377
+2021-10-14 15:47:31.170303: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 913402 of 1699377
+2021-10-14 15:47:41.169714: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 948707 of 1699377
+2021-10-14 15:47:51.170229: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 986435 of 1699377
+2021-10-14 15:48:01.170277: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1024067 of 1699377
+2021-10-14 15:48:11.170986: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1055244 of 1699377
+2021-10-14 15:48:21.170818: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1078321 of 1699377
+2021-10-14 15:48:31.170879: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1098548 of 1699377
+2021-10-14 15:48:41.170550: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1119291 of 1699377
+2021-10-14 15:48:51.170045: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1150811 of 1699377
+2021-10-14 15:49:01.169654: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1181266 of 1699377
+2021-10-14 15:49:11.169765: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1208325 of 1699377
+2021-10-14 15:49:21.170263: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1229974 of 1699377
+2021-10-14 15:49:31.174265: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1249089 of 1699377
+2021-10-14 15:49:41.169932: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1267672 of 1699377
+2021-10-14 15:49:51.169850: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1296461 of 1699377
+2021-10-14 15:50:01.174111: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1335257 of 1699377
+2021-10-14 15:50:11.170041: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1369077 of 1699377
+2021-10-14 15:50:21.174532: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1399345 of 1699377
+2021-10-14 15:50:31.171121: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1419398 of 1699377
+2021-10-14 15:50:41.169999: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1439580 of 1699377
+2021-10-14 15:50:51.170222: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1475725 of 1699377
+2021-10-14 15:51:01.169881: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1512096 of 1699377
+2021-10-14 15:51:11.170374: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1543437 of 1699377
+2021-10-14 15:51:21.170770: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1567172 of 1699377
+2021-10-14 15:51:31.169797: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1587100 of 1699377
+2021-10-14 15:51:41.171198: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1607185 of 1699377
+2021-10-14 15:51:51.172085: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1641923 of 1699377
+2021-10-14 15:52:01.171102: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 1679032 of 1699377
+2021-10-14 15:52:07.364937: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6637/6639 [============================>.] - ETA: 0s - loss: 0.1204 - accuracy: 0.95582021-10-14 15:52:48.369280: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 33852 of 424683
+2021-10-14 15:52:58.370827: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 70157 of 424683
+2021-10-14 15:53:08.369137: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 102750 of 424683
+2021-10-14 15:53:18.370853: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 123995 of 424683
+2021-10-14 15:53:28.371801: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 146779 of 424683
+2021-10-14 15:53:38.369512: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 175094 of 424683
+2021-10-14 15:53:48.369650: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 207376 of 424683
+2021-10-14 15:53:58.370400: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 240707 of 424683
+2021-10-14 15:54:08.369187: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 272239 of 424683
+2021-10-14 15:54:18.370681: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 299742 of 424683
+2021-10-14 15:54:28.370399: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 332407 of 424683
+2021-10-14 15:54:38.369763: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 361762 of 424683
+2021-10-14 15:54:48.369782: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 393824 of 424683
+2021-10-14 15:54:57.573338: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+6639/6639 [==============================] - 760s 26ms/step - loss: 0.1204 - accuracy: 0.9558 - val_loss: 0.1258 - val_accuracy: 0.9546
+
+Epoch 00005: val_loss improved from 0.12870 to 0.12583, saving model to ./checkpoint/original/weights.05-0.13.hdf5
+Elapsed 3337.121 seconds.
+Using TensorFlow backend.
+2021-10-14 15:55:11.811740: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 25713 of 531021
+2021-10-14 15:55:21.812553: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 46973 of 531021
+2021-10-14 15:55:31.814906: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 67980 of 531021
+2021-10-14 15:55:41.813040: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 95373 of 531021
+2021-10-14 15:55:51.814047: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 128876 of 531021
+2021-10-14 15:56:01.814620: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 163017 of 531021
+2021-10-14 15:56:11.813796: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 189661 of 531021
+2021-10-14 15:56:21.818165: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 210663 of 531021
+2021-10-14 15:56:31.815642: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 231764 of 531021
+2021-10-14 15:56:41.812432: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 258464 of 531021
+2021-10-14 15:56:51.811843: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 291754 of 531021
+2021-10-14 15:57:01.811699: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 324554 of 531021
+2021-10-14 15:57:11.811764: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 352371 of 531021
+2021-10-14 15:57:21.812128: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 372821 of 531021
+2021-10-14 15:57:31.812938: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 393833 of 531021
+2021-10-14 15:57:41.811733: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 422307 of 531021
+2021-10-14 15:57:51.812017: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 455891 of 531021
+2021-10-14 15:58:01.815101: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 488649 of 531021
+2021-10-14 15:58:11.812798: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:177] Filling up shuffle buffer (this may take a while): 516428 of 531021
+2021-10-14 15:58:18.682122: I tensorflow/core/kernels/data/shuffle_dataset_op.cc:230] Shuffle buffer filled.
+2075/2075 - 201s - loss: 0.1801 - accuracy: 0.9320
+Restored model, accuracy: 93.20%
+2021-10-14 15:58:22.606286: I tensorflow/core/grappler/devices.cc:69] Number of eligible GPUs (core count >= 8, compute capability >= 0.0): 1
+2021-10-14 15:58:22.606389: I tensorflow/core/grappler/clusters/single_machine.cc:356] Starting new session
+2021-10-14 15:58:22.606711: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2021-10-14 15:58:22.607308: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties: 
+pciBusID: 0000:03:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.582GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2021-10-14 15:58:22.607355: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+2021-10-14 15:58:22.607433: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.11
+2021-10-14 15:58:22.607449: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublasLt.so.11
+2021-10-14 15:58:22.607464: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcufft.so.10
+2021-10-14 15:58:22.607478: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcurand.so.10
+2021-10-14 15:58:22.607493: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusolver.so.10
+2021-10-14 15:58:22.607508: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcusparse.so.11
+2021-10-14 15:58:22.607524: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudnn.so.8
+2021-10-14 15:58:22.608598: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1862] Adding visible gpu devices: 0
+2021-10-14 15:58:22.608628: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1261] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-10-14 15:58:22.608636: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1267]      0 
+2021-10-14 15:58:22.608641: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1280] 0:   N 
+2021-10-14 15:58:22.609805: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1406] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 10271 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1080 Ti, pci bus id: 0000:03:00.0, compute capability: 6.1)
+2021-10-14 15:58:22.621646: I tensorflow/core/grappler/optimizers/meta_optimizer.cc:928] Optimization results for grappler item: graph_to_optimize
+  function_optimizer: function_optimizer did nothing. time = 0.002ms.
+  function_optimizer: function_optimizer did nothing. time = 0ms.
+
+Model saved at ./protobufs/PeakLens_original.pb
