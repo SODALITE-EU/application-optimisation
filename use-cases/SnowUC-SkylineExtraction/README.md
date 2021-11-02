@@ -2,7 +2,7 @@
 
 We have optimised the skyline extraction component for the Snow use case. The goal of this component is to obtain the landscape skyline of a photograph via a DL classification method run in TensorFlow. The dataset used for the training consists of 8,856 images with skyline annotations, from which 80% is used for training and validation and the remaining 20% for testing. The component was initially trained using TensorFlow 1.11. The training was performed with a baseline container taken from DockerHub (tensorflow/tensorflow:1.11.0-gpu-py3) and converged within approximately 7.2 hours on one GPU node of the HPC testbed (using single core execution). The training executed until convergence was achieved and early stopping initiated at epoch 20.
 
-This directory containers:
+This directory contains:
 - the GPU optimised SkylineExtraction-training code - `peaklens-gpuopt_training.py` - for Tensorflow 2.x
 - our optimised TensorFlow for GPU Singularity container files
 - the results of our experiments
@@ -42,6 +42,6 @@ singularity exec --nv <path_to_container> python3 <path_to_peaklens-gpuopt_train
 ```
 If a non-local storage is used, binding is required using the Singularity `-B` flag: 
 ```
-singularity exec -B <storage_path>:<storage_path_in_container --nv <container_path> python3 <path_to_peaklens-gpuopt_training.py> 
+singularity exec -B <storage_path>:<storage_path_in_container> --nv <container_path> python3 <path_to_peaklens-gpuopt_training.py> 
 ```
 
