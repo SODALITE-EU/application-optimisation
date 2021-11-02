@@ -5,14 +5,12 @@ from datetime import datetime
 import dropbox
 from dropbox import DropboxOAuth2FlowNoRedirect
 
+from .settings import Settings
+
 
 class TransferData:
-    def __init__(self, access_token=""):
-        if access_token == "":
-            self.access_token = (
-                access_token
-            ) = "uIdLbZ5c1OAAAAAAAAAAbyk8y7dUYKwD4BlLXa7m7lOosadXk1GAZPyr760SCrr-"
-        self.access_token = access_token
+    def __init__(self):
+        self.access_token = Settings.dropbox_access_token
         self.dbx = dropbox.Dropbox(self.access_token)
 
     def login_dropbox(self):
