@@ -60,8 +60,3 @@ INSERT INTO `mapper` VALUES
   (38,'mpich_ub1804_cuda101_mpi314_gnugprof','ethcscs/mpich:ub1804_cuda101_mpi314_gnugprof','docker','docker','none'),
   (39,'mvapich_ub1804_cuda101_mpi22_osu','ethcscs/mvapich:ub1804_cuda101_mpi22_osu','docker','docker','none'),
   (48,'pottava_openmpi:1.10','pottava/openmpi:1.10','docker','docker','none');
-
-INSERT INTO `optscript` VALUES
-  ('egi','set_default_egi.sh','file://modak-builtin/set_default_egi.sh',0),
-  ('hlrs_testbed','set_default_hlrs_testbed.sh','file://modak-builtin/set_default_hlrs_testbed.sh',0),
-  ('xla','enable_xla.sh','file://modak-builtin/enable_xla.sh',0);

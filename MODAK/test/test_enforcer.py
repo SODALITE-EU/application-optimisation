@@ -1,5 +1,6 @@
 from MODAK.enforcer import Enforcer
 from MODAK.MODAK_driver import MODAK_driver
+from MODAK.model import Target
 
 
 def test_enforce_opt():
@@ -9,9 +10,10 @@ def test_enforce_opt():
 
     driver = MODAK_driver()
     enforcer = Enforcer(driver)
-    opts = enforcer.enforce_opt(["version:2.1", "xla:true"])
+    scripts = enforcer.enforce_opt(
+        "tensorflow",
+        Target(name="test", job_scheduler_type="slurm"),
+        ["version:2.1", "xla:true"],
+    )
 
-    assert opts, "empty set returned"
-    for opt in opts:
-        assert opt.script_name, "script_name empty while it shouldn't be"
-        assert opt.script_loc, "script_loc empty while it shouldn't be"
+    assert scripts, "empty set returned"

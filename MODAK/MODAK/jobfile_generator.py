@@ -1,11 +1,9 @@
 import logging
 import pathlib
-import urllib.request
-from urllib.parse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
 
-from .model import Application, JobOptions, Optimisation
+from .model import Application, JobOptions, Optimisation, Script
 from .tuner import Tuner
 
 """Constant to represent the scheduler to use is SLURM"""
@@ -202,44 +200,17 @@ chmod 755 '{tuner.get_tune_filename()}'
             fhandle.write("## END OF TUNER ##\n")
             logging.info("Successfully added tuner")
 
-    def add_optscript(self, scriptfile, scriptlink):
-        logging.info(f"Adding optimisations {scriptfile}")
-        print("add_optscript", scriptfile, scriptlink)
+    def add_optscript(self, script: Script):
+        logging.info(f"Adding optimisation script: {script.id} ({script.description})")
         with self._batch_file.open("a") as fhandle:
-            parsed_url = urlparse(scriptlink)
-
-            if parsed_url.scheme == "file":
-                source_path = pathlib.Path(parsed_url.path)
-
-                if parsed_url.netloc == "modak-builtin":
-                    source_path = (
-                        pathlib.Path(__file__).parent.resolve()
-                        / "scripts"
-                        / source_path.relative_to("/")
-                    )
-
-                fhandle.write(source_path.read_text())
-
-            elif parsed_url.scheme in ("http", "https"):
-                try:
-                    scriptcontents = urllib.request.urlopen(scriptlink)
-                    fhandle.write(scriptcontents.read().decode("UTF-8"))
-                except Exception as e:
-                    logging.info(f"Could not inline optscript: {e}")
-                    fhandle.write(
-                        f"""
-file={scriptfile}
-if [ -f $file ] ; then rm "$file"; fi
-wget --no-check-certificate '{scriptlink}'
-chmod 755 "{scriptfile}"
-source "{scriptfile}"
-"""
-                    )
+            if script.data.raw:
+                fhandle.write(f"# MODAK: Start Script<id={script.id}>\n")
+                fhandle.write(script.data.raw)
+                fhandle.write(f"\n# MODAK: End   Script<id={script.id}>\n")
             else:
                 raise AssertionError(
-                    f"Unsupported protocol '{parsed_url.scheme}' in script link '{scriptlink}'"
+                    f"No data found in script {script.id} and no other methods implemented"
                 )
-
         logging.info("Successfully added optimisation")
 
     def add_apprun(self):

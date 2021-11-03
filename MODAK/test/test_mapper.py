@@ -48,6 +48,10 @@ class test_mapper(unittest.TestCase):
     def test_add_container(self):
         stmt = delete(Map).where(Map.opt_dsl_code == "TF_PIP_XLA")
         self.driver.updateSQL(stmt)
+        data = self.driver.selectSQL(
+            select(Map.container_file).where(Map.opt_dsl_code == "TF_PIP_XLA")
+        )
+        self.assertEqual(len(data), 0)
         self.m.add_container(
             "TF_PIP_XLA", "AI/containers/tensorflow/tensorflow_pip_xla"
         )
@@ -87,11 +91,3 @@ class test_mapper(unittest.TestCase):
                 new_container,
                 "docker.invalid://modakopt/modak:tensorflow-2.1-gpu-src",
             )
-
-    # def test_add_container(self):
-    #     map_id = self.m.add_container('TF_PIP_XLA',
-    #                                   'AI/containers/tensorflow/tensorflow_pip_xla')
-    #     df = self.driver.applySQL("SELECT opt_dsl_code FROM mapper WHERE map_id = %s",
-    #                               (map_id, ))
-    #     self.assertEqual(df.count(), 1)
-    #     self.assertEqual(df.select('opt_dsl_code').collect()[0][0], 'TF_PIP_XLA')

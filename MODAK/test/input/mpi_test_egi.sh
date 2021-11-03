@@ -12,10 +12,9 @@
 
 cd "${SLURM_SUBMIT_DIR}"
 export PATH="${SLURM_SUBMIT_DIR}:${PATH}"
-## MODAK: START HLRS TESTBED ##
+# MODAK: Start Script<id=80593ce7-fc40-4e1d-988d-84c38930f8e5>
 module load mpi/openmpi-x86_64
-## MODAK: END HLRS TESTBED ##
-
+# MODAK: End   Script<id=80593ce7-fc40-4e1d-988d-84c38930f8e5>
 
 wget --no-check-certificate https://raw.githubusercontent.com/olcf/XC30-Training/master/affinity/Xthi.c
 

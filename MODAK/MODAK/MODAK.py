@@ -72,8 +72,11 @@ class MODAK:
             gen_t.add_tuner(job.optimisation, upload=self._upload)
 
         logging.info(f"Applying optimisations {self._map.get_opts()}")
-        for opt in self._enf.enforce_opt(self._map.get_opts()):
-            gen_t.add_optscript(opt.script_name, opt.script_loc)
+        assert job.target, "Target must be defined"
+        for script in self._enf.enforce_opt(
+            self._map.app_name, job.target, self._map.get_opts()
+        ):
+            gen_t.add_optscript(script)
 
         logging.info("Adding application run")
         gen_t.add_apprun()
@@ -175,10 +178,14 @@ class MODAK:
             logging.info("Adding autotuning scripts")
             gen_t.add_tuner(self._upload)
 
-        decoded_opts = self._map.get_decoded_opts(job.optimisation, job.target)
+        decoded_opts = self._map.get_decoded_opts(job.optimisation)
         logging.info(f"Applying optimisations {decoded_opts}")
-        for opt in self._enf.enforce_opt(decoded_opts):
-            gen_t.add_optscript(opt.script_name, opt.script_loc)
+
+        assert job.target, "Target must be defined"
+        for script in self._enf.enforce_opt(
+            self._map.app_name, job.target, decoded_opts
+        ):
+            gen_t.add_optscript(script)
 
         logging.info("Adding application run")
         gen_t.add_apprun()

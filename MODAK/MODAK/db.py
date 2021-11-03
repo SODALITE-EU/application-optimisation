@@ -1,4 +1,4 @@
-__all__ = ["Optimisation", "Map", "OptScript", "Infrastructure", "Script"]
+__all__ = ["Optimisation", "Map", "Infrastructure", "Script"]
 
 import uuid
 
@@ -75,19 +75,10 @@ class Map(Base):
     src = Column(String(255), nullable=True, default=None)
 
 
-class OptScript(Base):
-    __tablename__ = "optscript"
-
-    opt_code = Column(String(255), primary_key=True)
-    script_name = Column(String(255), nullable=False)
-    script_loc = Column(String(5000), nullable=True)
-    stage = Column(Integer, nullable=True)
-
-
 class Infrastructure(Base):
     __tablename__ = "infrastructure"
 
-    id = Column(GUID, primary_key=True)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
     name = Column(String(255), primary_key=True, unique=True)  # for now unique
     disabled = Column(
         DateTime, nullable=True

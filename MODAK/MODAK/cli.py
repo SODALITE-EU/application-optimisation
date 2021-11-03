@@ -1,4 +1,5 @@
 import argparse
+import ast
 import json
 import logging
 import sys
@@ -6,13 +7,26 @@ from typing import Any, Dict
 
 from fastapi.openapi.utils import get_openapi
 from pydantic import ValidationError
+from rich import print
+from sqlalchemy import create_engine
 from sqlalchemy.dialects import sqlite
+from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateTable
 
 from . import db
 from .app import app
 from .MODAK import MODAK
-from .model import JobModel
+from .model import (
+    JobModel,
+    Script,
+    ScriptConditionApplication,
+    ScriptConditionInfrastructure,
+    ScriptConditions,
+    ScriptData,
+    ScriptDataStage,
+    ScriptIn,
+)
+from .settings import Settings
 
 
 def validate_json():
@@ -158,3 +172,120 @@ def modak():
 
     if args.ofile == sys.stdout:
         args.ofile.write("\n")
+
+
+def import_script():
+    parser = argparse.ArgumentParser(description="Import a script into MODAK")
+    parser.add_argument(
+        "script",
+        type=argparse.FileType("r"),
+        help="Script file",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Enable verbose logging output",
+        action="count",
+        dest="loglevel",
+        default=0,
+    )
+    parser.add_argument(
+        "--stage",
+        help="At which stage to run this script",
+        default="pre",
+        choices=ScriptDataStage._member_names_,
+    )
+    parser.add_argument(
+        "--condition-application-name",
+        metavar="NAME",
+        help="Specify the application name (if any) to run this script for",
+    )
+    parser.add_argument(
+        "--condition-application-feature",
+        help="Specify the application feature condition",
+        metavar="NAME=VALUE",
+        action="append",
+        default=[],
+    )
+    parser.add_argument(
+        "--condition-infrastructure-name",
+        metavar="NAME",
+        help="Specify the name of an infrastructure to run this script for",
+    )
+    parser.add_argument(
+        "--description",
+        help="Description for the script",
+    )
+
+    args = parser.parse_args()
+    loglevel = logging.WARNING
+    if args.loglevel >= 2:
+        loglevel = logging.DEBUG
+    elif args.loglevel > 1:
+        loglevel = logging.INFO
+    logging.basicConfig(level=loglevel, force=True)
+
+    conditions = ScriptConditions()
+
+    if args.condition_application_name:
+        app_feats = {
+            k: ast.literal_eval(v)
+            for k, v in (
+                f.split("=", maxsplit=1) for f in args.condition_application_feature
+            )
+        }
+        conditions.application = ScriptConditionApplication(
+            name=args.condition_application_name, feature=app_feats
+        )
+
+    if args.condition_infrastructure_name:
+        app_feats = {
+            k: ast.literal_eval(v)
+            for k, v in (
+                f.split("=", maxsplit=1) for f in args.condition_application_feature
+            )
+        }
+        conditions.infrastructure = ScriptConditionInfrastructure(
+            name=args.condition_infrastructure_name
+        )
+
+    script = ScriptIn(
+        description=args.description,
+        conditions=conditions,
+        data=ScriptData(stage=args.stage, raw=args.script.read()),
+    )
+
+    dbobj = db.Script(**script.dict())
+
+    engine = create_engine(f"sqlite:///{Settings.db_path}", future=True)
+    with Session(engine) as session:
+        session.add(dbobj)
+        session.commit()
+        script = Script.from_orm(dbobj)
+
+    print("Added script:\n")
+    print("ID:", script.id)
+    print("Description:", script.description)
+    print("Conditions:")
+    print("  Application:")
+    print(
+        "    Name:",
+        script.conditions.application.name if script.conditions.application else None,
+    )
+    print("    Feature:")
+    if script.conditions.application:
+        for key, value in script.conditions.application.feature.items():
+            print(f"      {key}:", value)
+    print("  Infrastructure:")
+    print(
+        "    Name:",
+        script.conditions.infrastructure.name
+        if script.conditions.infrastructure
+        else None,
+    )
+    print("Data:")
+    print("  Stage:", script.data.stage)
+    print("  Raw:")
+    print("  ==>")
+    print(script.data.raw, end="")
+    print("  <==")

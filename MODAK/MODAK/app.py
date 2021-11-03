@@ -11,9 +11,17 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-from MODAK.db import Script as ScriptDB
+from MODAK import db
 from MODAK.MODAK import MODAK
-from MODAK.model import JobModel, Script, ScriptIn, ScriptList
+from MODAK.model import (
+    Infrastructure,
+    InfrastructureIn,
+    InfrastructureList,
+    JobModel,
+    Script,
+    ScriptIn,
+    ScriptList,
+)
 from MODAK.settings import Settings
 
 BASE_PATH = pathlib.Path(__file__).resolve().parent
@@ -102,19 +110,21 @@ async def modak_get_optimisation(model: JobModel):
     return model
 
 
-@app.get("/scripts", response_model=List[ScriptList])
+@app.get("/scripts", response_model=List[ScriptList], response_model_exclude_none=True)
 async def list_scripts(session: AsyncSession = Depends(get_db_session)):  # noqa: B008
     """List all registered scripts"""
-    result = await session.execute(select(ScriptDB))
+    result = await session.execute(select(db.Script))
     return result.scalars().all()
 
 
-@app.get("/scripts/{script_id}", response_model=Script)
+@app.get(
+    "/scripts/{script_id}", response_model=Script, response_model_exclude_none=True
+)
 async def get_script(
     script_id: UUID, session: AsyncSession = Depends(get_db_session)  # noqa: B008
 ):
     """Get script"""
-    result = await session.execute(select(ScriptDB).where(ScriptDB.id == script_id))
+    result = await session.execute(select(db.Script).where(db.Script.id == script_id))
 
     try:
         return result.scalars().one()
@@ -122,15 +132,72 @@ async def get_script(
         raise HTTPException(404)
 
 
-@app.post("/scripts", response_model=ScriptList, status_code=201)
+@app.post(
+    "/scripts",
+    response_model=ScriptList,
+    status_code=201,
+    response_model_exclude_none=True,
+)
 async def create_script(
     script_in: ScriptIn, session: AsyncSession = Depends(get_db_session)  # noqa: B008
 ):
     """Add a new script"""
 
-    dbobj = ScriptDB(**script_in.dict())
+    dbobj = db.Script(**script_in.dict())
 
     async with session.begin():
         session.add(dbobj)
 
+    return dbobj
+
+
+@app.get(
+    "/infrastructures",
+    response_model=List[InfrastructureList],
+    response_model_exclude_none=True,
+)
+async def list_infrastructures(
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """List all registered infrastructures"""
+    result = await session.execute(select(db.Infrastructure))
+    return result.scalars().all()
+
+
+@app.get(
+    "/infrastructures/{infrastructure_id}",
+    response_model=Infrastructure,
+    response_model_exclude_none=True,
+)
+async def get_infrastructure(
+    infrastructure_id: UUID,
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """Get infrastructure details"""
+    result = await session.execute(
+        select(db.Infrastructure).where(db.Infrastructure.id == infrastructure_id)
+    )
+
+    try:
+        return result.scalars().one()
+    except NoResultFound:
+        raise HTTPException(404)
+
+
+@app.post(
+    "/infrastructures",
+    response_model=InfrastructureList,
+    status_code=201,
+    response_model_exclude_none=True,
+)
+async def create_infrastructure(
+    infrastructure_in: InfrastructureIn,
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """Add a new infrastructure"""
+
+    dbobj = db.Infrastructure(**infrastructure_in.dict())
+
+    async with session.begin():
+        session.add(dbobj)
     return dbobj
