@@ -11,6 +11,7 @@ setup(
         "fastapi",
         "uvicorn",
         "sqlalchemy[asyncio,aiosqlite]",
+        "rich",
     ],
     extras_require={
         "testing": ["pytest", "pytest-cov", "sqlalchemy[mypy]"],
@@ -27,6 +28,7 @@ setup(
             "modak = MODAK.cli:modak",
             "modak-validate-json = MODAK.cli:validate_json",
             "modak-schema = MODAK.cli:schema",
+            "modak-import-script = MODAK.cli:import_script",
         ],
     },
 )

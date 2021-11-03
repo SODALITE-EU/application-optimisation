@@ -1,20 +1,19 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from uuid import UUID
 
-from pydantic import (
-    AnyUrl,
-    BaseModel,
-    EmailStr,
-    Extra,
-    Field,
-    PositiveInt,
-    root_validator,
-)
+from pydantic import AnyUrl
+from pydantic import BaseModel as PydanticBaseModel
+from pydantic import EmailStr, Field, PositiveInt, StrictBool, StrictInt, root_validator
 
 
-class JobOptions(BaseModel, extra=Extra.forbid):
+class BaseModel(PydanticBaseModel):
+    class Config:
+        extra = "forbid"
+
+
+class JobOptions(BaseModel):
     """Options to pass to the queueing system"""
 
     job_name: str = "job"
@@ -96,11 +95,10 @@ class Target(BaseModel):
         return values
 
     class Config:
-        extra = "forbid"
         use_enum_values = True
 
 
-class ApplicationBuild(BaseModel, extra=Extra.forbid):
+class ApplicationBuild(BaseModel):
     """Source and build commands for the application"""
 
     src: AnyUrl = Field(description="Source URL for the application" "")
@@ -148,7 +146,6 @@ class Application(BaseModel):
     )
 
     class Config:
-        extra = "forbid"
         use_enum_values = True
 
 
@@ -178,7 +175,6 @@ class OptimisationBuild(BaseModel):
     )
 
     class Config:
-        extra = "forbid"
         use_enum_values = True
 
 
@@ -197,17 +193,16 @@ class HPCConfig(BaseModel):
     )
 
     class Config:
-        extra = "forbid"
         use_enum_values = True
 
 
-class ParallelisationMpi(BaseModel, extra=Extra.forbid):
+class ParallelisationMpi(BaseModel):
     library: str
     version: str
 
 
 # TODO: define for openmp, opencc, opencl based on TOSCA/DSL
-class AppTypeHPC(BaseModel, extra=Extra.forbid):
+class AppTypeHPC(BaseModel):
     """HPC-specific configuration for optimisation"""
 
     config: HPCConfig
@@ -237,7 +232,7 @@ class AppTypeHPC(BaseModel, extra=Extra.forbid):
 
 
 # TODO: Keras & Pytorch based on TOSCA/DSL
-class AIFrameworkTensorflow(BaseModel, extra=Extra.forbid):
+class AIFrameworkTensorflow(BaseModel):
     version: str
     xla: bool
 
@@ -256,11 +251,10 @@ class AITrainingConfig(BaseModel):
     # DSL has distributed_training: bool  # TODO" unused
 
     class Config:
-        extra = "forbid"
         use_enum_values = True
 
 
-class AppTypeAITraining(BaseModel, extra=Extra.forbid):
+class AppTypeAITraining(BaseModel):
     config: AITrainingConfig
     data: Dict[str, Any] = Field(  # TODO: in TOSCA?DSL specified but unused
         default_factory=dict, description="Application specific data"
@@ -288,7 +282,7 @@ class AppTypeAITraining(BaseModel, extra=Extra.forbid):
         return values
 
 
-class OptimisationAutotuning(BaseModel, extra=Extra.forbid):
+class OptimisationAutotuning(BaseModel):
     tuner: str
     input: str
 
@@ -327,11 +321,10 @@ class Optimisation(BaseModel):
         return values
 
     class Config:
-        extra = "forbid"
         use_enum_values = True
 
 
-class Job(BaseModel, extra=Extra.forbid):
+class Job(BaseModel):
     """The toplevel Job object"""
 
     job_options: JobOptions
@@ -357,20 +350,39 @@ class JobModel(BaseModel):
 
     class Config:
         title = "MODAK Job schema"
-        extra = "forbid"
+
+
+class ScriptConditionApplication(BaseModel):
+    name: str
+    feature: Dict[str, Union[StrictInt, StrictBool, str]] = Field(default_factory=dict)
+
+
+class ScriptConditionInfrastructure(BaseModel):
+    name: str
 
 
 class ScriptConditions(BaseModel):
-    pass
+    application: Optional[ScriptConditionApplication]
+    infrastructure: Optional[ScriptConditionInfrastructure]
+
+
+class ScriptDataStage(str, Enum):
+    """Allowed stages for script data"""
+
+    pre = "pre"
+    post = "post"
 
 
 class ScriptData(BaseModel):
-    pass
+    stage: ScriptDataStage = Field(
+        ..., description="The stage at which to run/insert this script"
+    )
+    raw: Optional[str]
 
 
 class Script(BaseModel):
     id: UUID
-    description: str
+    description: Optional[str]
     conditions: ScriptConditions
     data: ScriptData
 
@@ -379,15 +391,43 @@ class Script(BaseModel):
 
 
 class ScriptIn(BaseModel):
-    description: str
+    description: Optional[str]
     conditions: ScriptConditions
     data: ScriptData
 
 
 class ScriptList(BaseModel):
     id: UUID
-    description: str
+    description: Optional[str]
     conditions: ScriptConditions
+
+    class Config:
+        orm_mode = True
+
+
+class InfrastructureIn(BaseModel):
+    name: str
+    disabled: Optional[datetime]
+    description: Optional[str]
+    configuration: Dict[str, Any] = Field(default_factory=dict)
+
+
+class InfrastructureList(BaseModel):
+    id: UUID
+    name: str
+    disabled: Optional[datetime]
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+class Infrastructure(BaseModel):
+    id: UUID
+    name: str
+    disabled: Optional[datetime]
+    description: Optional[str]
+    configuration: Dict[str, Any] = Field(default_factory=dict)
 
     class Config:
         orm_mode = True

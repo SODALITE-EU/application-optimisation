@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
 
 import sqlalchemy as sa
 
@@ -28,10 +28,10 @@ class MODAK_driver:
         logging.info("Connecting to model repo using DB dialect: {Settings.db_dialect}")
         assert Settings.db_dialect == "sqlite", "only SQLite is currently supported"
 
-        self._engine = sa.create_engine(f"sqlite:///{Settings.db_path}")
+        self._engine = sa.create_engine(f"sqlite:///{Settings.db_path}", echo=True)
         logging.info("Successfully initialised driver")
 
-    def selectSQL(self, stmt: str) -> List[Tuple[Any, ...]]:
+    def selectSQL(self, stmt: sa.sql.Select) -> List[Tuple[Any, ...]]:
         logging.info(f"Selecting : {stmt}")
         with sa.orm.Session(self._engine, future=True) as session:
             result = session.execute(stmt).all()
@@ -39,7 +39,7 @@ class MODAK_driver:
 
         return result
 
-    def updateSQL(self, stmt: str):
+    def updateSQL(self, stmt: Union[sa.sql.Delete, sa.sql.Update]):
         with sa.orm.Session(self._engine, future=True) as session:
             session.execute(stmt)
             session.commit()

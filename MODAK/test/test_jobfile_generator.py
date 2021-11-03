@@ -1,11 +1,10 @@
 import pathlib
 import tempfile
 import unittest
-
-import pytest
+import uuid
 
 from MODAK import jobfile_generator
-from MODAK.model import Application, JobOptions
+from MODAK.model import Application, JobOptions, Script
 
 TEST_STRING = b"""## OPTSCRIPT here ##"""
 
@@ -13,9 +12,6 @@ TEST_STRING = b"""## OPTSCRIPT here ##"""
 class test_mapper(unittest.TestCase):
     def setUp(self):
         self.outfile = tempfile.NamedTemporaryFile()
-        self.optscript = tempfile.NamedTemporaryFile()
-        self.optscript.file.write(TEST_STRING)
-        self.optscript.file.flush()
         self.jg = jobfile_generator.JobfileGenerator(
             # construct empty invalid objects, because we know here we don't need them:
             application=Application.construct(),
@@ -25,16 +21,18 @@ class test_mapper(unittest.TestCase):
         )
 
     def test_add_optscript(self):
-        self.jg.add_optscript(self.optscript.name, f"file://{self.optscript.name}")
+        self.jg.add_optscript(
+            Script(
+                id=uuid.uuid4(),
+                conditions={},
+                data={"stage": "pre", "raw": TEST_STRING},
+            )
+        )
 
         # If everything worked correctly, our test line should have been
         # inserted into the output file by attempting to add an option script.
         self.outfile.file.seek(0)
-        self.assertTrue(TEST_STRING in self.outfile.file.readlines())
-
-    def test_add_optscript_bad_url(self):
-        with pytest.raises(Exception):
-            self.jg.add_optscript(self.optscript.name, f"asdf://{self.optscript.name}")
+        assert any(TEST_STRING in line for line in self.outfile.file.readlines())
 
 
 class test_ArgumentConverter(unittest.TestCase):

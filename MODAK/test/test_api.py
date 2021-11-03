@@ -52,7 +52,7 @@ def test_get_optimise():
 
 def test_create_and_get_script_roundtrip():
     desc = "test"
-    script = ScriptIn(description=desc, conditions={}, data={})
+    script = ScriptIn(description=desc, conditions={}, data={"stage": "pre"})
 
     response = client.post("/scripts", json=script.dict())
     assert response.status_code == 201

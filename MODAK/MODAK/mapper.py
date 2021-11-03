@@ -38,11 +38,6 @@ class Mapper:
         logging.info(str(optimisation))
         dsl_code = None
 
-        try:
-            self._opts.append(f"{cast(str, cast(Target, target).name).strip()}:true")
-        except AttributeError:
-            pass
-
         if optimisation.app_type == "ai_training":
             logging.info("Decoding AI training application")
             dsl_code = self.decode_ai_training_opt(optimisation)
@@ -159,9 +154,28 @@ class Mapper:
             opt.app_type_hpc,
             f"parallelisation_{cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation}",
         )
+        app_name = optimisations.library
+        return self._decode_opts(
+            app_name,
+            opt,
+            {k: v for k, v in optimisations.dict().items() if k not in ("library",)},
+        )
+
+    def decode_ai_training_opt(self, opt: Optimisation) -> Optional[str]:
+        """Get a DSL code for the given optimisation values for the ai_training app_type"""
+
+        logging.info("Decoding AI training optimisation")
+
+        assert opt.app_type == "ai_training"
+        app_name = cast(AppTypeAITraining, opt.app_type_ai_training).config.ai_framework
+        optimisations = getattr(opt.app_type_ai_training, f"ai_framework_{app_name}")
+        return self._decode_opts(app_name, opt, optimisations.dict())
+
+    def _decode_opts(self, app_name: str, opt: Optimisation, opt_dict: Mapping):
+        self._app_name = app_name
 
         stmt = select(OptimisationDB.opt_dsl_code).where(
-            OptimisationDB.app_name == optimisations.library
+            OptimisationDB.app_name == app_name
         )
 
         if opt.enable_opt_build:
@@ -169,9 +183,7 @@ class Mapper:
             for node in target_nodes:
                 stmt = stmt.where(OptimisationDB.target.like(f"%{node}%"))
 
-            opt_nodes = _mapping2list(
-                {k: v for k, v in optimisations.dict().items() if k != "library"}
-            )
+            opt_nodes = _mapping2list(opt_dict)
             for node in opt_nodes:
                 stmt = stmt.where(OptimisationDB.optimisation.like(f"%{node}%"))
                 self._opts.append(node)
@@ -189,46 +201,6 @@ class Mapper:
         logging.warning("Failed to find a matching DSL code")
         return None
 
-    def decode_ai_training_opt(self, opt: Optimisation) -> Optional[str]:
-        """Get a DSL code for the given optimisation values for the ai_training app_type"""
-
-        logging.info("Decoding AI training optimisation")
-
-        assert opt.app_type == "ai_training"
-
-        app_name = cast(AppTypeAITraining, opt.app_type_ai_training).config.ai_framework
-
-        stmt = select(OptimisationDB.opt_dsl_code).where(
-            OptimisationDB.app_name == app_name
-        )
-
-        if opt.enable_opt_build:
-            target_nodes = _mapping2list(cast(OptimisationBuild, opt.opt_build).dict())
-            for node in target_nodes:
-                stmt = stmt.where(OptimisationDB.target.like(f"%{node}%"))
-
-            optimisations = getattr(
-                opt.app_type_ai_training, f"ai_framework_{app_name}"
-            )
-            opt_nodes = _mapping2list(optimisations.dict())
-            logging.info(f"Optimisations: '{opt_nodes}'")
-            for node in opt_nodes:
-                stmt = stmt.where(OptimisationDB.optimisation.like(f"%{node}%"))
-                self._opts.append(node)
-
-            stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:true%"))
-        else:
-            stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:false%"))
-
-        data = self._driver.selectSQL(stmt)
-        if data:
-            dsl_code = data[0][0]
-        else:
-            dsl_code = None
-
-        logging.info(f"Decoded dsl code '{dsl_code}'")
-        return dsl_code
-
     def get_opts(self):
         """
         Get the list of opts ("k:v" with k:v from either config.parallelisation
@@ -237,18 +209,16 @@ class Mapper:
 
         return self._opts
 
-    def get_decoded_opts(
-        self, opt: Optional[Optimisation] = None, target: Optional[Target] = None
-    ):
+    @property
+    def app_name(self):
+        return self._app_name
+
+    def get_decoded_opts(self, opt: Optional[Optimisation] = None):
         """
         Get a list of strings from the respectives optimisation type config.*
-        section of keys&values. Also includes target.name:true if the target is
-        specified.
+        section of keys&values.
         """
         opts = []
-
-        if target:
-            opts.append(f"{target.name}:true")
 
         if opt and opt.opt_build:
             if opt.app_type == "ai_training":
@@ -258,16 +228,19 @@ class Mapper:
                 optimisations = getattr(
                     opt.app_type_ai_training,
                     f"ai_framework_{app_name_ai}",
-                )
+                ).dict()
             elif opt.app_type == "hpc":
                 app_name_hpc = cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation
                 optimisations = getattr(
                     opt.app_type_hpc,
                     f"parallelisation_{app_name_hpc}",
-                )
+                ).dict()
+                optimisations = {
+                    k: v for k, v in optimisations.items() if k not in ("library",)
+                }
             else:
                 raise AssertionError(f"app_type {opt.app_type} not supported")
 
-            opts += _mapping2list(optimisations.dict())
+            opts += _mapping2list(optimisations)
 
         return opts
