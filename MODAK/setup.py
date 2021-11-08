@@ -29,6 +29,7 @@ setup(
             "modak-validate-json = MODAK.cli:validate_json",
             "modak-schema = MODAK.cli:schema",
             "modak-import-script = MODAK.cli:import_script",
+            "modak-dbshell = MODAK.cli:dbshell",
         ],
     },
 )
