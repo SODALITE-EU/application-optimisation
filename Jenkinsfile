@@ -113,7 +113,7 @@ pipeline {
                 docker rm modak-unittest || :
 
                 docker build -t modak-unittest .
-                docker run --name modak-unittest modak-unittest pytest --junitxml="modak-results-docker.xml" --cov=src
+                docker run --name modak-unittest modak-unittest pytest --junitxml="modak-results-docker.xml" --cov=MODAK
                 docker cp modak-unittest:/opt/app/modak-results-docker.xml ..
                 docker rm modak-unittest
                 '''
