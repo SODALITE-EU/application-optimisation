@@ -24,6 +24,8 @@ from MODAK.model import (
 )
 from MODAK.settings import Settings
 
+from . import modeldb
+
 BASE_PATH = pathlib.Path(__file__).resolve().parent
 app = FastAPI(title="MODAK Application Optimizer")
 templates = Jinja2Templates(directory=str(BASE_PATH / "templates"))
@@ -143,9 +145,8 @@ async def create_script(
 ):
     """Add a new script"""
 
-    dbobj = db.Script(**script_in.dict())
-
     async with session.begin():
+        dbobj = await modeldb.create_script(session, script_in)
         session.add(dbobj)
 
     return dbobj

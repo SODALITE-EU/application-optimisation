@@ -1,5 +1,6 @@
 import argparse
 import ast
+import asyncio
 import json
 import logging
 import sys
@@ -8,9 +9,9 @@ from typing import Any, Dict
 from fastapi.openapi.utils import get_openapi
 from pydantic import ValidationError
 from rich import print
-from sqlalchemy import create_engine
 from sqlalchemy.dialects import sqlite
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import CreateTable
 
 from . import db
@@ -26,6 +27,7 @@ from .model import (
     ScriptDataStage,
     ScriptIn,
 )
+from .modeldb import create_script
 from .settings import Settings
 
 
@@ -255,37 +257,64 @@ def import_script():
         data=ScriptData(stage=args.stage, raw=args.script.read()),
     )
 
-    dbobj = db.Script(**script.dict())
-
-    engine = create_engine(f"sqlite:///{Settings.db_path}", future=True)
-    with Session(engine) as session:
-        session.add(dbobj)
-        session.commit()
-        script = Script.from_orm(dbobj)
-
-    print("Added script:\n")
-    print("ID:", script.id)
-    print("Description:", script.description)
-    print("Conditions:")
-    print("  Application:")
-    print(
-        "    Name:",
-        script.conditions.application.name if script.conditions.application else None,
+    engine = create_async_engine(f"sqlite+aiosqlite:///{Settings.db_path}", future=True)
+    SessionLocal = sessionmaker(
+        engine,
+        class_=AsyncSession,
+        autocommit=False,
+        autoflush=False,
+        expire_on_commit=False,
     )
-    print("    Feature:")
-    if script.conditions.application:
-        for key, value in script.conditions.application.feature.items():
-            print(f"      {key}:", value)
-    print("  Infrastructure:")
-    print(
-        "    Name:",
-        script.conditions.infrastructure.name
-        if script.conditions.infrastructure
-        else None,
+
+    async def create_async(script):
+        async with SessionLocal() as session:
+            dbobj = await create_script(session, script)
+            session.add(dbobj)
+            await session.commit()
+            script = Script.from_orm(dbobj)
+
+        print("Added script:\n")
+        print("ID:", script.id)
+        print("Description:", script.description)
+        print("Conditions:")
+        print("  Application:")
+        print(
+            "    Name:",
+            script.conditions.application.name
+            if script.conditions.application
+            else None,
+        )
+        print("    Feature:")
+        if script.conditions.application:
+            for key, value in script.conditions.application.feature.items():
+                print(f"      {key}:", value)
+        print("  Infrastructure:")
+        print(
+            "    Name:",
+            script.conditions.infrastructure.name
+            if script.conditions.infrastructure
+            else None,
+        )
+        print("Data:")
+        print("  Stage:", script.data.stage)
+        print("  Raw:")
+        print("  ==>")
+        print(script.data.raw, end="")
+        print("  <==")
+
+    asyncio.run(create_async(script))
+
+
+def dbshell():
+    from IPython import embed
+
+    engine = create_async_engine(f"sqlite+aiosqlite:///{Settings.db_path}", future=True)
+    SessionLocal = sessionmaker(  # noqa: F841
+        engine,
+        class_=AsyncSession,
+        autocommit=False,
+        autoflush=False,
+        expire_on_commit=False,
     )
-    print("Data:")
-    print("  Stage:", script.data.stage)
-    print("  Raw:")
-    print("  ==>")
-    print(script.data.raw, end="")
-    print("  <==")
+
+    embed(using="asyncio")
