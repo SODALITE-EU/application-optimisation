@@ -108,7 +108,7 @@ def schema():
     elif args.schema == "sql":
         for tbl in db.__all__:
             print(
-                CreateTable(getattr(getattr(db, tbl), "__table__")).compile(
+                CreateTable(getattr(db, tbl).__table__).compile(
                     dialect=sqlite.dialect()
                 ),
                 file=args.outfile,

@@ -131,7 +131,7 @@ async def get_script(
     try:
         return result.scalars().one()
     except NoResultFound:
-        raise HTTPException(404)
+        raise HTTPException(404) from None
 
 
 @app.post(
@@ -182,7 +182,7 @@ async def get_infrastructure(
     try:
         return result.scalars().one()
     except NoResultFound:
-        raise HTTPException(404)
+        raise HTTPException(404) from None
 
 
 @app.post(
