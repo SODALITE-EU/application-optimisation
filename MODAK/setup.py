@@ -15,7 +15,12 @@ setup(
         "requests",
     ],
     extras_require={
-        "testing": ["pytest", "pytest-cov", "sqlalchemy[mypy]"],
+        "testing": [
+            "pytest",
+            "pytest-cov",
+            "sqlalchemy[mypy]",
+            "pytest-console-scripts",
+        ],
         "docs": [
             "sphinx",
             "autodoc_pydantic",
