@@ -12,6 +12,7 @@ setup(
         "uvicorn",
         "sqlalchemy[asyncio,aiosqlite]",
         "rich",
+        "requests",
     ],
     extras_require={
         "testing": ["pytest", "pytest-cov", "sqlalchemy[mypy]"],
