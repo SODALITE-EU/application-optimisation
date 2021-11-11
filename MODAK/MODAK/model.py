@@ -1,11 +1,19 @@
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pydantic import AnyUrl
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import EmailStr, Field, PositiveInt, StrictBool, StrictInt, root_validator
+from pydantic import (
+    EmailStr,
+    Field,
+    PositiveInt,
+    StrictBool,
+    StrictInt,
+    root_validator,
+    validator,
+)
 
 
 class BaseModel(PydanticBaseModel):
@@ -358,7 +366,12 @@ class ScriptConditionApplication(BaseModel):
 
 
 class ScriptConditionInfrastructure(BaseModel):
-    name: str
+    name: Optional[str] = Field(
+        description="Name of the infrastructure for matching this condition"
+    )
+    storage_class: Optional[str] = Field(
+        description="Storage class this condition matches"
+    )
 
 
 class ScriptConditions(BaseModel):
@@ -380,54 +393,98 @@ class ScriptData(BaseModel):
     raw: Optional[str]
 
 
-class Script(BaseModel):
-    id: UUID
-    description: Optional[str]
-    conditions: ScriptConditions
-    data: ScriptData
-
-    class Config:
-        orm_mode = True
-
-
 class ScriptIn(BaseModel):
     description: Optional[str]
     conditions: ScriptConditions
     data: ScriptData
 
 
-class ScriptList(BaseModel):
+class Script(ScriptIn):
     id: UUID
-    description: Optional[str]
-    conditions: ScriptConditions
 
     class Config:
         orm_mode = True
+
+
+class InfrastructureStorageConfiguration(BaseModel):
+    """A single storage location within an infrastructure."""
+
+    # Some notes:
+    # * we might have to find a more general way to order storage performance
+    # * currently there is only a single attribute to define whether a storage location
+    #   is shared, but the actual architecture could be arbitrarily more complicated
+    # * the URL might have to be more dynamic, for example when an object storage is referenced,
+    #   authentication is needed, etc.
+
+    url: AnyUrl = Field(
+        ...,
+        description="URL for the storage, can contain environment variables like $HOME, $UID, $USER, etc.",
+    )
+    storage_class: str = Field(..., description="Storage class of this storage")
+    shared: bool = Field(
+        ..., description="Whether this storage is shared between all nodes"
+    )
+
+    @validator("storage_class")
+    def storage_class_defaults(cls, v):  # noqa: B902
+        """If the storage_class has a 'default-' prefix, we validate the suffix against
+        a list of well-known storage classes"""
+
+        ALLOWED_PREFIXES = ("default",)
+
+        # the following classification was inspired by a big cloud offering
+        ALLOWED_DEFAULT_SUFFIXES = ("ultra_high", "ssd", "high", "common")
+
+        try:
+            prefix, suffix = v.split("-", maxsplit=1)
+        except ValueError:
+            raise ValueError(
+                f"The storage_class '{v}' does not match the pattern 'prefix-suffix'"
+            ) from None
+
+        if prefix not in ALLOWED_PREFIXES:
+            raise ValueError(
+                f"The storage_class prefix '{prefix}' does not match any of the supported supported prefixes:"
+                f" [{', '.join(ALLOWED_PREFIXES)}]"
+            )
+
+        if prefix == "default":
+            if suffix not in ALLOWED_DEFAULT_SUFFIXES:
+                raise ValueError(
+                    f"The storage_class suffix '{suffix}' does not match any of the supported suffixes:"
+                    f" [{', '.join(ALLOWED_DEFAULT_SUFFIXES)}]"
+                )
+
+        return v
+
+
+class InfrastructureConfiguration(BaseModel):
+    """Minimal configuration required for an infrastructure."""
+
+    # Compared to the full proposal in
+    #   https://github.com/SODALITE-EU/application-optimisation/issues/3#issuecomment-640577805
+    # we include only a minimal subset for now: the scheduler required to automatically
+    # generate run scripts and the storage to include staging/broadcasting steps in the script.
+    scheduler: Optional[JobSchedulerType] = Field(
+        description="(default) queueing system type running on the infrastructure (if any)"
+    )
+    storage: List[InfrastructureStorageConfiguration] = Field(default_factory=list)
 
 
 class InfrastructureIn(BaseModel):
     name: str
-    disabled: Optional[datetime]
+    disabled: Optional[datetime] = Field(
+        description=(
+            "Time and date at which this infrastructure has been or will be disabled"
+            " (if not set, infrastructure is enabled)"
+        )
+    )
     description: Optional[str]
-    configuration: Dict[str, Any] = Field(default_factory=dict)
+    configuration: InfrastructureConfiguration
 
 
-class InfrastructureList(BaseModel):
+class Infrastructure(InfrastructureIn):
     id: UUID
-    name: str
-    disabled: Optional[datetime]
-    description: Optional[str]
-
-    class Config:
-        orm_mode = True
-
-
-class Infrastructure(BaseModel):
-    id: UUID
-    name: str
-    disabled: Optional[datetime]
-    description: Optional[str]
-    configuration: Dict[str, Any] = Field(default_factory=dict)
 
     class Config:
         orm_mode = True

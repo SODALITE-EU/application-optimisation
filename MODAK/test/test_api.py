@@ -4,7 +4,7 @@ import pathlib
 from fastapi.testclient import TestClient
 
 from MODAK.app import app
-from MODAK.model import Script, ScriptIn, ScriptList
+from MODAK.model import Script, ScriptIn
 
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -57,7 +57,7 @@ def test_create_and_get_script_roundtrip():
     response = client.post("/scripts", json=script.dict())
     assert response.status_code == 201
 
-    script_list = ScriptList.parse_obj(response.json())
+    script_list = Script.parse_obj(response.json())
 
     assert script_list
     assert script_list.description == desc

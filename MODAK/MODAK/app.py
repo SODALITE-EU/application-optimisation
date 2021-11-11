@@ -13,15 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from MODAK import db
 from MODAK.MODAK import MODAK
-from MODAK.model import (
-    Infrastructure,
-    InfrastructureIn,
-    InfrastructureList,
-    JobModel,
-    Script,
-    ScriptIn,
-    ScriptList,
-)
+from MODAK.model import Infrastructure, InfrastructureIn, JobModel, Script, ScriptIn
 from MODAK.settings import Settings
 
 from . import modeldb
@@ -112,7 +104,7 @@ async def modak_get_optimisation(model: JobModel):
     return model
 
 
-@app.get("/scripts", response_model=List[ScriptList], response_model_exclude_none=True)
+@app.get("/scripts", response_model=List[Script], response_model_exclude_none=True)
 async def list_scripts(session: AsyncSession = Depends(get_db_session)):  # noqa: B008
     """List all registered scripts"""
     result = await session.execute(select(db.Script))
@@ -136,7 +128,7 @@ async def get_script(
 
 @app.post(
     "/scripts",
-    response_model=ScriptList,
+    response_model=Script,
     status_code=201,
     response_model_exclude_none=True,
 )
@@ -154,7 +146,7 @@ async def create_script(
 
 @app.get(
     "/infrastructures",
-    response_model=List[InfrastructureList],
+    response_model=List[Infrastructure],
     response_model_exclude_none=True,
 )
 async def list_infrastructures(
@@ -187,7 +179,7 @@ async def get_infrastructure(
 
 @app.post(
     "/infrastructures",
-    response_model=InfrastructureList,
+    response_model=Infrastructure,
     status_code=201,
     response_model_exclude_none=True,
 )
