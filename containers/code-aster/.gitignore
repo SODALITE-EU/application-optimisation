@@ -15,3 +15,5 @@ hpccinf.txt
 build/benchmarks_conf.def.bak
 b_eff_io_data*
 build-temp-*/
+L1L2_NonLinear_prepared___*
+Case_prep-3_Segments-4mm-2mm___*
