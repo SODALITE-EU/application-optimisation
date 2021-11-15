@@ -40,22 +40,20 @@ fi
 
 echo "Use $CHOICE distribution."
 
-# Save previous configuration file
-mv build/${IMGBASENAME}_conf.def build/${IMGBASENAME}_conf.def.bak
-
-cat > build/${IMGBASENAME}_conf.def <<EOF
-MPI_DIST=$CHOICE
+# Configuration file
+cat > def/${IMGBASENAME}_conf.sh <<EOF
+export MPI_DIST=$CHOICE
 EOF
 
-cd build
+cd def
 if test -n "$USE_SB"; then
     echo "Build Sandbox image"
-    singularity build --sandbox --fakeroot ../${IMGBASENAME}.imgdir ${IMGBASENAME}.def
+    singularity build --sandbox --fakeroot --force ../${IMGBASENAME}_${CHOICE}.imgdir ${IMGBASENAME}.def
 else
     echo "Build SIF image"
-    sudo singularity build ../${IMGBASENAME}.simg ${IMGBASENAME}.def
+    sudo singularity build --force ../${IMGBASENAME}_${CHOICE}.sif ${IMGBASENAME}.def
 fi
 cd ..
 
-# Restore configuration file
-mv build/${IMGBASENAME}_conf.def.bak build/${IMGBASENAME}_conf.def
+# Clean configuration file
+rm -f def/${IMGBASENAME}_conf.sh

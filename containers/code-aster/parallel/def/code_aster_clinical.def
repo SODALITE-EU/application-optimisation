@@ -3,148 +3,314 @@ From: ubuntu:18.04
 
 %help
     This is the container used to run SODALITE (https://www.sodalite.eu/)
-    Code-Aster Clinical UC.
+    Code-Aster Clinical UC for parallel optimized execution.
 
 %labels
     Author HPE EMEA Research Lab
     Version v0.1.0
 
-%environment
-    #
-    # Read configuration
-    #
-    . /usr/local/workdir/config/code_aster_clinical_conf.def
-
-    if test ! -z ${NP+x}; then
-	export RUNCMD="mpiexec -np ${NP}"
-    fi
-
-    export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
-    export OPENBLAS_MAIN_FREE=1 # Used to avoid Python crash
-    export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-    export OMP_PROC_BIND=${OMP_PROC_BIND:-close}
-    export OMP_PLACES=${OMP_PLACES:=cores}
-
-    export ASTER_ROOT=/usr/local/workdir/aster
-    export ASTER_NUM_THREADS=${ASTER_NUM_THREADS:-1}
-
 %setup
-    mkdir -p ${SINGULARITY_ROOTFS}/usr/local/workdir/config
-
-%runscript
-    . ${ASTER_ROOT}/14.4/share/aster/profile.sh
-    . ${ASTER_ROOT}/etc/codeaster/profile.sh
-
-    if test $# -eq 0 || test -z "$@" ; then
-        bash -norc
+    # take external configuration
+    CONFDIR=${SINGULARITY_ROOTFS}/usr/local/workdir/config
+    mkdir -p ${CONFDIR}
+    CONFFILE=code_aster_clinical_conf.sh
+    if test -f ${CONFFILE}; then
+        cp ${CONFFILE} ${CONFDIR}
     else
-        # pass arguments to run code-aster
-	OLDPWD=`pwd`
-	cd "$1"
-	# Clean previous runs
-	rm -f REPE_OUT/* fort.15 fort.8 fort.80 fort.9 glob.1 info_cpu pick.1 vola.1
-	${ASTER_ROOT}/14.4/bin/aster \
-		     ${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \
-		     -commandes fort.1 --num_job=1432 --mode=interactif \
-		     --rep_mat=${ASTER_ROOT}/14.4/share/aster/materiau \
-		     --rep_dex=${ASTER_ROOT}/14.4/share/aster/datg \
-		     --numthreads=${ASTER_NUM_THREADS} --suivi_batch --memjeveux=8192.0 --tpmax=3600.0
-	cd ${OLDPWD}
+        # Default configuration
+        cat > ${CONFDIR}/${CONFFILE} <<EOF
+        export MPI_DIST="MPICH"
+EOF
     fi
 
 %files
     # Copy C program to check MPI rank
     mpirank.c /usr/local/workdir
+    # PETSc patch
+    petsc_metis.patch /usr/local/workdir    
 
-    # Building configuration
-    code_aster_clinical_conf.def /usr/local/workdir/config
+%environment
+    #
+    # Read configuration
+    #
+    . /usr/local/workdir/config/code_aster_clinical_conf.sh
 
-%post
+    export LC_ALL="en_US.UTF-8"
+    export PYTHONNOUSERSITE=1
+    export PYTHONIOENCODING=utf8
+
+    export OPENBLAS_NUM_THREADS=1 # doesn't work with multiple threads
+    export OPENBLAS_MAIN_FREE=1 # Used to avoid Python crash
+    export OMP_NUM_THREADS=1 # no benefit
+
+    export ASTER_ROOT=/usr/local/workdir/aster
+
+%runscript
+    . ${ASTER_ROOT}/share/aster/profile.sh	
+    . /usr/local/etc/codeaster/profile.sh
+
+    if test $# -eq 0 || test -z "$@" ; then
+        # Open a shell
+        echo "Provide code-aster input directory! Opening a shell for the moment..."
+        bash -norc
+    else
+        export ASTER_LOG=${ASTER_LOG:-"aster.out"}
+        export ASTER_INPUT=${ASTER_INPUT:-"fort.1"}
+        export ASTER_TPMAX=${ASTER_TPMAX:-"3600"}
+        # pass arguments to run code-aster
+	OLDPWD=`pwd`
+	cd "$1"
+	# Clean previous runs
+	rm -f REPE_OUT/* fort.15 fort.8 fort.80 fort.9 glob.1 info_cpu pick.1 vola.1 *.out
+	${ASTER_ROOT}/14.4/bin/aster \
+		     ${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \
+		     -commandes ${ASTER_INPUT} \
+		     --memjeveux=8192.0 --tpmax=${ASTER_TPMAX} 2>&1 | tee ${ASTER_LOG}
+        cd ${OLDPWD}
+    fi
+
+%post -c /bin/bash
     #
     # First install default packages and clean caches
     #
+    export DEBIAN_FRONTEND=noninteractive
     apt-get update && apt-get -y upgrade --no-install-recommends
     apt-get -y install --no-install-recommends \
                        build-essential wget less gfortran procps \
 		       libopenblas-dev locales ca-certificates \
 		       python3 python3-dev python3-numpy vim ssh git \
+		       libboost-numpy-dev libboost-python-dev \
 		       zlib1g-dev file xterm tk bison flex
     apt-get clean && rm -rf /var/lib/apt/lists/* # do not forget to clean!
+
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
+    export LANG=en_US.UTF-8
 
     #
     # Move inside build directory
     #
     cd /usr/local/workdir
 
-    export OPENBLAS_NUM_THREADS=1
-    export OPENBLAS_MAIN_FREE=1 # Used to avoid Python crash
-
     #
     # Read configuration
     #
-    . config/code_aster_clinical_conf.def
+    . config/code_aster_clinical_conf.sh
 
     #
     # Install MPICH
     #
     if test "$MPI_DIST" = "MPICH"; then
 	export MPICH_VERSION=3.3.1
+	echo "Install MPICH v"$MPICH_VERSION
 	wget -q http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
 	tar xf mpich-${MPICH_VERSION}.tar.gz && rm mpich-${MPICH_VERSION}.tar.gz
 	cd mpich-${MPICH_VERSION}
-	./configure --prefix=/usr/local --disable-static --disable-rpath --disable-wrapper-rpath \
+	./configure --prefix=/usr/local/workdir/mpi --disable-static --disable-rpath --disable-wrapper-rpath \
                     --mandir=/usr/share/man --enable-fast=all,O3
 	make -j$(getconf _NPROCESSORS_ONLN) install
-	ldconfig
 	cd .. && rm -rf mpich-${MPICH_VERSION}
     #
     # Install OpenMPI
     #
     elif test "$MPI_DIST" = "OpenMPI"; then
-	export OMPI_VERSION=4.0.1
+	export OMPI_VERSION=3.1.3
+	echo "Install OpenMPI v"$OMPI_VERSION
 	wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-$OMPI_VERSION.tar.bz2
 	tar xf openmpi-$OMPI_VERSION.tar.bz2 && rm openmpi-$OMPI_VERSION.tar.bz2
 	cd openmpi-$OMPI_VERSION
-	./configure --prefix=/usr/local --disable-static --disable-rpath \
+	./configure --prefix=/usr/local/workdir/mpi --disable-static --disable-wrapper-runpath --disable-rpath \
                     --mandir=/usr/share/man --enable-fast=all,O3 \
 		    --enable-mpi1-compatibility
 	make -j$(getconf _NPROCESSORS_ONLN) install
-	ldconfig
 	cd .. && rm -rf openmpi-$OMPI_VERSION
     fi
+    echo 'export PATH=/usr/local/workdir/mpi/bin:$PATH' >> $SINGULARITY_ENVIRONMENT
+    echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/workdir/mpi/lib' >> $SINGULARITY_ENVIRONMENT
+    . $SINGULARITY_ENVIRONMENT
 
     #
-    # Compile program to get MPI rank
+    # Compile program to get MPI rank (simple check)
     #
     mkdir -p /usr/local/workdir/bin
     mpicc /usr/local/workdir/mpirank.c -o /usr/local/workdir/bin/mpirank
-
-    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
-    export LANG=en_US.UTF-8
 
     # Install latest cmake
     export CMAKE_VERSION=3.18.2
     wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh
     sh cmake-${CMAKE_VERSION}-Linux-x86_64.sh --prefix=/usr/local --skip-license
-    ldconfig
     rm -f cmake-${CMAKE_VERSION}-Linux-x86_64.sh
 
-    # Build Python Boost
-    BOOST_VERSION=1.72.0
-    BOOST_VERSION_=$(echo "${BOOST_VERSION}" | sed 's/\./_/g')
-    wget -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_}.tar.bz2
-    tar xf boost_${BOOST_VERSION_}.tar.bz2 && rm boost_${BOOST_VERSION_}.tar.bz2
-    cd boost_${BOOST_VERSION_}
-    ./bootstrap.sh --with-python=$(which python3) --with-libraries=python
-    ./b2 stage -j$(getconf _NPROCESSORS_ONLN) install
-    cd .. && rm -rf boost_${BOOST_VERSION_}
+    # Install SCALAPACK (BLACS included)
+    scalapack_ver=2.1.0
+    wget https://www.cp2k.org/static/downloads/scalapack-${scalapack_ver}.tgz
+    tar xvf scalapack-${scalapack_ver}.tgz --no-same-owner && rm scalapack-${scalapack_ver}.tgz
+    cd scalapack-${scalapack_ver}
+    mkdir build && cd build
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON \
+          -DCMAKE_C_COMPILER=mpicc -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_BUILD_TYPE=Release ..
+    make -j$(getconf _NPROCESSORS_ONLN) install
+    cd ../../ && rm -rf scalapack-${scalapack_ver}
+    ln -s /usr/local/lib/libscalapack.so /usr/local/lib/libblacs.so
 
-    # Code Aster install
-    export PYTHONIOENCODING=utf8
+    # Download Code-Aster dependencies
     wget https://www.code-aster.org/FICHIERS/aster-full-src-14.4.0-1.noarch.tar.gz
-    tar -xzf aster-full-src-14.4.0-1.noarch.tar.gz && cd aster-full-src-14.4.0
-#    echo 'F90FLAGS="-O3 -fPIC -mavx2"' >> setup.cfg
-#    echo 'CFLAGS="-O3 -fPIC -fno-stack-protector -mavx2"' >> setup.cfg
-#    echo 'CXXFLAGS="-O3 -fPIC -fno-stack-protector -mavx2"' >> setup.cfg
-    python3 setup.py install --prefix=/usr/local/workdir/aster --noprompt --quiet
-#    cd .. && rm -rf aster-full-src-14.4.0-1.noarch.tar.gz aster-full-src-14.4.0-1.noarch
+    tar xf aster-full-src-14.4.0-1.noarch.tar.gz && rm aster-full-src-14.4.0-1.noarch.tar.gz
+    cd aster-full-src-14.4.0/SRC
+
+    # Install HDF5
+    HDF5_VERSION=1.10.3
+    tar xf hdf5-${HDF5_VERSION}.tar.gz && rm hdf5-${HDF5_VERSION}.tar.gz
+    cd hdf5-${HDF5_VERSION}
+    ./configure --prefix=/usr/local --enable-parallel
+    make -j$(getconf _NPROCESSORS_ONLN) install
+    cd .. && rm -rf hdf5-${HDF5_VERSION}
+
+    export HDF5HOME=/usr/local/
+    export INCLUDES="/usr/local/include/"
+    export LIBPATH="/usr/local/lib"
+    export CC=mpicc
+    export FC=mpif90
+    export CXX=mpic++
+
+    # Install med
+    med_ver=4.0.0
+    tar xf med-${med_ver}.tar.gz && rm med-${med_ver}.tar.gz
+    cd med-${med_ver}
+    mkdir build && cd build
+    cmake \
+       -DCMAKE_INSTALL_PREFIX=/usr/local \
+       -DCMAKE_C_COMPILER=mpicc \
+       -DCMAKE_Fortran_COMPILER=mpif90  \
+       -DHDF5_ROOT_DIR=/usr/local \
+       -DCMAKE_CXX_COMPILER=mpicxx \
+       -DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0 \
+       ..
+    make -j$(getconf _NPROCESSORS_ONLN) install
+    cd ../../ && rm -rf med-${med_ver}
+
+    # Install metis
+    metis_ver=5.1.0
+    tar xf metis-${metis_ver}-aster4.tar.gz && rm metis-${metis_ver}-aster4.tar.gz
+    cd metis-${metis_ver}
+    make config prefix=/usr/local
+    make -j$(getconf _NPROCESSORS_ONLN) install
+    cd ../ && rm -rf metis-${metis_ver}
+
+    # Install parmetis
+    parmetis_ver=4.0.3
+    wget -q http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-${parmetis_ver}.tar.gz
+    tar xf parmetis-${parmetis_ver}.tar.gz && rm parmetis-${parmetis_ver}.tar.gz
+    cd parmetis-${parmetis_ver}
+    make config CFLAGS="-fPIC -DINTSIZE64" prefix=/usr/local
+    make -j$(getconf _NPROCESSORS_ONLN) install
+    cd ../ && rm -rf parmetis-${parmetis_ver}
+
+    # Install tfel
+    tfel_ver=3.2.1
+    tar xf tfel-${tfel_ver}-1.tar.gz && rm tfel-${tfel_ver}-1.tar.gz
+    cd tfel-${tfel_ver}
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/usr/bin/gfortran \
+          -Dlocal-castem-header=ON -Denable-fortran=OFF -DPython_ADDITIONAL_VERSIONS=3.6 \
+          -Denable-python=ON -Denable-broken-boost-python-module-visibility-handling=ON -Denable-python-bindings=ON \
+          -Denable-cyrano=ON -Denable-aster=ON -Ddisable-reference-doc=ON -Ddisable-website=ON -Denable-portable-build=ON \
+          -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3 \
+          -DPYTHON_LIBRARY:FILEPATH=/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6.so \
+          -DPYTHON_INCLUDE_DIR:PATH=/usr/include/python3.6 -DPython_ADDITIONAL_VERSIONS=3.6 -DCMAKE_INSTALL_PREFIX=/usr/local \
+          ..
+    make -j$(getconf _NPROCESSORS_ONLN) install
+    cd ../../ && rm -rf tfel-${tfel_ver}
+
+    # Install homard
+    homard_ver=11.12
+    tar xf homard-${homard_ver}-aster2.tar.gz && rm homard-${homard_ver}-aster2.tar.gz
+    cd homard-${homard_ver}
+    python3 setup_homard.py --prefix=/usr/local
+    cd ../ && rm -rf homard-${homard_ver}
+
+    # Install asrun
+    tar xf astk-2019.0-1.tar.gz && rm astk-2019.0-1.tar.gz
+    cd astk-2019.0
+    python3 setup.py install --prefix=/usr/local
+    cd	../ && rm -rf astk-2019.0
+
+    # Install scotch
+    scotch_ver=6.0.4
+    tar xf scotch-${scotch_ver}-aster7.tar.gz && rm scotch-${scotch_ver}-aster7.tar.gz
+    cd scotch-${scotch_ver}/src
+    make scotch esmumps ptscotch ptesmumps CCD=mpicc
+    make install prefix=/usr/local
+    cd ../../ && rm -rf scotch-${scotch_ver}
+
+    # Install mumps
+    mumps_ver=5.1.2
+    tar xf mumps-${mumps_ver}-aster6.tar.gz && rm mumps-${mumps_ver}-aster6.tar.gz
+    cd mumps-${mumps_ver}
+    python3 waf configure --prefix=/usr/local --install-tests \
+                          --enable-mpi --embed-scotch --embed-parmetis --embed-metis
+    python3 waf build --jobs=1
+    python3 waf install --jobs=1
+    cd ../ && rm -rf mumps-${mumps_ver}
+
+    # Install superlu
+    superlu_ver=5.3.0
+    wget -O superlu-${superlu_ver}.tar.gz https://github.com/xiaoyeli/superlu/archive/refs/tags/v${superlu_ver}.tar.gz
+    tar xf superlu-${superlu_ver}.tar.gz && rm superlu-${superlu_ver}.tar.gz
+    cd superlu-${superlu_ver}
+    mkdir build && cd build
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DCMAKE_C_COMPILER=mpicc \
+        -DCMAKE_Fortran_COMPILER=mpif90  \
+	-DCMAKE_CXX_COMPILER=mpic++ \
+	-DCMAKE_C_FLAGS="-fopenmp" \
+	-DTPL_BLAS_LIBRARIES=/usr/lib/x86_64-linux-gnu/libblas.a \
+	-DUSE_XSDK_DEFAULTS=TRUE \
+       ..
+    make
+    make install
+    cd ../../ && rm -rf superlu-${superlu_ver}
+
+    # Install petsc
+    petsc_ver=3.9.4
+    wget --no-check-certificate https://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${petsc_ver}.tar.gz
+    tar xf petsc-${petsc_ver}.tar.gz && rm petsc-${petsc_ver}.tar.gz
+    cd petsc-${petsc_ver}
+    # Apply patch from https://hitoricae.com/2019/11/10/code_aster-14-4-with-petsc/
+    cd config/BuildSystem/config/packages
+    patch -p1 metis.py < /usr/local/workdir/petsc_metis.patch
+    cd ../../../../
+    ./configure --COPTFLAGS="-O2" \
+                --CXXOPTFLAGS="-O2" \
+                --FOPTFLAGS="-O2" \
+                --with-debugging=0 \
+                --with-mpi=1 \
+                --with-ssl=0 --with-x=0 \
+            	--with-shared-libraries=0 \
+	    	--with-mumps-dir=/usr/local \
+            	--with-metis-dir=/usr/local \
+            	--with-parmetis-dir=/usr/local \
+            	--with-scotch-dir=/usr/local \
+            	--with-ptscotch-dir=/usr/local \
+            	--prefix=/usr/local \
+            	--with-scalapack-include=/usr/local/include \
+            	--with-scalapack-lib="/usr/local/lib/libscalapack.so" \
+            	--with-openmp=0 \
+            	LIBS="-lgomp" CC=mpicc FC=mpif90 CXX=mpic++
+    make -j$(getconf _NPROCESSORS_ONLN) PETSC_DIR=/usr/local/workdir/aster-full-src-14.4.0/SRC/petsc-3.9.4 PETSC_ARCH=arch-linux2-c-opt all
+    make -j$(getconf _NPROCESSORS_ONLN) PETSC_DIR=/usr/local/workdir/aster-full-src-14.4.0/SRC/petsc-3.9.4 PETSC_ARCH=arch-linux2-c-opt install
+    cd ../ && rm -rf petsc-${petsc_ver}
+
+    # Install Code-Aster
+    export PYTHONIOENCODING=utf8
+    export ASTER_ROOT=/usr/local/workdir/aster
+    export LD_LIBRARY_PATH=$LIBRARY:$LD_LIBRARY_PATH
+    export TFELHOME=/usr/local
+    . /usr/local/etc/codeaster/profile.sh
+    tar xf aster-14.4.0.tgz
+    cd aster-14.4.0
+    export OPTLIB_FLAGS="-lscotch -lptscotch -lptscotcherr -lptscotcherrexit -lparmetis -lmetis -lmedfwrap -lmedC -lmedimport"     
+    ./waf configure --prefix=${ASTER_ROOT}/ --enable-mpi --enable-med --enable-hdf5 --enable-petsc --enable-mumps
+    ./waf build --jobs=$(getconf _NPROCESSORS_ONLN)
+    ./waf install --jobs=$(getconf _NPROCESSORS_ONLN)
+    cd ../.. && rm -rf aster-full-src-14.4.0
