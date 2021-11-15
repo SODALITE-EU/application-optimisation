@@ -11,24 +11,32 @@ while getopts "n:p:l:w:" OPTION; do
     case $OPTION in
 	n)
 	    NNODES=$OPTARG
+	    shift 2
 	    ;;
 	p)
 	    PPN=$OPTARG
+	    shift 2
 	    ;;
 	l)
 	    LABEL=$OPTARG
+	    shift 2
 	    ;;
 	q)
             QUEUE=$OPTARG
+	    shift 2
             ;;
 	w)
 	    wtime=$OPTARG
+	    shift 2
 	    ;;
 	?)
 	    exit
 	    ;;
     esac
 done
+
+BASEDIR=$(dirname "$0")
+. ${BASEDIR}/selection.sh
 
 WLM=
 set +e
@@ -46,8 +54,8 @@ else
 fi
 set -e
 
-export SUBCMD="mpiexec -bind-to socket -map-by socket "
 # Specific options per cluster
+export SUBCMD="mpiexec -bind-to socket -map-by socket "
 case $CLUSTER in
     daint)
 	export MODULES="daint-mc singularity"
@@ -90,10 +98,11 @@ for inode in $NNODES; do
 	esac
 
 	case $CLUSTER in
-	    cloudserver) # HLRS testbed
+            cloudserver) # HLRS testbed
 		export SUBCMD=("${SUBCMD}" -n $((inode * ippn )))
 		;;
 	esac
+
 	echo "Submission command: ${BATCH_CMD}"
 
 	${BATCH_CMD} <<EOF
@@ -107,6 +116,8 @@ module list
 
 cd $PWD
 
+export IMGBASENAME=${IMGBASENAME}
+export CHOICE=${CHOICE}
 PREFIXNAME="${PREFIXNAME}" SUBCMD="${SUBCMD[@]}" $PWD/scripts/run.sh -l ${LABEL}___${QUEUE}
 
 EOF

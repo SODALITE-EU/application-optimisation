@@ -20,6 +20,7 @@ while getopts "l:hcr" OPTION; do
     case $OPTION in
 	l)
 	    LABEL=$OPTARG
+	    shift 2
 	    ;;
 	c)
 	    echo "Clean output files."
@@ -39,12 +40,17 @@ done
 
 SUBCMD=${SUBCMD:-""}
 
+if [ -z "${IMGBASENAME}" ]; then
+    BASEDIR=$(dirname "$0")
+    . ${BASEDIR}/selection.sh
+fi
+
 # Avoid threading
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 
 # Check if the image exists
-IMGBASENAME=code_aster_clinical_MPICH
+IMGBASENAME+="_$CHOICE"
 IMGNAME=${IMGBASENAME}.imgdir
 if test ! -d "$IMGNAME"; then
     echo "Image ${IMGNAME} doesn't exist. Try SIF format..."
@@ -62,7 +68,7 @@ LABEL=${LABEL:-`echo $HOSTNAME | sed -e "s/[0-9]//g" | cut -f 1 -d '.'`"___defau
 LABEL=${PREFIXNAME}"___"${LABEL}
 timestamp=$(date '+%Y%m%d%H%M')
 
-ASTER_OUTPUT=${ASTER_LABEL}"___"$LABEL"___"$timestamp
+ASTER_OUTPUT=${ASTER_LABEL}"___"${CHOICE}"___"$LABEL"___"$timestamp
 
 rm -rf ${ASTER_OUTPUT}
 cp -r ../inputs/${ASTER_DIR} ${ASTER_OUTPUT}

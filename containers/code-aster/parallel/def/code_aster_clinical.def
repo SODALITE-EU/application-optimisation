@@ -115,7 +115,7 @@ EOF
     elif test "$MPI_DIST" = "OpenMPI"; then
 	export OMPI_VERSION=3.1.3
 	echo "Install OpenMPI v"$OMPI_VERSION
-	wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-$OMPI_VERSION.tar.bz2
+	wget https://download.open-mpi.org/release/open-mpi/v3.1/openmpi-$OMPI_VERSION.tar.bz2
 	tar xf openmpi-$OMPI_VERSION.tar.bz2 && rm openmpi-$OMPI_VERSION.tar.bz2
 	cd openmpi-$OMPI_VERSION
 	./configure --prefix=/usr/local/workdir/mpi --disable-static --disable-wrapper-runpath --disable-rpath \
