@@ -16,7 +16,6 @@
       "job_scheduler_type": "torque"
     },
     "application": {
-      "app_tag": "mpi_test",
       "app_type": "hpc",
       "executable": "./xthi",
       "arguments": "",

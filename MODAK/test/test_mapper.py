@@ -3,7 +3,7 @@ import pathlib
 import unittest
 from unittest.mock import patch
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, insert, select
 
 from MODAK.db import Map, Optimisation
 from MODAK.mapper import Mapper
@@ -65,7 +65,9 @@ class test_mapper(unittest.TestCase):
         dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
 
         model = JobModel.parse_raw(dsl_file.read_text())
-        new_container = self.m.map_container(model.job.optimisation, model.job.target)
+        new_container = self.m.map_container(
+            model.job.application, model.job.optimisation, model.job.target
+        )
         self.assertEqual(
             new_container, "docker.io://modakopt/modak:tensorflow-2.1-gpu-src"
         )
@@ -76,7 +78,7 @@ class test_mapper(unittest.TestCase):
         )
         assert model.job.optimisation
 
-        dsl_code = self.m.decode_hpc_opt(model.job.optimisation)
+        dsl_code = self.m.decode_hpc_opt(model.job.application, model.job.optimisation)
         self.assertEqual(dsl_code, "mpich_ub1804_cuda101_mpi314_gnugprof")
 
     def test_map_container_aliased(self):
@@ -85,9 +87,112 @@ class test_mapper(unittest.TestCase):
         with patch.object(Settings, "image_hub_aliases", {"docker": "docker.invalid"}):
             model = JobModel.parse_raw(dsl_file.read_text())
             new_container = self.m.map_container(
-                model.job.optimisation, model.job.target
+                model.job.application, model.job.optimisation, model.job.target
             )
             self.assertEqual(
                 new_container,
                 "docker.invalid://modakopt/modak:tensorflow-2.1-gpu-src",
             )
+
+
+def test_non_app_tag_mapping(modak_driver):
+    mapper = Mapper(modak_driver)
+
+    optstmt = insert(Optimisation).values(
+        opt_dsl_code="nvidia-mpich",
+        app_name="mpich",
+        target="enable_opt_build:true,cpu_type:x86,acc_type:nvidia,",
+        optimisation="version:3.1.4|",
+        version="3.1.4",
+    )
+    mapstmt = insert(Map).values(
+        opt_dsl_code="nvidia-mpich",
+        container_file="nvidia_mpich",
+        image_type="shub",
+        image_hub="library",
+    )
+    modak_driver.updateSQL(optstmt)
+    modak_driver.updateSQL(mapstmt)
+
+    model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
+    assert mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
+    assert mapper.map_container(
+        model.job.application, model.job.optimisation, model.job.target
+    )
+
+
+def test_app_tag_mapping_missing(modak_driver):
+    mapper = Mapper(modak_driver)
+
+    optstmt = insert(Optimisation).values(
+        opt_dsl_code="nvidia-mpich",
+        app_name="mpich",
+        target="enable_opt_build:true,cpu_type:x86,acc_type:nvidia,",
+        optimisation="version:3.1.4|",
+        version="3.1.4",
+    )
+    mapstmt = insert(Map).values(
+        opt_dsl_code="nvidia-mpich",
+        container_file="nvidia_mpich",
+        image_type="shub",
+        image_hub="library",
+    )
+    modak_driver.updateSQL(optstmt)
+    modak_driver.updateSQL(mapstmt)
+
+    model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
+    model.job.application.app_tag = "code_aster"
+
+    assert not mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
+    assert not mapper.map_container(
+        model.job.application, model.job.optimisation, model.job.target
+    )
+
+
+def test_app_tag_mapping(modak_driver):
+    mapper = Mapper(modak_driver)
+
+    optstmt = insert(Optimisation).values(
+        opt_dsl_code="nvidia-mpich",
+        app_name="mpich",
+        target="enable_opt_build:true,cpu_type:x86,acc_type:nvidia,",
+        optimisation="version:3.1.4|",
+        version="3.1.4",
+    )
+    mapstmt = insert(Map).values(
+        opt_dsl_code="nvidia-mpich",
+        container_file="nvidia_mpich",
+        image_type="shub",
+        image_hub="library",
+    )
+    modak_driver.updateSQL(optstmt)
+    modak_driver.updateSQL(mapstmt)
+
+    optstmt = insert(Optimisation).values(
+        opt_dsl_code="nvidia-mpich-code_aster",
+        app_name="code_aster",
+        target="enable_opt_build:false,cpu_type:x86,acc_type:nvidia",
+        optimisation="version:3.1.4|library:mpich",
+        version="3.1.4",
+    )
+    mapstmt = insert(Map).values(
+        opt_dsl_code="nvidia-mpich-code_aster",
+        container_file="nvidia_mpich-code_aster_avx2",
+        image_type="shub",
+        image_hub="library",
+    )
+    modak_driver.updateSQL(optstmt)
+    modak_driver.updateSQL(mapstmt)
+
+    model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
+    model.job.application.app_tag = "code_aster"
+    model.job.optimisation.enable_opt_build = (
+        False  # there is not much in requesting an optimization build now
+    )
+
+    dsl_code = mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
+    assert dsl_code
+    assert dsl_code == "nvidia-mpich-code_aster"
+    assert mapper.map_container(
+        model.job.application, model.job.optimisation, model.job.target
+    )

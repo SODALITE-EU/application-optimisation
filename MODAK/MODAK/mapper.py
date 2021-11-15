@@ -7,6 +7,7 @@ from .db import Map
 from .db import Optimisation as OptimisationDB
 from .MODAK_driver import MODAK_driver
 from .model import (
+    Application,
     AppTypeAITraining,
     AppTypeHPC,
     Optimisation,
@@ -28,7 +29,10 @@ class Mapper:
         self._opts: List[str] = []
 
     def map_container(
-        self, optimisation: Optimisation, target: Optional[Target] = None
+        self,
+        app: Application,
+        optimisation: Optimisation,
+        target: Optional[Target] = None,
     ) -> Optional[str]:
         """Get an URI for an optimal container for the given job."""
 
@@ -43,7 +47,7 @@ class Mapper:
             dsl_code = self.decode_ai_training_opt(optimisation)
         elif optimisation.app_type == "hpc":
             logging.info("Decoding HPC application")
-            dsl_code = self.decode_hpc_opt(optimisation)
+            dsl_code = self.decode_hpc_opt(app, optimisation)
         else:
             raise AssertionError(f"app_type {optimisation.app_type} not supported")
 
@@ -141,7 +145,7 @@ class Mapper:
         logging.warning("No optimal container found")
         return None
 
-    def decode_hpc_opt(self, opt: Optimisation) -> Optional[str]:
+    def decode_hpc_opt(self, app: Application, opt: Optimisation) -> Optional[str]:
         """Get a DSL code for the given optimisation values for the HPC app_type"""
 
         logging.info("Decoding HPC optimisation")
@@ -154,12 +158,22 @@ class Mapper:
             opt.app_type_hpc,
             f"parallelisation_{cast(AppTypeHPC, opt.app_type_hpc).config.parallelisation}",
         )
-        app_name = optimisations.library
-        return self._decode_opts(
-            app_name,
-            opt,
-            {k: v for k, v in optimisations.dict().items() if k not in ("library",)},
-        )
+
+        # if we have a specific application container (e.g. not just one with an MPI impl
+        # which needs to be built during deployment) we use that one as application name.
+        # Otherwise we fallback to the MPI runtime library.
+        if app.app_tag:
+            app_name = app.app_tag
+            opt_dict = optimisations.dict()
+        else:
+            app_name = optimisations.library
+            # if we do the fallback to the library, the "library" keyword in the optimisation
+            # should not be considered anymore as an optimization for the mapping since
+            # we already expect that any optimisations wrt to the selected runtime library
+            # are baked into the specific runtime library container.
+            opt_dict = {k: v for k, v in optimisations.dict().items() if k != "library"}
+
+        return self._decode_opts(app_name, opt, opt_dict)
 
     def decode_ai_training_opt(self, opt: Optimisation) -> Optional[str]:
         """Get a DSL code for the given optimisation values for the ai_training app_type"""
@@ -235,9 +249,6 @@ class Mapper:
                     opt.app_type_hpc,
                     f"parallelisation_{app_name_hpc}",
                 ).dict()
-                optimisations = {
-                    k: v for k, v in optimisations.items() if k not in ("library",)
-                }
             else:
                 raise AssertionError(f"app_type {opt.app_type} not supported")
 
