@@ -65,7 +65,7 @@ timestamp=$(date '+%Y%m%d%H%M')
 ASTER_OUTPUT=${ASTER_LABEL}"___"$LABEL"___"$timestamp
 
 rm -rf ${ASTER_OUTPUT}
-cp -r ${ASTER_DIR} ${ASTER_OUTPUT}
+cp -r ../inputs/${ASTER_DIR} ${ASTER_OUTPUT}
 
 export ASTER_LOG=aster"___"$LABEL"___"$timestamp.out
 
