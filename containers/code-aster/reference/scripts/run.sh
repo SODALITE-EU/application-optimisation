@@ -44,7 +44,7 @@ export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 
 # Check if the image exists
-IMGBASENAME=codeaster_x86_sse_openmpi
+IMGBASENAME=codeaster_x86_sse
 IMGNAME=${IMGBASENAME}.imgdir
 if test ! -d "$IMGNAME"; then
     echo "Image ${IMGNAME} doesn't exist. Try SIF format..."

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMGBASENAME=codeaster_x86_sse_openmpi
+IMGBASENAME=codeaster_x86_sse
 
 echo "Build ${IMGBASENAME} container with Singularity"
 
