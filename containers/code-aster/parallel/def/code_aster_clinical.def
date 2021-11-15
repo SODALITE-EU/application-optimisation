@@ -62,8 +62,8 @@ EOF
 	cd "$1"
 	# Clean previous runs
 	rm -f REPE_OUT/* fort.15 fort.8 fort.80 fort.9 glob.1 info_cpu pick.1 vola.1 *.out
-	${ASTER_ROOT}/14.4/bin/aster \
-		     ${ASTER_ROOT}/14.4/lib/aster/Execution/E_SUPERV.py \
+	${ASTER_ROOT}/bin/aster \
+		     ${ASTER_ROOT}/lib/aster/Execution/E_SUPERV.py \
 		     -commandes ${ASTER_INPUT} \
 		     --memjeveux=8192.0 --tpmax=${ASTER_TPMAX} 2>&1 | tee ${ASTER_LOG}
         cd ${OLDPWD}
