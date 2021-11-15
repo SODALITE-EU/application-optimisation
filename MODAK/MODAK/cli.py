@@ -136,6 +136,12 @@ def modak():
         help="Output file (default: write to stdout)",
     )
     parser.add_argument(
+        "-j",
+        "--jobscript",
+        action="store_true",
+        help="Directly show the jobscript, not only the JSON output",
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         help="Enable verbose logging output",
@@ -173,6 +179,12 @@ def modak():
     args.ofile.write(model.json(**json_dump_opts))
 
     if args.ofile == sys.stdout:
+        args.ofile.write("\n")
+
+    if args.jobscript:
+        args.ofile.write("\n")
+        with open(link.jobscript) as fhandle:
+            args.ofile.write(fhandle.read())
         args.ofile.write("\n")
 
 

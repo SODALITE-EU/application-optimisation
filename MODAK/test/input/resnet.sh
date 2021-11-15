@@ -16,4 +16,4 @@ mkdir xla_dump
 export TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit"
 export XLA_FLAGS="--xla_dump_to=xla_dump/generated"
 # MODAK: End   Script<id=16c9b730-9a2d-4d80-b4c9-a045ab885984>
-singularity exec --nv "$SINGULARITY_DIR/modak_tensorflow-2.1-gpu-src.sif" ./resnet_benchmark.sh
+singularity exec "--nv" "$SINGULARITY_DIR/modak_tensorflow-2.1-gpu-src.sif" ./resnet_benchmark.sh

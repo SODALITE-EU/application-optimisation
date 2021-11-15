@@ -1,5 +1,6 @@
 import logging
 import pathlib
+from typing import List
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -122,7 +123,7 @@ class JobfileGenerator:
         self._application = application
         self._scheduler = scheduler
 
-        self._singularity_exec = "singularity exec"
+        self._singularity_args: List[str] = []
         self.ac = ArgumentConverter()
         # TODO: scheduler type should be derived based on the infrastructure target name
         # TODO: there shall be an entry in the database where scheduler type
@@ -146,7 +147,7 @@ class JobfileGenerator:
             fhandle.write(template.render(job_data=self._job_options))
 
         if self._job_options.node_count and self._job_options.request_gpus:
-            self._singularity_exec = self._singularity_exec + " --nv"
+            self._singularity_args.append("--nv")
 
     def _generate_slurm_header(self):
         logging.info("Generating slurm header")
@@ -155,7 +156,7 @@ class JobfileGenerator:
             fhandle.write(template.render(job_data=self._job_options))
 
         if self._job_options.request_gpus:
-            self._singularity_exec = self._singularity_exec + " --nv"
+            self._singularity_args.append("--nv")
 
     def _generate_bash_header(self):
         logging.info("Generating bash header")
@@ -169,6 +170,11 @@ class JobfileGenerator:
             self._generate_slurm_header()
         else:
             self._generate_bash_header()
+
+    def _singularity_args_str(self):
+        if self._singularity_args:
+            return " " + " ".join(f'"{a}"' for a in self._singularity_args)
+        return ""
 
     def add_tuner(self, optimisation: Optimisation, upload=True):
         tuner = Tuner(upload)
@@ -191,8 +197,8 @@ chmod 755 '{tuner.get_tune_filename()}'
             if self._application.container_runtime:
                 cont = self._application.container_runtime
                 fhandle.write(
-                    f"\n{self._singularity_exec} "
-                    f'"{self.get_sif_filename(cont)}" "{tuner.get_tune_filename()}"'
+                    f"\nsingularity exec{self._singularity_args_str()}"
+                    f' "{self.get_sif_filename(cont)}" "{tuner.get_tune_filename()}"'
                 )
                 fhandle.write("\n")
             else:
@@ -215,20 +221,28 @@ chmod 755 '{tuner.get_tune_filename()}'
 
     def add_apprun(self):
         logging.info("Adding app run")
+
+        exe = self._application.executable
+        cont = self._application.container_runtime
+
+        if not exec and not cont:
+            raise ValueError(
+                "Neither the executable nor a container is set, can not run anything"
+            )
+
         with self._batch_file.open("a") as fhandle:
-            exe = self._application.executable
             args = self._application.arguments
+
+            cont_exec_command = ""
+
+            if cont:
+                cont_exec_command = "singularity exec" if exe else "singularity run"
+                cont_exec_command += (
+                    f'{self._singularity_args_str()} "{self.get_sif_filename(cont)}"'
+                )
 
             if args:
                 exe += f" {args}"
-
-            cont_exec_command = ""
-            cont = self._application.container_runtime
-
-            if cont:
-                cont_exec_command = (
-                    f'{self._singularity_exec} "{self.get_sif_filename(cont)}"'
-                )
 
             if self._application.build:
                 src = self._application.build.src

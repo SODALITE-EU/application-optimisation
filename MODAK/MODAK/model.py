@@ -124,7 +124,7 @@ class ApplicationBuild(BaseModel):
 class Application(BaseModel):
     app_tag: Optional[str]  # TODO: unused
     app_type: Optional[ApplicationAppType] = Field(description="this applications type")
-    executable: str
+    executable: str = ""
     arguments: Optional[str]
     container_runtime: Optional[str] = Field(
         description=(
