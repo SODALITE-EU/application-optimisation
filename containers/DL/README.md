@@ -1,6 +1,7 @@
-This folder contains AI related experimentations:
+This folder contains AI related experimentations.
+The Dockerfile and Singularity files are arranged in directories:
 * containers - all optimised container for different AI frameworks
-* published - containers published on dockerhub
+* published - containers published on dockerhub https://hub.docker.com/r/modakopt/modak
 * test - files to test containers
 
 Results of the experimentations were published at
