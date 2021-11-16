@@ -7,10 +7,9 @@ The MODAK (Model Optimized Deployment of Applications in Containers) package, a 
 Contains all components for the Application Optimizer:
 
 *   [MODAK](MODAK) - the main application optimizer
-*   [containers](containers) - Containers definition files
 *   [Performance-Model](Performance-Model) - Infrastructure and Application Performance model
+*   [containers](containers) - Containers definition files
 *   [use-cases](use-cases) - SODALITE Use case applications
-*   [iac-model-repo](iac-model-repo) - Model repository
 
 ## Setup
 

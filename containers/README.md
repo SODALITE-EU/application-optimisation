@@ -1,1 +1,1 @@
-This folder contains the containers that will be published as part of MODAK.
+This folder contains the experimentation for the optimized containers.
