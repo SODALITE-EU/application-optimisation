@@ -1,5 +1,5 @@
 import logging
-from typing import List, Mapping, Optional, cast
+from typing import Any, Callable, List, Mapping, Optional, Sequence, cast
 
 from sqlalchemy import insert, select
 
@@ -30,7 +30,7 @@ class Mapper:
     def map_container(
         self,
         app: Application,
-        optimisation: Optimisation,
+        optimisation: Optional[Optimisation] = None,
     ) -> Optional[str]:
         """Get an URI for an optimal container for the given job."""
 
@@ -38,18 +38,17 @@ class Mapper:
         self._opts = []
 
         logging.info(str(optimisation))
-        dsl_code = None
+        dsl_code: Optional[str] = None
 
-        if optimisation.app_type == "ai_training":
-            logging.info("Decoding AI training application")
-            dsl_code = self.decode_ai_training_opt(optimisation)
-        elif optimisation.app_type == "hpc":
-            logging.info("Decoding HPC application")
-            dsl_code = self.decode_hpc_opt(app, optimisation)
+        decoders: Sequence[Callable[..., Optional[str]]] = (
+            self._decode_ai_training_opt,
+            self._decode_hpc_opt,
+            self._decode_opts,
+        )
+        for decoder in decoders:
+            if (dsl_code := decoder(app.app_tag, optimisation)) is not None:
+                break
         else:
-            raise AssertionError(f"app_type {optimisation.app_type} not supported")
-
-        if not dsl_code:
             logging.warning("No valid DSL code found for given job")
             return None
 
@@ -143,12 +142,17 @@ class Mapper:
         logging.warning("No optimal container found")
         return None
 
-    def decode_hpc_opt(self, app: Application, opt: Optimisation) -> Optional[str]:
+    def _decode_hpc_opt(
+        self, app_name: Optional[str], opt: Optional[Optimisation] = None
+    ) -> Optional[str]:
         """Get a DSL code for the given optimisation values for the HPC app_type"""
 
         logging.info("Decoding HPC optimisation")
 
-        assert opt.app_type == "hpc"
+        if not opt or opt.app_type != "hpc":
+            return None
+
+        logging.info("Decoding HPC application")
 
         # the model ensures that for a given config/parallelisation
         # there is a parallelisation-* submodel
@@ -160,8 +164,7 @@ class Mapper:
         # if we have a specific application container (e.g. not just one with an MPI impl
         # which needs to be built during deployment) we use that one as application name.
         # Otherwise we fallback to the MPI runtime library.
-        if app.app_tag:
-            app_name = app.app_tag
+        if app_name:
             opt_dict = optimisations.dict()
         else:
             app_name = optimisations.library
@@ -173,35 +176,54 @@ class Mapper:
 
         return self._decode_opts(app_name, opt, opt_dict)
 
-    def decode_ai_training_opt(self, opt: Optimisation) -> Optional[str]:
+    def _decode_ai_training_opt(
+        self, _: Optional[str], opt: Optional[Optimisation] = None
+    ) -> Optional[str]:
         """Get a DSL code for the given optimisation values for the ai_training app_type"""
 
-        logging.info("Decoding AI training optimisation")
+        if not opt or opt.app_type != "ai_training":
+            return None
 
-        assert opt.app_type == "ai_training"
+        logging.info("Decoding AI training application")
+
         app_name = cast(AppTypeAITraining, opt.app_type_ai_training).config.ai_framework
         optimisations = getattr(opt.app_type_ai_training, f"ai_framework_{app_name}")
         return self._decode_opts(app_name, opt, optimisations.dict())
 
-    def _decode_opts(self, app_name: str, opt: Optimisation, opt_dict: Mapping):
+    def _decode_opts(
+        self,
+        app_name: Optional[str],
+        opt: Optional[Optimisation] = None,
+        opt_dict: Optional[Mapping[str, Any]] = None,
+    ) -> Optional[str]:
+        """
+        Get a DSL code for app_name, restricted by the given optimisations
+        in opt_dict and targetting arch and accelerator given in opt.
+        """
+
+        if not app_name:
+            return None
+
         self._app_name = app_name
 
         stmt = select(OptimisationDB.opt_dsl_code).where(
             OptimisationDB.app_name == app_name
         )
 
-        if opt.enable_opt_build:
+        if opt and opt.enable_opt_build:
             target_nodes = _mapping2list(cast(OptimisationBuild, opt.opt_build).dict())
             for node in target_nodes:
                 stmt = stmt.where(OptimisationDB.target.like(f"%{node}%"))
 
-            opt_nodes = _mapping2list(opt_dict)
-            for node in opt_nodes:
-                stmt = stmt.where(OptimisationDB.optimisation.like(f"%{node}%"))
-                self._opts.append(node)
+            if opt_dict:
+                opt_nodes = _mapping2list(opt_dict)
+                for node in opt_nodes:
+                    stmt = stmt.where(OptimisationDB.optimisation.like(f"%{node}%"))
+                    self._opts.append(node)
 
             stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:true%"))
         else:
+            # treat a missing Optimisation as an implicit enable_opt_build=False
             stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:false%"))
 
         data = self._driver.selectSQL(stmt)

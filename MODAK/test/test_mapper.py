@@ -78,7 +78,9 @@ class test_mapper(unittest.TestCase):
         )
         assert model.job.optimisation
 
-        dsl_code = self.m.decode_hpc_opt(model.job.application, model.job.optimisation)
+        dsl_code = self.m._decode_hpc_opt(
+            model.job.application.app_tag, model.job.optimisation
+        )
         self.assertEqual(dsl_code, "mpich_ub1804_cuda101_mpi314_gnugprof")
 
     def test_map_container_aliased(self):
@@ -115,7 +117,7 @@ def test_non_app_tag_mapping(modak_driver):
     modak_driver.updateSQL(mapstmt)
 
     model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
-    assert mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
+    assert mapper._decode_hpc_opt(model.job.application.app_tag, model.job.optimisation)
     assert mapper.map_container(model.job.application, model.job.optimisation)
 
 
@@ -141,7 +143,9 @@ def test_app_tag_mapping_missing(modak_driver):
     model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
     model.job.application.app_tag = "code_aster"
 
-    assert not mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
+    assert not mapper._decode_hpc_opt(
+        model.job.application.app_tag, model.job.optimisation
+    )
     assert not mapper.map_container(model.job.application, model.job.optimisation)
 
 
@@ -186,7 +190,9 @@ def test_app_tag_mapping(modak_driver):
         False  # there is not much in requesting an optimization build now
     )
 
-    dsl_code = mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
+    dsl_code = mapper._decode_hpc_opt(
+        model.job.application.app_tag, model.job.optimisation
+    )
     assert dsl_code
     assert dsl_code == "nvidia-mpich-code_aster"
     assert mapper.map_container(model.job.application, model.job.optimisation)
