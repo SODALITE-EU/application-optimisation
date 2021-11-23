@@ -12,7 +12,6 @@ from .model import (
     AppTypeHPC,
     Optimisation,
     OptimisationBuild,
-    Target,
 )
 from .settings import Settings
 
@@ -32,7 +31,6 @@ class Mapper:
         self,
         app: Application,
         optimisation: Optimisation,
-        target: Optional[Target] = None,
     ) -> Optional[str]:
         """Get an URI for an optimal container for the given job."""
 

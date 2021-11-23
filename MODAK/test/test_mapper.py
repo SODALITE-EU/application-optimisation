@@ -66,7 +66,7 @@ class test_mapper(unittest.TestCase):
 
         model = JobModel.parse_raw(dsl_file.read_text())
         new_container = self.m.map_container(
-            model.job.application, model.job.optimisation, model.job.target
+            model.job.application, model.job.optimisation
         )
         self.assertEqual(
             new_container, "docker.io://modakopt/modak:tensorflow-2.1-gpu-src"
@@ -87,7 +87,7 @@ class test_mapper(unittest.TestCase):
         with patch.object(Settings, "image_hub_aliases", {"docker": "docker.invalid"}):
             model = JobModel.parse_raw(dsl_file.read_text())
             new_container = self.m.map_container(
-                model.job.application, model.job.optimisation, model.job.target
+                model.job.application, model.job.optimisation
             )
             self.assertEqual(
                 new_container,
@@ -116,9 +116,7 @@ def test_non_app_tag_mapping(modak_driver):
 
     model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
     assert mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
-    assert mapper.map_container(
-        model.job.application, model.job.optimisation, model.job.target
-    )
+    assert mapper.map_container(model.job.application, model.job.optimisation)
 
 
 def test_app_tag_mapping_missing(modak_driver):
@@ -144,9 +142,7 @@ def test_app_tag_mapping_missing(modak_driver):
     model.job.application.app_tag = "code_aster"
 
     assert not mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
-    assert not mapper.map_container(
-        model.job.application, model.job.optimisation, model.job.target
-    )
+    assert not mapper.map_container(model.job.application, model.job.optimisation)
 
 
 def test_app_tag_mapping(modak_driver):
@@ -193,6 +189,4 @@ def test_app_tag_mapping(modak_driver):
     dsl_code = mapper.decode_hpc_opt(model.job.application, model.job.optimisation)
     assert dsl_code
     assert dsl_code == "nvidia-mpich-code_aster"
-    assert mapper.map_container(
-        model.job.application, model.job.optimisation, model.job.target
-    )
+    assert mapper.map_container(model.job.application, model.job.optimisation)

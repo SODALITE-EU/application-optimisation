@@ -35,9 +35,7 @@ class MODAK:
         logging.info("Mapping to optimal container")
 
         assert job.optimisation, "Optimisation job data required"
-        new_container = self._map.map_container(
-            job.application, job.optimisation, job.target
-        )
+        new_container = self._map.map_container(job.application, job.optimisation)
         logging.info(f"Optimal container: {new_container}")
 
         if new_container is not None:
@@ -111,9 +109,7 @@ class MODAK:
         new_container = None
 
         if job.optimisation:
-            new_container = self._map.map_container(
-                job.application, job.optimisation, job.target
-            )
+            new_container = self._map.map_container(job.application, job.optimisation)
 
         logging.info(f"Optimal container found: {new_container}")
         return new_container
