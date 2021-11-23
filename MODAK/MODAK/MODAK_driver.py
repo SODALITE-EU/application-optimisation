@@ -45,7 +45,7 @@ class MODAK_driver:
 
         return result
 
-    def updateSQL(self, stmt: Union[sa.sql.Delete, sa.sql.Update]):
+    def updateSQL(self, stmt: Union[sa.sql.Delete, sa.sql.Update, sa.sql.Insert]):
         with sa.orm.Session(self._engine, future=True) as session:
             session.execute(stmt)
             session.commit()
