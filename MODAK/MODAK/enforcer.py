@@ -98,7 +98,7 @@ class Enforcer:
             return basestmts
 
         # now extract the available storage class definitions and build other queries matching them
-        storage_classes = [s["storage_class"] for s in istorage]
+        storage_classes = [config["storage_class"] for _, config in istorage.items()]
 
         basestmts.append(
             basestmt.filter(

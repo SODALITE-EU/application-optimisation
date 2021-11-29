@@ -111,11 +111,7 @@ def test_enforce_infra_storage_script(dbengine):
 
     stmt = insert(db.Infrastructure).values(
         name="testinfra",
-        configuration={
-            "storage": [
-                {"url": "file:///var/tmp", "storage_class": "ssd", "shared": False}
-            ]
-        },
+        configuration={"storage": {"file:///var/tmp": {"storage_class": "ssd"}}},
     )
     driver.updateSQL(stmt)
 

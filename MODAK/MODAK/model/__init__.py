@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
+from urllib.parse import urlparse
 from uuid import UUID
 
 from pydantic import AnyUrl
@@ -14,6 +15,8 @@ from pydantic import (
     root_validator,
     validator,
 )
+
+from .cpu import CPU
 
 
 class BaseModel(PydanticBaseModel):
@@ -406,24 +409,10 @@ class Script(ScriptIn):
         orm_mode = True
 
 
-class InfrastructureStorageConfiguration(BaseModel):
-    """A single storage location within an infrastructure."""
+class StorageConfiguration(BaseModel):
+    """A single storage location description."""
 
-    # Some notes:
-    # * we might have to find a more general way to order storage performance
-    # * currently there is only a single attribute to define whether a storage location
-    #   is shared, but the actual architecture could be arbitrarily more complicated
-    # * the URL might have to be more dynamic, for example when an object storage is referenced,
-    #   authentication is needed, etc.
-
-    url: AnyUrl = Field(
-        ...,
-        description="URL for the storage, can contain environment variables like $HOME, $UID, $USER, etc.",
-    )
     storage_class: str = Field(..., description="Storage class of this storage")
-    shared: bool = Field(
-        ..., description="Whether this storage is shared between all nodes"
-    )
 
     @validator("storage_class")
     def storage_class_defaults(cls, v):  # noqa: B902
@@ -458,7 +447,37 @@ class InfrastructureStorageConfiguration(BaseModel):
         return v
 
 
-class InfrastructureConfiguration(BaseModel):
+class StorageMapMixin(BaseModel):
+    storage: Dict[str, StorageConfiguration] = Field(
+        default_factory=list,
+        description="Mapping of storage locations (as URL) local to this level of the hierarchy",
+    )
+
+    @validator("storage")
+    def storage_key(cls, v):  # noqa: B902
+        """Verify that the storage key matches an URL, can be fully replaced by AnyURL with Pydantic 1.9"""
+        for key in v:
+            res = urlparse(key)
+            if not res.scheme:
+                raise ValueError(
+                    f"Storage key '{key}' does not contain an URL protocol"
+                )
+        return v
+
+
+class Node(StorageMapMixin, BaseModel):
+    ncpus: PositiveInt = Field(
+        ..., description="Number of CPUs (usually populated sockets) in this system"
+    )
+    cpu: CPU = Field(..., description="CPU configuration")
+
+
+class InfrastructurePartition(StorageMapMixin, BaseModel):
+    nnodes: PositiveInt = Field(..., description="Number of nodes in this partition")
+    node: Node = Field(..., description="Configuration of the nodes in the partition")
+
+
+class InfrastructureConfiguration(StorageMapMixin, BaseModel):
     """Minimal configuration required for an infrastructure."""
 
     # Compared to the full proposal in
@@ -468,7 +487,10 @@ class InfrastructureConfiguration(BaseModel):
     scheduler: Optional[JobSchedulerType] = Field(
         description="(default) queueing system type running on the infrastructure (if any)"
     )
-    storage: List[InfrastructureStorageConfiguration] = Field(default_factory=list)
+    partitions: Dict[str, InfrastructurePartition] = Field(
+        default_factory=dict,
+        description="Mapping of partitions, use '*' for a single (default) partition",
+    )
 
 
 class InfrastructureIn(BaseModel):
