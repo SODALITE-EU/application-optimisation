@@ -7,8 +7,10 @@ from uuid import UUID
 from pydantic import AnyUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import (
+    ByteSize,
     EmailStr,
     Field,
+    NonNegativeInt,
     PositiveInt,
     StrictBool,
     StrictInt,
@@ -16,6 +18,7 @@ from pydantic import (
     validator,
 )
 
+from .accel import Accelerator
 from .cpu import CPU
 
 
@@ -466,10 +469,39 @@ class StorageMapMixin(BaseModel):
 
 
 class Node(StorageMapMixin, BaseModel):
+    """Basic hardware description of a node."""
+
+    # The full configuration (NUMA model) is deliberately not included for now.
+    # TODO: support mixed-{accelerator,cpu,memory} node types.
     ncpus: PositiveInt = Field(
-        ..., description="Number of CPUs (usually populated sockets) in this system"
+        ..., description="Number of CPUs (populated sockets) in this system"
     )
-    cpu: CPU = Field(..., description="CPU configuration")
+    cpu: CPU = Field(..., description="CPU description")
+    naccel: NonNegativeInt = Field(
+        0, description="Number of accelerators connected to a node"
+    )
+    accel: Optional[Accelerator] = Field(description="Accelerator description")
+    memory: ByteSize = Field(description="Amount of memory available on a node")
+
+    @root_validator
+    def accel_defined(cls, values):  # noqa: B902
+        """Ensures that accelerator information is given if naccel > 0"""
+        naccel, accel = values.get("naccel"), values.get("accel")
+
+        if naccel is None:  # leave it to Pydantic to inform the user
+            return values
+
+        if naccel > 0 and accel is None:
+            raise ValueError(
+                "Accelerator description must be present when number of accelerators > 0"
+            )
+
+        if accel is not None and naccel == 0:
+            raise ValueError(
+                "Number of accelerators must be > 0 when accelerator description is given"
+            )
+
+        return values
 
 
 class InfrastructurePartition(StorageMapMixin, BaseModel):
@@ -491,6 +523,55 @@ class InfrastructureConfiguration(StorageMapMixin, BaseModel):
         default_factory=dict,
         description="Mapping of partitions, use '*' for a single (default) partition",
     )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "scheduler": "slurm",
+                "storage": {
+                    "file:///scratch": {
+                        "storage_class": "default-high",
+                    },
+                    "file:///data": {
+                        "storage_class": "common",
+                    },
+                },
+                "partitions": {
+                    "mc": {
+                        "nnodes": 100,
+                        "node": {
+                            "ncpus": 2,
+                            "cpu": {
+                                "arch": "x86_64",
+                                "microarch": "zen2",
+                                "ncores": 64,
+                                "nthreads": 2,
+                            },
+                            "naccel": 0,
+                            "memory": "512GiB",
+                        },
+                    },
+                    "gpu": {
+                        "nnodes": 5,
+                        "node": {
+                            "ncpus": 1,
+                            "cpu": {
+                                "arch": "x86_64",
+                                "microarch": "zen2",
+                                "ncores": 32,
+                                "nthreads": 2,
+                            },
+                            "naccel": 2,
+                            "accel": {
+                                "type": "gpu",
+                                "model": "P100",
+                            },
+                            "memory": "256GiB",
+                        },
+                    },
+                },
+            },
+        }
 
 
 class InfrastructureIn(BaseModel):
