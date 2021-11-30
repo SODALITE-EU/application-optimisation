@@ -10,7 +10,6 @@ from pydantic import (
     ByteSize,
     EmailStr,
     Field,
-    NonNegativeInt,
     PositiveInt,
     StrictBool,
     StrictInt,
@@ -477,8 +476,8 @@ class Node(StorageMapMixin, BaseModel):
         ..., description="Number of CPUs (populated sockets) in this system"
     )
     cpu: CPU = Field(..., description="CPU description")
-    naccel: NonNegativeInt = Field(
-        0, description="Number of accelerators connected to a node"
+    naccel: Optional[PositiveInt] = Field(
+        description="Number of accelerators connected to a node"
     )
     accel: Optional[Accelerator] = Field(description="Accelerator description")
     memory: ByteSize = Field(description="Amount of memory available on a node")
@@ -486,19 +485,10 @@ class Node(StorageMapMixin, BaseModel):
     @root_validator
     def accel_defined(cls, values):  # noqa: B902
         """Ensures that accelerator information is given if naccel > 0"""
-        naccel, accel = values.get("naccel"), values.get("accel")
 
-        if naccel is None:  # leave it to Pydantic to inform the user
-            return values
-
-        if naccel > 0 and accel is None:
+        if (values.get("naccel") is None) ^ (values.get("accel") is None):
             raise ValueError(
-                "Accelerator description must be present when number of accelerators > 0"
-            )
-
-        if accel is not None and naccel == 0:
-            raise ValueError(
-                "Number of accelerators must be > 0 when accelerator description is given"
+                "naccel and accel have to be both defined or both undefined"
             )
 
         return values
