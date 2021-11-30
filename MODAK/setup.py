@@ -13,6 +13,7 @@ setup(
         "sqlalchemy[asyncio,aiosqlite]",
         "rich",
         "requests",
+        "archspec",
     ],
     extras_require={
         "testing": [

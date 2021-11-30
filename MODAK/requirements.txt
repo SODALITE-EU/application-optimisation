@@ -8,3 +8,4 @@ pytest-cov==2.12.1
 pytest-console-scripts==1.2.1
 requests==2.26.0
 uvicorn==0.15.0
+archspec==0.1.3
