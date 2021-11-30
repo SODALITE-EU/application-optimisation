@@ -46,7 +46,8 @@ class Mapper:
             self._decode_opts,
         )
         for decoder in decoders:
-            if (dsl_code := decoder(app.app_tag, optimisation)) is not None:
+            dsl_code = decoder(app.app_tag, optimisation)
+            if dsl_code is not None:
                 break
         else:
             logging.warning("No valid DSL code found for given job")
