@@ -55,7 +55,6 @@ def get_auth(
     base_authorization_server_uri: str,
     signature_cache_ttl: int,
     audience: Optional[str] = None,
-    issuer: Optional[str] = None,
 ) -> Callable[[str], Awaitable[Mapping]]:
     """Take configurations and return the authenticate_user function.
     This function should only be invoked once at the beggining of your
@@ -65,9 +64,6 @@ def get_auth(
             server.
         base_authorization_server_uri(URL): Everything before /.wellknow in your auth
             server URL. I.E. https://dev-123456.okta.com
-        issuer (URL): Same as base_authorization. This is used to generating OpenAPI3.0
-            docs which is broken (in OpenAPI/FastAPI) right now.
-            Defauilts to the base_authorization_server_uri.
         signature_cache_ttl (int): How many seconds your app should cache the
             authorization server's public signatures.
         audience (str): (Optional) The audience string configured by your auth server.
@@ -89,7 +85,7 @@ def get_auth(
     async def authenticate_user(
         auth_header: str = Depends(oauth2_scheme),  # noqa: B008
     ) -> Mapping:
-        """Validate and parse OIDC ID token against issuer in config.
+        """Validate and parse OIDC ID token against issuer in discovery.
         Note this function caches the signatures and algorithms of the issuing server
         for signature_cache_ttl seconds.
         Args:
@@ -114,8 +110,7 @@ def get_auth(
                 id_token,
                 key,
                 algorithms,
-                audience=audience if audience else client_id,
-                issuer=issuer if issuer else base_authorization_server_uri,
+                issuer=OIDC_discoveries["issuer"],
                 options={"verify_aud": False},
             )
             return token
