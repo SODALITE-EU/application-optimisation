@@ -264,7 +264,7 @@ def import_script():
     )
 
     engine = create_async_engine(f"sqlite+aiosqlite:///{Settings.db_path}", future=True)
-    SessionLocal = sessionmaker(
+    session_local = sessionmaker(
         engine,
         class_=AsyncSession,
         autocommit=False,
@@ -273,7 +273,7 @@ def import_script():
     )
 
     async def create_async(script):
-        async with SessionLocal() as session:
+        async with session_local() as session:
             dbobj = await create_script(session, script)
             session.add(dbobj)
             await session.commit()
@@ -315,7 +315,7 @@ def dbshell():
     from IPython import embed
 
     engine = create_async_engine(f"sqlite+aiosqlite:///{Settings.db_path}", future=True)
-    SessionLocal = sessionmaker(  # noqa: F841
+    session_local = sessionmaker(  # noqa: F841
         engine,
         class_=AsyncSession,
         autocommit=False,
