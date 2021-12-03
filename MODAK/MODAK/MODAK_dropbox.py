@@ -100,24 +100,24 @@ class TransferData:
 
 
 def main():
-    transferData = TransferData()
-    # transferData.login_dropbox()
+    transfer_data = TransferData()
+    # transfer_data.login_dropbox()
 
     file_from = "scripts/set_default_cirrus.sh"
     # The full path to upload the file to, including the file name:
     file_to = "/scripts/set_default_cirrus.sh"
-    link = transferData.upload_file(file_from, file_to)
+    link = transfer_data.upload_file(file_from, file_to)
     print(link)
 
     # API v2
-    # link = transferData.upload_file(file_from=file_from, file_to=file_to)
+    # link = transfer_data.upload_file(file_from=file_from, file_to=file_to)
     # print(link)
-    # link = transferData.upload(
+    # link = transfer_data.upload(
     #     file_from , 'test',
     #     'torque_{}.pbs'.format(datetime.now().strftime('%Y%m%d%H%M%S')))
     # print(link)
     #
-    # print(transferData.download('test', 'torque_20200720123826.pbs'))
+    # print(transfer_data.download('test', 'torque_20200720123826.pbs'))
 
 
 if __name__ == "__main__":

@@ -36,8 +36,8 @@ class TransferData:
 
 
 def main():
-    transferData = TransferData()
-    link = transferData.upload_file("scripts/enable_xla.sh", "test/enable_xla.sh")
+    transfer_data = TransferData()
+    link = transfer_data.upload_file("scripts/enable_xla.sh", "test/enable_xla.sh")
     print(link)
 
 
