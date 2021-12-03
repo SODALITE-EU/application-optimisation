@@ -114,7 +114,7 @@ class Target(BaseModel):
 class ApplicationBuild(BaseModel):
     """Source and build commands for the application"""
 
-    src: AnyUrl = Field(description="Source URL for the application" "")
+    src: AnyUrl = Field(description="Source URL for the application")
     build_command: str = Field(
         description=(
             "commands (shell script) to build the application, use"
@@ -439,12 +439,11 @@ class StorageConfiguration(BaseModel):
                 f" [{', '.join(ALLOWED_PREFIXES)}]"
             )
 
-        if prefix == "default":
-            if suffix not in ALLOWED_DEFAULT_SUFFIXES:
-                raise ValueError(
-                    f"The storage_class suffix '{suffix}' does not match any of the supported suffixes:"
-                    f" [{', '.join(ALLOWED_DEFAULT_SUFFIXES)}]"
-                )
+        if prefix == "default" and suffix not in ALLOWED_DEFAULT_SUFFIXES:
+            raise ValueError(
+                f"The storage_class suffix '{suffix}' does not match any of the supported suffixes:"
+                f" [{', '.join(ALLOWED_DEFAULT_SUFFIXES)}]"
+            )
 
         return v
 
