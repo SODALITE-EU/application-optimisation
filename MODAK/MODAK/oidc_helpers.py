@@ -31,7 +31,6 @@ def configure(cache_ttl: int = 3600):
             resp = await client.get(OIDC_spec["jwks_uri"])
         resp.raise_for_status()
         return resp.json()
-        # return [key for key in jwks["keys"] if key["kid"]]
 
     def get_signing_algos(OIDC_spec: Mapping):
         return OIDC_spec["id_token_signing_alg_values_supported"]
