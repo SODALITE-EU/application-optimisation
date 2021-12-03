@@ -89,12 +89,6 @@ class TransferData:
         with open(file_from, "rb") as f:
             self.dbx.files_upload(f.read(), file_to)
 
-            # link_settings = dropbox.sharing.SharedLinkSettings(
-            #     requested_visibility=dropbox.sharing.RequestedVisibility.password,
-            #     link_password='modak',
-            #     expires=datetime.datetime.utcnow() + datetime.timedelta(hours=24)
-            # )
-            # link = dbx.sharing_create_shared_link_with_settings(file_to, link_settings)
             try:
                 link = self.dbx.sharing_create_shared_link(file_to)
             except dropbox.exceptions.ApiError as err:
