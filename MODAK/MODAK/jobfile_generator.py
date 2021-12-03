@@ -1,10 +1,10 @@
 import logging
 import pathlib
-from typing import List
+from typing import IO, List
 
 from jinja2 import Environment, FileSystemLoader
 
-from .model import Application, JobOptions, Optimisation, Script
+from .model import Application, ApplicationBuild, JobOptions, Optimisation, Script
 from .tuner import Tuner
 
 """Constant to represent the scheduler to use is SLURM"""
@@ -219,59 +219,60 @@ chmod 755 '{tuner.get_tune_filename()}'
                 )
         logging.info("Successfully added optimisation")
 
+    @staticmethod
+    def _write_apprun_build(
+        fhandle: IO[str], build: ApplicationBuild, container_exec_cmd: str
+    ):
+        if build.src[-4:] == ".git":
+            fhandle.write(f"\ngit clone {build.src}\n")
+        else:
+            fhandle.write(f"\nwget --no-check-certificate {build.src}\n")
+        fhandle.write(f"\n{container_exec_cmd} {build.build_command}\n")
+
+    def _write_apprun_hpc(self, fhandle: IO[str], container_exec_cmd: str, exe: str):
+        mpi_ranks = self._application.mpi_ranks
+        threads = self._application.threads
+        fhandle.write(f"\nexport OMP_NUM_THREADS={threads}\n")
+
+        if self._scheduler == "slurm":
+            fhandle.write(f"srun -n {mpi_ranks} {container_exec_cmd} {exe}\n")
+        else:
+            fhandle.write(f"mpirun -np {mpi_ranks} {container_exec_cmd} {exe}\n")
+
     def add_apprun(self):
         logging.info("Adding app run")
 
         exe = self._application.executable
         cont = self._application.container_runtime
 
-        if not exec and not cont:
+        if not exe and not cont:
             raise ValueError(
                 "Neither the executable nor a container is set, can not run anything"
             )
 
+        cont_exec_command = ""
+        if cont:
+            cont_exec_command = "singularity exec" if exe else "singularity run"
+            cont_exec_command += (
+                f'{self._singularity_args_str()} "{self.get_sif_filename(cont)}"'
+            )
+
+        args = self._application.arguments
+        if args:
+            exe += f" {args}"
+
         with self._batch_file.open("a") as fhandle:
-            args = self._application.arguments
-
-            cont_exec_command = ""
-
-            if cont:
-                cont_exec_command = "singularity exec" if exe else "singularity run"
-                cont_exec_command += (
-                    f'{self._singularity_args_str()} "{self.get_sif_filename(cont)}"'
+            if self._application.build:
+                self._write_apprun_build(
+                    fhandle, self._application.build, cont_exec_command
                 )
 
-            if args:
-                exe += f" {args}"
-
-            if self._application.build:
-                src = self._application.build.src
-                build_command = self._application.build.build_command
-
-                if src[-4:] == ".git":
-                    fhandle.write(f"\ngit clone {src}\n")
-                else:
-                    fhandle.write(f"\nwget --no-check-certificate {src}\n")
-                fhandle.write(f"\n{cont_exec_command} {build_command}\n")
-
             if self._application.app_type in ("mpi", "hpc"):
-                mpi_ranks = self._application.mpi_ranks
-                threads = self._application.threads
-                fhandle.write(f"\nexport OMP_NUM_THREADS={threads}\n")
-
-                if self._scheduler == "torque" and cont and "openmpi:1.10" in cont:
-                    fhandle.write(f"{cont_exec_command} mpirun -np {mpi_ranks} {exe}\n")
-                elif self._scheduler == "torque":
-                    fhandle.write(f"mpirun -np {mpi_ranks} {cont_exec_command} {exe}\n")
-                elif self._scheduler == "slurm":
-                    fhandle.write(f"srun -n {mpi_ranks} {cont_exec_command} {exe}\n")
-                else:
-                    fhandle.write(f"mpirun -np {mpi_ranks} {cont_exec_command} {exe}\n")
-
+                self._write_apprun_hpc(fhandle, cont_exec_command, exe)
             else:  # other app types, e.g. python
                 fhandle.write(f"{cont_exec_command} {exe}\n")
 
-            logging.info("Successfully added app run")
+        logging.info("Successfully added app run")
 
     def get_sif_filename(self, container: str):
         words = container.split("/")
