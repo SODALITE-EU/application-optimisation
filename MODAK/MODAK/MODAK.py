@@ -5,10 +5,10 @@ from typing import NamedTuple, cast
 
 import jinja2
 
+from .driver import Driver
 from .enforcer import Enforcer
 from .jobfile_generator import JobfileGenerator
 from .mapper import Mapper
-from .MODAK_driver import MODAK_driver
 from .model import ApplicationBuild, Job
 from .settings import Settings
 
@@ -19,7 +19,7 @@ class MODAK:
     def __init__(self, upload=False):
         """General MODAK class."""
         logging.info("Intialising MODAK")
-        self._driver = MODAK_driver()
+        self._driver = Driver()
         self._map = Mapper(self._driver)
         self._enf = Enforcer(self._driver)
         self._job_link = ""

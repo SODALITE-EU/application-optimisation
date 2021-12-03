@@ -3,12 +3,12 @@ import unittest
 from sqlalchemy import select
 
 from MODAK.db import Optimisation
-from MODAK.MODAK_driver import MODAK_driver
+from MODAK.driver import Driver
 
 
-class test_MODAK_driver(unittest.TestCase):
+class test_driver(unittest.TestCase):
     def setUp(self):
-        self.driver = MODAK_driver()
+        self.driver = Driver()
 
     def tearDown(self):
         pass

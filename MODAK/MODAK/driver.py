@@ -4,14 +4,12 @@ from typing import Any, List, Tuple, Union
 
 import sqlalchemy as sa
 
-# from MODAK_sql import MODAK_sql
 from .settings import DEFAULT_SETTINGS_DIR, Settings
 
 
-class MODAK_driver:
+class Driver:
     """This is the driver program that will drive the MODAK"""
 
-    # dblist = []
     logging.basicConfig(
         filename=DEFAULT_SETTINGS_DIR
         / ".."

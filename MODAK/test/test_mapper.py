@@ -6,8 +6,8 @@ from unittest.mock import patch
 from sqlalchemy import delete, insert, select
 
 from MODAK.db import Map, Optimisation
+from MODAK.driver import Driver
 from MODAK.mapper import Mapper
-from MODAK.MODAK_driver import MODAK_driver
 from MODAK.model import JobModel
 from MODAK.settings import Settings
 
@@ -16,7 +16,7 @@ SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
 class test_mapper(unittest.TestCase):
     def setUp(self):
-        self.driver = MODAK_driver()
+        self.driver = Driver()
         self.m = Mapper(self.driver)
 
     def tearDown(self):

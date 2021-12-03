@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 
 from MODAK.db import Base
-from MODAK.MODAK_driver import MODAK_driver
+from MODAK.driver import Driver
 
 
 @pytest.fixture(name="dbengine")
@@ -15,5 +15,5 @@ def engine_fixture():
 
 @pytest.fixture(name="modak_driver")
 def modak_driver_fixture(dbengine):
-    """Get a MODAK_driver instance tied to an in-memory DB engine"""
-    yield MODAK_driver(dbengine)
+    """Get a Driver instance tied to an in-memory DB engine"""
+    yield Driver(dbengine)

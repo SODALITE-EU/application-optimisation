@@ -1,8 +1,8 @@
 from sqlalchemy import insert
 
 from MODAK import db
+from MODAK.driver import Driver
 from MODAK.enforcer import Enforcer
-from MODAK.MODAK_driver import MODAK_driver
 from MODAK.model import Target
 
 
@@ -11,7 +11,7 @@ def test_enforce_opt():
     Check that Enforcer.enforce_opt returns a non-empty set of and location for a DB entry
     """
 
-    driver = MODAK_driver()
+    driver = Driver()
     enforcer = Enforcer(driver)
     scripts = enforcer.enforce_opt(
         "tensorflow",
@@ -27,7 +27,7 @@ def test_enforce_infra_script(dbengine):
     Check that Enforcer.enforce_opt returns an infra-conditioned script
     """
 
-    driver = MODAK_driver(dbengine)
+    driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
     stmt = insert(db.Script).values(
@@ -43,6 +43,7 @@ def test_enforce_infra_script(dbengine):
     )
 
     assert scripts, "empty list of scripts returned"
+    assert scripts[0].conditions.infrastructure
     assert scripts[0].conditions.infrastructure.name == "testinfra"
 
     scripts = enforcer.enforce_opt(
@@ -59,7 +60,7 @@ def test_enforce_app_script(dbengine):
     Check that Enforcer.enforce_opt returns an app-conditioned script
     """
 
-    driver = MODAK_driver(dbengine)
+    driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
     stmt = insert(db.Script).values(
@@ -91,7 +92,7 @@ def test_enforce_infra_storage_script(dbengine):
     Check that Enforcer.enforce_opt returns an infra- & storage-conditioned script
     """
 
-    driver = MODAK_driver(dbengine)
+    driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
     # insert a script which should be enabled if the chosen infra provides this storage_class

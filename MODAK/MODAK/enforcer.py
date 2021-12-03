@@ -5,12 +5,12 @@ from sqlalchemy import JSON, select
 from sqlalchemy.sql.expression import Select
 
 from . import db
-from .MODAK_driver import MODAK_driver
+from .driver import Driver
 from .model import Script, Target
 
 
 class Enforcer:
-    def __init__(self, driver: MODAK_driver):
+    def __init__(self, driver: Driver):
         logging.info("Initialised MODAK enforcer")
         self._driver = driver
 

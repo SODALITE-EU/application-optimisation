@@ -5,7 +5,7 @@ from sqlalchemy import insert, select
 
 from .db import Map
 from .db import Optimisation as OptimisationDB
-from .MODAK_driver import MODAK_driver
+from .driver import Driver
 from .model import (
     Application,
     AppTypeAITraining,
@@ -22,7 +22,7 @@ def _mapping2list(map: Mapping):
 
 
 class Mapper:
-    def __init__(self, driver: MODAK_driver):
+    def __init__(self, driver: Driver):
         logging.info("Initialised MODAK mapper")
         self._driver = driver
         self._opts: List[str] = []
