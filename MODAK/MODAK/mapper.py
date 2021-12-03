@@ -90,7 +90,7 @@ class Mapper:
             image_hub=image_hub,
             src=src,
         )
-        self._driver.updateSQL(stmt)
+        self._driver.update_sql(stmt)
 
         return True
 
@@ -113,7 +113,7 @@ class Mapper:
             version="",
         )
 
-        self._driver.updateSQL(stmt)
+        self._driver.update_sql(stmt)
         return True
 
     def get_container(self, opt_dsl_code: str) -> Optional[str]:
@@ -127,7 +127,7 @@ class Mapper:
             .order_by(Map.map_id.desc())
             .limit(1)
         )
-        data = self._driver.selectSQL(stmt)
+        data = self._driver.select_sql(stmt)
 
         if data:
             container_file = data[0][0]
@@ -227,7 +227,7 @@ class Mapper:
             # treat a missing Optimisation as an implicit enable_opt_build=False
             stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:false%"))
 
-        data = self._driver.selectSQL(stmt)
+        data = self._driver.select_sql(stmt)
         if data:
             dsl_code = data[0][0]
             logging.info(f"Decoded DSL code: {dsl_code}")

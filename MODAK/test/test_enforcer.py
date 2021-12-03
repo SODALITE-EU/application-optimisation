@@ -34,7 +34,7 @@ def test_enforce_infra_script(dbengine):
         conditions={"infrastructure": {"name": "testinfra"}},
         data={"stage": "pre", "raw": "echo hello"},
     )
-    driver.updateSQL(stmt)
+    driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
         "inexistentapp",
@@ -67,7 +67,7 @@ def test_enforce_app_script(dbengine):
         conditions={"application": {"name": "fancy"}},
         data={"stage": "pre", "raw": "echo hello"},
     )
-    driver.updateSQL(stmt)
+    driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
         "inexistentapp",
@@ -100,7 +100,7 @@ def test_enforce_infra_storage_script(dbengine):
         conditions={"infrastructure": {"name": "testinfra", "storage_class": "ssd"}},
         data={"stage": "pre", "raw": "echo hello"},
     )
-    driver.updateSQL(stmt)
+    driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
         "inexistentapp",
@@ -114,7 +114,7 @@ def test_enforce_infra_storage_script(dbengine):
         name="testinfra",
         configuration={"storage": {"file:///var/tmp": {"storage_class": "ssd"}}},
     )
-    driver.updateSQL(stmt)
+    driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
         "fancy",
@@ -132,7 +132,7 @@ def test_enforce_infra_storage_script(dbengine):
         },
         data={"stage": "pre", "raw": "echo hello"},
     )
-    driver.updateSQL(stmt)
+    driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
         "testapp",

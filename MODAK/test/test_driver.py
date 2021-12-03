@@ -14,7 +14,7 @@ class test_driver(unittest.TestCase):
         pass
 
     def test_driver(self):
-        data = self.driver.selectSQL(
+        data = self.driver.select_sql(
             select(Optimisation.opt_dsl_code, Optimisation.app_name).where(
                 Optimisation.app_name == "pytorch"
             )

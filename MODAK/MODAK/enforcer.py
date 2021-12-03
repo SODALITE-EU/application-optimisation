@@ -89,7 +89,7 @@ class Enforcer:
         # Now we need a lookup for the given infrastructure.
         # If not found or no storage spec (atm still possible unfortunately), we're done
         try:
-            istorage = self._driver.selectSQL(
+            istorage = self._driver.select_sql(
                 select(db.Infrastructure.configuration)
                 .filter(db.Infrastructure.name == target.name)
                 .filter(db.Infrastructure.configuration["storage"] != JSON.NULL)
@@ -185,6 +185,6 @@ class Enforcer:
         scripts = {
             script[0].id: Script.from_orm(script[0])
             for stmt in stmts
-            for script in self._driver.selectSQL(stmt)
+            for script in self._driver.select_sql(stmt)
         }
         return list(scripts.values())

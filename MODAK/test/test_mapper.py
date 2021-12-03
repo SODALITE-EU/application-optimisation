@@ -29,14 +29,14 @@ class test_mapper(unittest.TestCase):
         stmt = delete(Optimisation).where(
             Optimisation.opt_dsl_code == "TF_PIP_XLA"
         )  # no need to delete Mapper, since DB is set to CASCADE
-        self.driver.updateSQL(stmt)
+        self.driver.update_sql(stmt)
         self.m.add_optimisation(
             "TF_PIP_XLA",
             "tensorflow",
             json.loads(target_string),
             json.loads(opt_string),
         )
-        data = self.driver.selectSQL(
+        data = self.driver.select_sql(
             select(Optimisation.app_name).where(
                 Optimisation.opt_dsl_code == "TF_PIP_XLA"
             )
@@ -47,15 +47,15 @@ class test_mapper(unittest.TestCase):
 
     def test_add_container(self):
         stmt = delete(Map).where(Map.opt_dsl_code == "TF_PIP_XLA")
-        self.driver.updateSQL(stmt)
-        data = self.driver.selectSQL(
+        self.driver.update_sql(stmt)
+        data = self.driver.select_sql(
             select(Map.container_file).where(Map.opt_dsl_code == "TF_PIP_XLA")
         )
         self.assertEqual(len(data), 0)
         self.m.add_container(
             "TF_PIP_XLA", "AI/containers/tensorflow/tensorflow_pip_xla"
         )
-        data = self.driver.selectSQL(
+        data = self.driver.select_sql(
             select(Map.container_file).where(Map.opt_dsl_code == "TF_PIP_XLA")
         )
         self.assertEqual(len(data), 1)
@@ -113,8 +113,8 @@ def test_non_app_tag_mapping(modak_driver):
         image_type="shub",
         image_hub="library",
     )
-    modak_driver.updateSQL(optstmt)
-    modak_driver.updateSQL(mapstmt)
+    modak_driver.update_sql(optstmt)
+    modak_driver.update_sql(mapstmt)
 
     model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
     assert mapper._decode_hpc_opt(model.job.application.app_tag, model.job.optimisation)
@@ -137,8 +137,8 @@ def test_app_tag_mapping_missing(modak_driver):
         image_type="shub",
         image_hub="library",
     )
-    modak_driver.updateSQL(optstmt)
-    modak_driver.updateSQL(mapstmt)
+    modak_driver.update_sql(optstmt)
+    modak_driver.update_sql(mapstmt)
 
     model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
     model.job.application.app_tag = "code_aster"
@@ -165,8 +165,8 @@ def test_app_tag_mapping(modak_driver):
         image_type="shub",
         image_hub="library",
     )
-    modak_driver.updateSQL(optstmt)
-    modak_driver.updateSQL(mapstmt)
+    modak_driver.update_sql(optstmt)
+    modak_driver.update_sql(mapstmt)
 
     optstmt = insert(Optimisation).values(
         opt_dsl_code="nvidia-mpich-code_aster",
@@ -181,8 +181,8 @@ def test_app_tag_mapping(modak_driver):
         image_type="shub",
         image_hub="library",
     )
-    modak_driver.updateSQL(optstmt)
-    modak_driver.updateSQL(mapstmt)
+    modak_driver.update_sql(optstmt)
+    modak_driver.update_sql(mapstmt)
 
     model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
     model.job.application.app_tag = "code_aster"

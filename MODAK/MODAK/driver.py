@@ -35,7 +35,7 @@ class Driver:
 
         logging.info("Successfully initialised driver")
 
-    def selectSQL(self, stmt: sa.sql.Select) -> List[Tuple[Any, ...]]:
+    def select_sql(self, stmt: sa.sql.Select) -> List[Tuple[Any, ...]]:
         logging.info(f"Selecting : {stmt}")
         with sa.orm.Session(self._engine, future=True) as session:
             result = session.execute(stmt).all()
@@ -43,7 +43,7 @@ class Driver:
 
         return result
 
-    def updateSQL(self, stmt: Union[sa.sql.Delete, sa.sql.Update, sa.sql.Insert]):
+    def update_sql(self, stmt: Union[sa.sql.Delete, sa.sql.Update, sa.sql.Insert]):
         with sa.orm.Session(self._engine, future=True) as session:
             session.execute(stmt)
             session.commit()
