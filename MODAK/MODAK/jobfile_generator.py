@@ -136,7 +136,7 @@ class JobfileGenerator:
                 pathlib.Path(__file__).parent.resolve() / "templates"
             ),
             trim_blocks=True,
-        )
+        )  # NOSONAR
 
     # Based on https://kb.northwestern.edu/page.php?id=89454
 
