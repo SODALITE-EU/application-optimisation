@@ -253,12 +253,6 @@ def import_script():
         )
 
     if args.condition_infrastructure_name:
-        app_feats = {
-            k: ast.literal_eval(v)
-            for k, v in (
-                f.split("=", maxsplit=1) for f in args.condition_application_feature
-            )
-        }
         conditions.infrastructure = ScriptConditionInfrastructure(
             name=args.condition_infrastructure_name
         )
