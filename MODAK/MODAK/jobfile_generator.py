@@ -131,12 +131,12 @@ class JobfileGenerator:
 
         # use an explicitly given scheduler, if provided, otherwise determine from DSL
 
-        self._env = Environment(
+        self._env = Environment(  # NOSONAR
             loader=FileSystemLoader(
                 pathlib.Path(__file__).parent.resolve() / "templates"
             ),
             trim_blocks=True,
-        )  # NOSONAR
+        )
 
     # Based on https://kb.northwestern.edu/page.php?id=89454
 
