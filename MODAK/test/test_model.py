@@ -1,8 +1,8 @@
 import pytest
 from pydantic import ValidationError
 
-from MODAK.model import StorageMapMixin
 from MODAK.model.cpu import CPU
+from MODAK.model.storage import StorageMapMixin
 
 
 def test_cpu():

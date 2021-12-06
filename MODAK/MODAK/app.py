@@ -13,7 +13,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from MODAK import db
 from MODAK.MODAK import MODAK
-from MODAK.model import Infrastructure, InfrastructureIn, JobModel, Script, ScriptIn
+from MODAK.model import JobModel, Script, ScriptIn
+from MODAK.model.infrastructure import Infrastructure, InfrastructureIn
 from MODAK.settings import Settings
 
 from . import modeldb
