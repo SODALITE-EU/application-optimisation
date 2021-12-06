@@ -7,6 +7,8 @@ from pydantic import AnyUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import EmailStr, Field, PositiveInt, StrictBool, StrictInt, root_validator
 
+from .storage import DefaultStorageClass
+
 
 class BaseModel(PydanticBaseModel):
     class Config:
@@ -138,11 +140,14 @@ class Application(BaseModel):
             " Set before mpirun or srun."
         ),
     )
-    storage_class_pref: Optional[str] = Field(
+    storage_class_pref: Optional[DefaultStorageClass] = Field(
+        title="Storage class preference",
         description=(
-            "Preferred infrastructure storage_class, if the infrastructure"
-            " contains a corresponding definition."
-        )
+            "Preferred infrastructure storage_class."
+            " Ignored if the infrastructure does not"
+            " contain a matching storage definition."
+            " Overrides a preferred storage class defined in the container spec."
+        ),
     )
     build: Optional[ApplicationBuild] = Field(
         description=(
