@@ -1,11 +1,13 @@
-from typing import Awaitable, Callable, List, Mapping, Union
+from typing import Awaitable, Callable, List, Mapping, Optional, Union
+from uuid import uuid4
 
 import httpx
 from aiocache import cached
-from fastapi import Depends, HTTPException
-from fastapi.security import OpenIdConnect
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OpenIdConnect, SecurityScopes
 from jose import ExpiredSignatureError, JWTError, jwt
 from jose.exceptions import JWTClaimsError
+from loguru import logger
 from typing_extensions import Protocol
 
 # Much of this was inspired by https://github.com/HarryMWinters/fastapi-oidc
@@ -20,7 +22,7 @@ class IDToken(Protocol):
     iat: int
 
 
-def configure(cache_ttl: int = 3600):
+def configure_oidc(cache_ttl: int = 3600):
     @cached(ttl=cache_ttl)
     async def get_authentication_server_public_keys(jwks_uri: str) -> Mapping:
         """
@@ -47,9 +49,10 @@ def configure(cache_ttl: int = 3600):
 
 def get_auth(
     client_id: str,
-    base_authorization_server_uri: str,
-    signature_cache_ttl: int,
-) -> Callable[[str], Awaitable[Mapping]]:
+    base_authorization_server_url: Optional[str],
+    signature_cache_ttl: int = 3600,
+    api_key: Optional[str] = None,
+) -> Callable[[SecurityScopes, str], Awaitable[Mapping]]:
     """Take configurations and return the authenticate_user function.
     This function should only be invoked once at the beggining of your
     server code. The function it returns should be used to check user credentials.
@@ -60,16 +63,25 @@ def get_auth(
             server URL. I.E. https://dev-123456.okta.com
         signature_cache_ttl (int): How many seconds your app should cache the
             authorization server's public signatures.
+        api_key (str): Optional universal API key.
     """
 
-    oauth2_scheme = OpenIdConnect(
-        openIdConnectUrl=f"{base_authorization_server_uri}/.well-known/openid-configuration"
+    if not base_authorization_server_url:
+        base_authorization_server_url = ""
+
+    oidc_scheme = OpenIdConnect(
+        openIdConnectUrl=f"{base_authorization_server_url}/.well-known/openid-configuration"
     )
 
-    auth_server, public_keys = configure(cache_ttl=signature_cache_ttl)
+    auth_server, public_keys = configure_oidc(cache_ttl=signature_cache_ttl)
+    auth_server, public_keys = configure_oidc(cache_ttl=signature_cache_ttl)
+    if api_key == "":
+        api_key = uuid4().hex
+        logger.info(f"Generated API Key: {api_key}")
 
     async def authenticate_user(
-        auth_header: str = Depends(oauth2_scheme),  # noqa: B008
+        security_scopes: SecurityScopes,
+        auth_header_oidc: str = Depends(oidc_scheme),  # noqa: B008
     ) -> Mapping:
         """Validate and parse OIDC ID token against issuer in discovery.
         Note this function caches the signatures and algorithms of the issuing server
@@ -82,8 +94,27 @@ def get_auth(
         raises:
             HTTPException(status_code=401, detail=f"Unauthorized: {err}")
         """
-        id_token = auth_header.split(" ")[-1]
-        discovery_spec = await auth_server(base_url=base_authorization_server_uri)
+
+        if security_scopes.scopes:
+            authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+        else:
+            authenticate_value = "Bearer"
+
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": authenticate_value},
+        )
+
+        id_token = auth_header_oidc.split(" ")[-1]
+
+        if id_token == api_key:
+            return {"scope": ["apiKey"]}
+
+        if not base_authorization_server_url:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        discovery_spec = await auth_server(base_url=base_authorization_server_url)
         key = await public_keys(discovery_spec["jwks_uri"])
         algorithms = discovery_spec["id_token_signing_alg_values_supported"]
 
@@ -99,12 +130,21 @@ def get_auth(
                 issuer=discovery_spec["issuer"],
                 options={"verify_aud": False},
             )
-            return token
+        except ExpiredSignatureError:
+            logger.info("Unsuccessful login attempt with expired signature")
+            raise credentials_exception from None
+        except (JWTError, JWTClaimsError) as err:
+            logger.warning(f"Invalid JWT data or claim validation failed: {err}")
+            raise credentials_exception from None
 
-        except (ExpiredSignatureError, JWTError, JWTClaimsError) as err:
-            # TODO: log the original error here
-            raise HTTPException(
-                status_code=401, detail=f"Unauthorized: {err}"
-            ) from None
+        for scope in security_scopes.scopes:
+            if scope not in token.get("scopes", []):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Not enough permissions",
+                    headers={"WWW-Authenticate": authenticate_value},
+                )
+
+        return token
 
     return authenticate_user

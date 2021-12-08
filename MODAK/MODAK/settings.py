@@ -6,7 +6,7 @@ import re
 from configparser import ConfigParser
 from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings
+from pydantic import AnyHttpUrl, BaseSettings
 
 DEFAULT_SETTINGS_DIR = pathlib.Path(__file__).parent.resolve().parent / "conf"
 
@@ -67,6 +67,9 @@ def configparser_settings_source(settings: BaseSettings) -> Dict[str, Any]:
         if "dropbox_access_token" in section:
             data["dropbox_access_token"] = section["dropbox_access_token"]
 
+        data["oidc_auth_url"] = section.get("oidc_auth_url")
+        data["api_key"] = section.get("api_key")
+
         sa_section = f"{data['mode']}.image_hub_aliases"
         data["image_hub_aliases"] = (
             dict(config.items(sa_section)) if config.has_section(sa_section) else {}
@@ -94,6 +97,8 @@ class SettingsBase(BaseSettings):
     db_path: Optional[pathlib.Path]
     out_dir: pathlib.Path
     image_hub_aliases: Dict[str, str]
+    oidc_auth_url: Optional[AnyHttpUrl] = None
+    api_key: Optional[str] = None
 
     google_credentials: Optional[pathlib.Path]
     dropbox_access_token: Optional[str]
