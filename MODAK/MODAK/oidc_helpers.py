@@ -1,3 +1,4 @@
+import re
 from typing import Awaitable, Callable, List, Mapping, Optional, Union
 from uuid import uuid4
 
@@ -12,6 +13,9 @@ from typing_extensions import Protocol
 
 # Much of this was inspired by https://github.com/HarryMWinters/fastapi-oidc
 # with some noteable differences: everything here is async
+
+
+ROLE_MATCH = r"(?P<type>\w+)_(?P<permissions>\w)"
 
 
 class IDToken(Protocol):
@@ -47,7 +51,7 @@ def configure_oidc(cache_ttl: int = 3600):
     )
 
 
-def get_auth(
+def get_auth_token(
     client_id: str,
     base_authorization_server_url: Optional[str],
     signature_cache_ttl: int = 3600,
@@ -79,7 +83,7 @@ def get_auth(
         api_key = uuid4().hex
         logger.info(f"Generated API Key: {api_key}")
 
-    async def authenticate_user(
+    async def authenticated_token(
         security_scopes: SecurityScopes,
         auth_header_oidc: str = Depends(oidc_scheme),  # noqa: B008
     ) -> Mapping:
@@ -109,6 +113,7 @@ def get_auth(
         id_token = auth_header_oidc.split(" ")[-1]
 
         if id_token == api_key:
+            logger.info("Authenticated request by api key")
             return {"scope": ["apiKey"]}
 
         if not base_authorization_server_url:
@@ -121,7 +126,7 @@ def get_auth(
         # Note: keycloak seems to violate the OIDC spec by not adding
         #       the client_id to the 'aud' claim (always contains all
         #       other claims the user may have access to).
-        # TODO: Instead, the 'azp' claim is filled and might to be checked.
+
         try:
             token = jwt.decode(
                 id_token,
@@ -145,6 +150,26 @@ def get_auth(
                     headers={"WWW-Authenticate": authenticate_value},
                 )
 
+        token_roles = []
+
+        try:
+            for role in token["resource_access"][token["azp"]]["roles"]:
+                match = re.match(ROLE_MATCH, role)
+
+                if match:
+                    token_roles.append(match.groups())
+        except KeyError:
+            logger.warning("Presented token did not contain required attributes")
+            raise credentials_exception from None
+
+        print(token_roles)
+        if ("modak", "r") not in token_roles:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not enough permissions",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
+
         return token
 
-    return authenticate_user
+    return authenticated_token
