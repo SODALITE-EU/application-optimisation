@@ -83,7 +83,7 @@ def get_auth_token(
         api_key = uuid4().hex
         logger.info(f"Generated API Key: {api_key}")
 
-    async def authenticated_token(
+    async def authentication_token(
         security_scopes: SecurityScopes,
         auth_header_oidc: str = Depends(oidc_scheme),  # noqa: B008
     ) -> Mapping:
@@ -172,4 +172,4 @@ def get_auth_token(
 
         return token
 
-    return authenticated_token
+    return authentication_token

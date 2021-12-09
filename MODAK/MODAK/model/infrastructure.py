@@ -66,7 +66,7 @@ class InfrastructureConfiguration(StorageMapMixin, BaseModel):
                         "storage_class": "default-high",
                     },
                     "file:///data": {
-                        "storage_class": "common",
+                        "storage_class": "default-common",
                     },
                 },
                 "partitions": {

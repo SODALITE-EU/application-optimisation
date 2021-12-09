@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import pathlib
-from typing import List
+from typing import AsyncIterator, List
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -17,11 +17,18 @@ from MODAK.model import JobModel, Script, ScriptIn
 from MODAK.model.infrastructure import Infrastructure, InfrastructureIn
 from MODAK.settings import Settings
 
-from . import modeldb
+from . import modeldb, oidc_helpers
 
 BASE_PATH = pathlib.Path(__file__).resolve().parent
 app = FastAPI(title="MODAK Application Optimizer")
 templates = Jinja2Templates(directory=str(BASE_PATH / "templates"))
+
+authentication_token = oidc_helpers.get_auth_token(
+    client_id="modak",
+    base_authorization_server_url=Settings.oidc_auth_url,
+    signature_cache_ttl=3600,
+    api_key=Settings.api_key,
+)
 
 engine = create_async_engine(f"sqlite+aiosqlite:///{Settings.db_path}", future=True)
 SessionLocal = sessionmaker(
@@ -33,7 +40,7 @@ SessionLocal = sessionmaker(
 )
 
 
-async def get_db_session() -> AsyncSession:
+async def get_db_session() -> AsyncIterator[AsyncSession]:
     async with SessionLocal() as session:
         yield session
 
@@ -51,25 +58,6 @@ async def index(request: Request):
             "request": request,
         },
     )
-
-
-# # Route for handling the login page logic
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     error = None
-#     if request.method == 'POST':
-#         if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-#             error = 'Invalid Credentials. Please try again.'
-#         else:
-#             session['logged_in'] = True
-#             return redirect(url_for('home'))
-#
-#     return render_template('login.html', error=error)
-#
-# @app.route('/logout')
-# def logout():
-#     session.pop('logged_in', None)
-#     return redirect(url_for('home'))
 
 
 @app.post("/optimise", response_model=JobModel, response_model_exclude_none=True)
@@ -132,6 +120,7 @@ async def get_script(
     response_model=Script,
     status_code=201,
     response_model_exclude_none=True,
+    dependencies=[Depends(authentication_token)],
 )
 async def create_script(
     script_in: ScriptIn, session: AsyncSession = Depends(get_db_session)  # noqa: B008
@@ -183,6 +172,7 @@ async def get_infrastructure(
     response_model=Infrastructure,
     status_code=201,
     response_model_exclude_none=True,
+    dependencies=[Depends(authentication_token)],
 )
 async def create_infrastructure(
     infrastructure_in: InfrastructureIn,
