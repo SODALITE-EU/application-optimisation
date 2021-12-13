@@ -1,29 +1,21 @@
 import re
-from typing import Awaitable, Callable, List, Mapping, Optional, Union
+from typing import Mapping, Optional
 from uuid import uuid4
 
 import httpx
 from aiocache import cached
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from fastapi.security import OpenIdConnect, SecurityScopes
 from jose import ExpiredSignatureError, JWTError, jwt
 from jose.exceptions import JWTClaimsError
 from loguru import logger
-from typing_extensions import Protocol
+from starlette.requests import Request
 
 # Much of this was inspired by https://github.com/HarryMWinters/fastapi-oidc
 # with some noteable differences: everything here is async
 
 
 ROLE_MATCH = r"(?P<type>\w+)_(?P<permissions>\w)"
-
-
-class IDToken(Protocol):
-    iss: str
-    sub: str
-    aud: Union[str, List[str]]
-    exp: int
-    iat: int
 
 
 def configure_oidc(cache_ttl: int = 3600):
@@ -51,50 +43,45 @@ def configure_oidc(cache_ttl: int = 3600):
     )
 
 
-def get_auth_token(
-    client_id: str,
-    base_authorization_server_url: Optional[str],
-    signature_cache_ttl: int = 3600,
-    api_key: Optional[str] = None,
-) -> Callable[[SecurityScopes, str], Awaitable[Mapping]]:
-    """Take configurations and return the authenticate_user function.
-    This function should only be invoked once at the beggining of your
-    server code. The function it returns should be used to check user credentials.
-    Args:
-        client_id (str): This string is provided when you register with your resource
-            server.
-        base_authorization_server_uri(URL): Everything before /.wellknow in your auth
-            server URL. I.E. https://dev-123456.okta.com
-        signature_cache_ttl (int): How many seconds your app should cache the
-            authorization server's public signatures.
-        api_key (str): Optional universal API key.
-    """
+class ExtendedOpenIdConnect(OpenIdConnect):
+    def __init__(
+        self,
+        client_id: str,
+        base_authorization_server_url: Optional[str],
+        signature_cache_ttl: int = 3600,
+        api_key: Optional[str] = None,
+    ):
+        if not base_authorization_server_url:
+            base_authorization_server_url = ""
 
-    if not base_authorization_server_url:
-        base_authorization_server_url = ""
+        self.base_authorization_server_url = base_authorization_server_url
 
-    oidc_scheme = OpenIdConnect(
-        openIdConnectUrl=f"{base_authorization_server_url}/.well-known/openid-configuration"
-    )
+        super().__init__(
+            openIdConnectUrl=f"{base_authorization_server_url}/.well-known/openid-configuration"
+        )
 
-    auth_server, public_keys = configure_oidc(cache_ttl=signature_cache_ttl)
-    auth_server, public_keys = configure_oidc(cache_ttl=signature_cache_ttl)
-    if api_key == "":
-        api_key = uuid4().hex
-        logger.info(f"Generated API Key: {api_key}")
+        self.client_id = client_id
+        self.auth_server, self.public_keys = configure_oidc(
+            cache_ttl=signature_cache_ttl
+        )
 
-    async def authentication_token(
+        if api_key == "":
+            api_key = uuid4().hex
+            logger.info(f"Generated API Key: {api_key}")
+
+        self.api_key = api_key
+
+    async def __call__(
+        self,
+        request: Request,
         security_scopes: SecurityScopes,
-        auth_header_oidc: str = Depends(oidc_scheme),  # noqa: B008
-    ) -> Mapping:
+    ) -> Optional[Mapping]:
         """Validate and parse OIDC ID token against issuer in discovery.
         Note this function caches the signatures and algorithms of the issuing server
         for signature_cache_ttl seconds.
         Args:
             auth_header (str): Base64 encoded OIDC Token. This is invoked behind the
                 scenes by Depends.
-        Return:
-            IDToken (types.IDToken):
         raises:
             HTTPException(status_code=401, detail=f"Unauthorized: {err}")
         """
@@ -110,17 +97,23 @@ def get_auth_token(
             headers={"WWW-Authenticate": authenticate_value},
         )
 
+        auth_header_oidc = await super().__call__(request)
+        if not auth_header_oidc:
+            raise credentials_exception
+
         id_token = auth_header_oidc.split(" ")[-1]
 
-        if id_token == api_key:
+        if id_token == self.api_key:
             logger.info("Authenticated request by api key")
             return {"scope": ["apiKey"]}
 
-        if not base_authorization_server_url:
+        if not self.base_authorization_server_url:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
-        discovery_spec = await auth_server(base_url=base_authorization_server_url)
-        key = await public_keys(discovery_spec["jwks_uri"])
+        discovery_spec = await self.auth_server(
+            base_url=self.base_authorization_server_url
+        )
+        key = await self.public_keys(discovery_spec["jwks_uri"])
         algorithms = discovery_spec["id_token_signing_alg_values_supported"]
 
         # Note: keycloak seems to violate the OIDC spec by not adding
@@ -162,7 +155,6 @@ def get_auth_token(
             logger.warning("Presented token did not contain required attributes")
             raise credentials_exception from None
 
-        print(token_roles)
         if ("modak", "r") not in token_roles:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -171,5 +163,3 @@ def get_auth_token(
             )
 
         return token
-
-    return authentication_token

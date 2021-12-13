@@ -23,7 +23,7 @@ BASE_PATH = pathlib.Path(__file__).resolve().parent
 app = FastAPI(title="MODAK Application Optimizer")
 templates = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
-authentication_token = oidc_helpers.get_auth_token(
+authentication_token = oidc_helpers.ExtendedOpenIdConnect(
     client_id="modak",
     base_authorization_server_url=Settings.oidc_auth_url,
     signature_cache_ttl=3600,
@@ -126,9 +126,11 @@ async def create_script(
     script_in: ScriptIn, session: AsyncSession = Depends(get_db_session)  # noqa: B008
 ):
     """Add a new script"""
-
     async with session.begin():
-        dbobj = await modeldb.create_script(session, script_in)
+        try:
+            dbobj = await modeldb.create_script(session, script_in)
+        except modeldb.ConstraintFailureError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from None
         session.add(dbobj)
 
     return dbobj

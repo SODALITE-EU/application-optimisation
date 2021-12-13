@@ -75,7 +75,7 @@ class StorageConfiguration(PydanticBaseModel):
 
 class StorageMapMixin(PydanticBaseModel):
     storage: Dict[str, StorageConfiguration] = Field(
-        default_factory=list,
+        default_factory=dict,
         description="Mapping of storage locations (as URL) local to this level of the hierarchy",
     )
 

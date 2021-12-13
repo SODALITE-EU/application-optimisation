@@ -92,9 +92,9 @@ class Enforcer:
             istorage = self._driver.select_sql(
                 select(db.Infrastructure.configuration)
                 .filter(db.Infrastructure.name == target.name)
-                .filter(db.Infrastructure.configuration["storage"] != JSON.NULL)
+                .filter(db.Infrastructure.configuration["storage"].isnot({}))
             )[0][0]["storage"]
-        except IndexError:
+        except (KeyError, IndexError):
             return basestmts
 
         # now extract the available storage class definitions and build other queries matching them
@@ -154,7 +154,7 @@ class Enforcer:
         stmts += [
             basestmt.filter(
                 db.Script.conditions["application"]["name"].as_string() == app_name
-            ).filter(db.Script.conditions["application"]["filter"] == JSON.NULL)
+            ).filter(db.Script.conditions["application"]["feature"].is_({}))
         ]
         stmts += self._opts2stmts(
             basestmt.filter(
@@ -167,7 +167,7 @@ class Enforcer:
         stmts += [
             infrastmt.filter(
                 db.Script.conditions["application"]["name"].as_string() == app_name
-            ).filter(db.Script.conditions["application"]["filter"] == JSON.NULL)
+            ).filter(db.Script.conditions["application"]["feature"].is_({}))
             for infrastmt in infrastmts
         ]
         stmts += [

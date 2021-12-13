@@ -3,7 +3,8 @@ from sqlalchemy import insert
 from MODAK import db
 from MODAK.driver import Driver
 from MODAK.enforcer import Enforcer
-from MODAK.model import Target
+from MODAK.model import ScriptIn, Target
+from MODAK.model.infrastructure import InfrastructureIn
 
 
 def test_enforce_opt():
@@ -63,10 +64,11 @@ def test_enforce_app_script(dbengine):
     driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
-    stmt = insert(db.Script).values(
+    script = ScriptIn(
         conditions={"application": {"name": "fancy"}},
         data={"stage": "pre", "raw": "echo hello"},
     )
+    stmt = insert(db.Script).values(**script.dict())
     driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
@@ -96,10 +98,14 @@ def test_enforce_infra_storage_script(dbengine):
     enforcer = Enforcer(driver)
 
     # insert a script which should be enabled if the chosen infra provides this storage_class
-    stmt = insert(db.Script).values(
-        conditions={"infrastructure": {"name": "testinfra", "storage_class": "ssd"}},
-        data={"stage": "pre", "raw": "echo hello"},
+
+    script = ScriptIn(
+        conditions={
+            "infrastructure": {"name": "testinfra", "storage_class": "default-ssd"}
+        },
+        data={"stage": "pre", "raw": "echo 'hello any storage'"},
     )
+    stmt = insert(db.Script).values(**script.dict())
     driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
@@ -110,10 +116,13 @@ def test_enforce_infra_storage_script(dbengine):
 
     assert not scripts, "script returned despite no infrastructure entry"
 
-    stmt = insert(db.Infrastructure).values(
+    infra = InfrastructureIn(
         name="testinfra",
-        configuration={"storage": {"file:///var/tmp": {"storage_class": "ssd"}}},
+        configuration={
+            "storage": {"file:///var/tmp": {"storage_class": "default-ssd"}}
+        },
     )
+    stmt = insert(db.Infrastructure).values(**infra.dict())
     driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
@@ -125,13 +134,14 @@ def test_enforce_infra_storage_script(dbengine):
     assert scripts, "scripts not found"
 
     # insert a script which should be enabled if the chosen infra provides this storage_class
-    stmt = insert(db.Script).values(
+    script = ScriptIn(
         conditions={
-            "infrastructure": {"storage_class": "ssd"},
+            "infrastructure": {"storage_class": "default-ssd"},
             "application": {"name": "testapp"},
         },
-        data={"stage": "pre", "raw": "echo hello"},
+        data={"stage": "pre", "raw": "echo 'hello ssd-only'"},
     )
+    stmt = insert(db.Script).values(**script.dict())
     driver.update_sql(stmt)
 
     scripts = enforcer.enforce_opt(
