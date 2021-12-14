@@ -1,7 +1,8 @@
+import io
 import logging
 from copy import deepcopy
 from datetime import datetime
-from typing import NamedTuple, cast
+from typing import IO, NamedTuple, Optional, Tuple
 
 import jinja2
 
@@ -9,7 +10,7 @@ from .driver import Driver
 from .enforcer import Enforcer
 from .jobfile_generator import JobfileGenerator
 from .mapper import Mapper
-from .model import ApplicationBuild, Job
+from .model import Job
 from .settings import Settings
 
 JobScripts = NamedTuple("JobScripts", [("jobscript", str), ("buildscript", str)])
@@ -30,56 +31,22 @@ class MODAK:
             self._drop = TransferData()
         logging.info("Successfully intialised MODAK")
 
-    def optimise(self, job: Job):
+    def optimise(self, job: Job) -> JobScripts:
         logging.info(f"Processing job data {job}")
-        logging.info("Mapping to optimal container")
 
-        assert job.optimisation, "Optimisation job data required"
-        new_container = self._map.map_container(job.application, job.optimisation)
-        logging.info(f"Optimal container: {new_container}")
-
-        if new_container is not None:
-            job.application.container_runtime = new_container
-            logging.info("Successfully updated container runtime")
-
-        logging.info("Generating job file header")
         job_file = (
             Settings.out_dir
             / f"{job.job_options.job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
-        gen_t = JobfileGenerator(
-            job.application,
-            job.job_options,
-            batch_file=job_file,
-            scheduler=str(job.target.job_scheduler_type) if job.target else "",
-        )
+        with job_file.open("w") as job_fhandle:
+            self._get_optimisation(job, job_fhandle)
 
-        logging.info("Adding job header")
-        gen_t.add_job_header()
-
-        logging.info("Generating build file")
-        buildjob = self.get_buildjob(job)
         build_file = (
             Settings.out_dir
             / f"{job.job_options.job_name}_build_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
-
         with build_file.open("w") as fhandle:
-            fhandle.write(buildjob)
-
-        logging.info("Adding autotuning scripts if optimisation is requested")
-        if job.optimisation:
-            gen_t.add_tuner(job.optimisation, upload=self._upload)
-
-        logging.info(f"Applying optimisations {self._map.get_opts()}")
-        assert job.target, "Target must be defined"
-        for script in self._enf.enforce_opt(
-            self._map.app_name, job.target, self._map.get_opts()
-        ):
-            gen_t.add_optscript(script)
-
-        logging.info("Adding application run")
-        gen_t.add_apprun()
+            self._get_buildjob(job, fhandle)
 
         if self._upload:
             file_to = (
@@ -97,14 +64,13 @@ class MODAK:
         else:
             job_link = job_file
             build_link = build_file
+
         logging.info(f"Job script link: {job_link}")
         logging.info(f"Build script link: {build_link}")
         return JobScripts(str(job_link), str(build_link))
 
-    def get_opt_container_runtime(self, job: Job):
+    def get_opt_container_runtime(self, job: Job) -> Optional[str]:
         logging.info("Mapping to optimal container for job data")
-
-        logging.info(f"Processing job data {job}")
 
         new_container = None
 
@@ -114,7 +80,12 @@ class MODAK:
         logging.info(f"Optimal container found: {new_container}")
         return new_container
 
-    def get_buildjob(self, job: Job):
+    def get_buildjob(self, job: Job) -> str:
+        job_fhandle = io.StringIO()
+        self._get_buildjob(job, job_fhandle)
+        return job_fhandle.getvalue()
+
+    def _get_buildjob(self, job: Job, job_fhandle: IO[str]) -> None:
         logging.info("Creating build script for job")
         logging.info(f"Processing build data: {job}")
 
@@ -122,9 +93,9 @@ class MODAK:
             logging.info(
                 "No job.application.build section in request, returning empty resposne"
             )
-            return ""
+            return
 
-        build = cast(ApplicationBuild, job.application.build)
+        build = job.application.build
 
         final_build = ""
         if build.src[-4:] == ".git":
@@ -149,9 +120,15 @@ class MODAK:
         )
         build_job.application.executable = final_build
 
-        return self.get_optimisation(build_job)[1]
+        self._get_optimisation(build_job, job_fhandle)
 
-    def get_optimisation(self, job: Job):
+    def get_optimisation(self, job: Job) -> Tuple[Optional[str], str]:
+        job_file = io.StringIO()
+        new_container = self._get_optimisation(job, job_file)
+        return (new_container, job_file.getvalue())
+
+    def _get_optimisation(self, job: Job, job_fhandle: IO[str]) -> Optional[str]:
+
         # if mapper finds an optimised container based on requested optimisation,
         # update the container runtime of application
         new_container = self.get_opt_container_runtime(job)
@@ -160,14 +137,11 @@ class MODAK:
             logging.info("Successfully updated container runtime")
 
         logging.info("Generating job file header")
-        job_file = (
-            Settings.out_dir
-            / f"{job.job_options.job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
-        )
+
         gen_t = JobfileGenerator(
             job.application,
             job.job_options,
-            batch_file=job_file,
+            batch_fhandle=job_fhandle,
             scheduler=str(job.target.job_scheduler_type) if job.target else "",
         )
 
@@ -190,7 +164,4 @@ class MODAK:
         logging.info("Adding application run")
         gen_t.add_apprun()
 
-        job_script_content = job_file.read_text()
-
-        logging.info(f"Job script content: {job_script_content}")
-        return (new_container, job_script_content)
+        return new_container

@@ -1,6 +1,6 @@
 import logging
 import os
-import pathlib
+from typing import IO
 
 from .model import Optimisation
 
@@ -19,7 +19,7 @@ class Tuner:
 
             self._drop = TransferData()
 
-    def encode_tune(self, optimisation: Optimisation, jobfile: pathlib.Path):
+    def encode_tune(self, optimisation: Optimisation, jobfile: IO[str]):
         logging.warning("Tuning not yet supported")
         return False
 

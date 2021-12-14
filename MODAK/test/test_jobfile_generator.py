@@ -1,22 +1,21 @@
-import pathlib
-import tempfile
+import io
 import unittest
 import uuid
 
 from MODAK import jobfile_generator
 from MODAK.model import Application, JobOptions, Script
 
-TEST_STRING = b"""## OPTSCRIPT here ##"""
+TEST_STRING = """## OPTSCRIPT here ##"""
 
 
 class test_mapper(unittest.TestCase):
     def setUp(self):
-        self.outfile = tempfile.NamedTemporaryFile()
+        self.outfile = io.StringIO()
         self.jg = jobfile_generator.JobfileGenerator(
             # construct empty invalid objects, because we know here we don't need them:
             application=Application.construct(),
             job_options=JobOptions.construct(),
-            batch_file=pathlib.Path(self.outfile.name),
+            batch_fhandle=self.outfile,
             scheduler="torque",
         )
 
@@ -31,8 +30,7 @@ class test_mapper(unittest.TestCase):
 
         # If everything worked correctly, our test line should have been
         # inserted into the output file by attempting to add an option script.
-        self.outfile.file.seek(0)
-        assert any(TEST_STRING in line for line in self.outfile.file.readlines())
+        assert TEST_STRING in self.outfile.getvalue()
 
 
 class test_ArgumentConverter(unittest.TestCase):

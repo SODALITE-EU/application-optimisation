@@ -113,12 +113,12 @@ class JobfileGenerator:
         self,
         application: Application,
         job_options: JobOptions,
-        batch_file: pathlib.Path,
+        batch_fhandle: IO[str],
         scheduler: str,
     ):
         """Generates the job files, e.g. PBS and SLURM."""
         logging.info("Initialising job file generator")
-        self._batch_file = batch_file
+        self._batch_fhandle = batch_fhandle
         self._job_options = job_options
         self._application = application
         self._scheduler = scheduler
@@ -143,8 +143,7 @@ class JobfileGenerator:
     def _generate_torque_header(self):
         logging.info("Generating torque header")
         template = self._env.get_template("torque.header")
-        with self._batch_file.open("w") as fhandle:
-            fhandle.write(template.render(job_data=self._job_options))
+        self._batch_fhandle.write(template.render(job_data=self._job_options))
 
         if self._job_options.node_count and self._job_options.request_gpus:
             self._singularity_args.append("--nv")
@@ -152,16 +151,14 @@ class JobfileGenerator:
     def _generate_slurm_header(self):
         logging.info("Generating slurm header")
         template = self._env.get_template("slurm.header")
-        with self._batch_file.open("w") as fhandle:
-            fhandle.write(template.render(job_data=self._job_options))
+        self._batch_fhandle.write(template.render(job_data=self._job_options))
 
         if self._job_options.request_gpus:
             self._singularity_args.append("--nv")
 
     def _generate_bash_header(self):
         logging.info("Generating bash header")
-        with self._batch_file.open("w") as fhandle:
-            fhandle.write("#!/bin/bash\n\n")
+        self._batch_fhandle.write("#!/bin/bash\n\n")
 
     def add_job_header(self):
         if self._scheduler == "torque":
@@ -178,45 +175,43 @@ class JobfileGenerator:
 
     def add_tuner(self, optimisation: Optimisation, upload=True):
         tuner = Tuner(upload)
-        res = tuner.encode_tune(optimisation, self._batch_file)
+        res = tuner.encode_tune(optimisation, self._batch_fhandle)
         if not res:
             logging.warning("Tuning not enabled or Encoding tuner failed")
             return
 
         logging.info("Adding tuner" + str(tuner))
-        with self._batch_file.open("a") as fhandle:
-            fhandle.write(
-                f"""
+        self._batch_fhandle.write(
+            f"""
 ## START OF TUNER ##
 file={tuner.get_tune_filename()}
 [ -f $file ] && rm "$file"
 wget --no-check-certificate '{tuner.get_tune_link()}'
 chmod 755 '{tuner.get_tune_filename()}'
 """
+        )
+        if self._application.container_runtime:
+            cont = self._application.container_runtime
+            self._batch_fhandle.write(
+                f"\nsingularity exec{self._singularity_args_str()}"
+                f' "{self.get_sif_filename(cont)}" "{tuner.get_tune_filename()}"'
             )
-            if self._application.container_runtime:
-                cont = self._application.container_runtime
-                fhandle.write(
-                    f"\nsingularity exec{self._singularity_args_str()}"
-                    f' "{self.get_sif_filename(cont)}" "{tuner.get_tune_filename()}"'
-                )
-                fhandle.write("\n")
-            else:
-                fhandle.write(f"source '{tuner.get_tune_filename()}'\n")
-            fhandle.write("## END OF TUNER ##\n")
-            logging.info("Successfully added tuner")
+            self._batch_fhandle.write("\n")
+        else:
+            self._batch_fhandle.write(f"source '{tuner.get_tune_filename()}'\n")
+        self._batch_fhandle.write("## END OF TUNER ##\n")
+        logging.info("Successfully added tuner")
 
     def add_optscript(self, script: Script):
         logging.info(f"Adding optimisation script: {script.id} ({script.description})")
-        with self._batch_file.open("a") as fhandle:
-            if script.data.raw:
-                fhandle.write(f"# MODAK: Start Script<id={script.id}>\n")
-                fhandle.write(script.data.raw)
-                fhandle.write(f"\n# MODAK: End   Script<id={script.id}>\n")
-            else:
-                raise AssertionError(
-                    f"No data found in script {script.id} and no other methods implemented"
-                )
+        if script.data.raw:
+            self._batch_fhandle.write(f"# MODAK: Start Script<id={script.id}>\n")
+            self._batch_fhandle.write(script.data.raw)
+            self._batch_fhandle.write(f"\n# MODAK: End   Script<id={script.id}>\n")
+        else:
+            raise AssertionError(
+                f"No data found in script {script.id} and no other methods implemented"
+            )
         logging.info("Successfully added optimisation")
 
     @staticmethod
@@ -261,16 +256,15 @@ chmod 755 '{tuner.get_tune_filename()}'
         if args:
             exe += f" {args}"
 
-        with self._batch_file.open("a") as fhandle:
-            if self._application.build:
-                self._write_apprun_build(
-                    fhandle, self._application.build, cont_exec_command
-                )
+        if self._application.build:
+            self._write_apprun_build(
+                self._batch_fhandle, self._application.build, cont_exec_command
+            )
 
-            if self._application.app_type in ("mpi", "hpc"):
-                self._write_apprun_hpc(fhandle, cont_exec_command, exe)
-            else:  # other app types, e.g. python
-                fhandle.write(f"{cont_exec_command} {exe}\n")
+        if self._application.app_type in ("mpi", "hpc"):
+            self._write_apprun_hpc(self._batch_fhandle, cont_exec_command, exe)
+        else:  # other app types, e.g. python
+            self._batch_fhandle.write(f"{cont_exec_command} {exe}\n")
 
         logging.info("Successfully added app run")
 
