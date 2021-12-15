@@ -1,12 +1,14 @@
 import logging
-from typing import List
+from typing import Any, Dict, List, Tuple
 
 from sqlalchemy import JSON, select
 from sqlalchemy.sql.expression import Select
 
 from . import db
 from .driver import Driver
-from .model import Script, Target
+from .model import Job, Script, Target
+from .model.infrastructure import InfrastructureConfiguration
+from .model.storage import DefaultStorageClass
 
 
 class Enforcer:
@@ -133,15 +135,61 @@ class Enforcer:
         return basestmts
 
     def enforce_opt(
-        self, app_name: str, target: Target, opts: List[str]
-    ) -> List[Script]:
+        self, app_name: str, job: Job, opts: List[str]
+    ) -> Tuple[List[Script], Dict[str, Any]]:
         logging.info(f"Enforcing opts {opts}")
+
+        assert job.target, "Target must be defined"
+
+        tenv: Dict[str, Any] = {
+            "preferred_storage_location": None,
+        }
+
+        try:
+            iconf = InfrastructureConfiguration(
+                **self._driver.select_sql(
+                    select(db.Infrastructure.configuration).filter(
+                        db.Infrastructure.name == job.target.name
+                    )
+                )[0][0]
+            )
+        except IndexError:
+            logging.warning(
+                f"Specified infrastructure {job.target.name} not found, preferred_storage_location will be undefined"
+            )
+        else:
+            if job.application.storage_class_pref:
+                try:
+                    tenv["preferred_storage_location"] = next(
+                        k
+                        for k, v in iconf.storage.items()
+                        if v.storage_class == job.application.storage_class_pref
+                    )
+                except StopIteration:
+                    logging.info(
+                        f"Specified storage_class {job.application.storage_class_pref}"
+                        f" does not exist on infrafstructure {job.target.name}, ignoring..."
+                    )
+
+            if not tenv["preferred_storage_location"]:
+                try:
+                    tenv["preferred_storage_location"] = next(
+                        k
+                        for k, _ in sorted(
+                            iconf.storage.items(),
+                            key=lambda pair: DefaultStorageClass(pair[1].storage_class),
+                        )
+                    )
+                except StopIteration:
+                    logging.info(
+                        f"No preferred storage location found for infrastructure {job.target.name}..."
+                    )
 
         stmts = []
 
         basestmt = select(db.Script)
 
-        infrastmts = self._target2stmts(basestmt, target)
+        infrastmts = self._target2stmts(basestmt, job.target)
 
         # 1. look for pure-infra scripts (e.g. conditions matching the infra but NO specific application)
         stmts += [
@@ -187,4 +235,5 @@ class Enforcer:
             for stmt in stmts
             for script in self._driver.select_sql(stmt)
         }
-        return list(scripts.values())
+
+        return list(scripts.values()), tenv

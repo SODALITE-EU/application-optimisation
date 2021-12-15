@@ -1,8 +1,8 @@
 import logging
 import pathlib
-from typing import IO, List
+from typing import IO, Any, Dict, List
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
 
 from .model import Application, ApplicationBuild, JobOptions, Optimisation, Script
 from .tuner import Tuner
@@ -202,11 +202,12 @@ chmod 755 '{tuner.get_tune_filename()}'
         self._batch_fhandle.write("## END OF TUNER ##\n")
         logging.info("Successfully added tuner")
 
-    def add_optscript(self, script: Script):
+    def add_optscript(self, script: Script, tenv: Dict[str, Any]):
         logging.info(f"Adding optimisation script: {script.id} ({script.description})")
         if script.data.raw:
             self._batch_fhandle.write(f"# MODAK: Start Script<id={script.id}>\n")
-            self._batch_fhandle.write(script.data.raw)
+            template = Template(script.data.raw)
+            self._batch_fhandle.write(template.render(**tenv))
             self._batch_fhandle.write(f"\n# MODAK: End   Script<id={script.id}>\n")
         else:
             raise AssertionError(

@@ -20,15 +20,17 @@ class MODAK:
     def __init__(self, upload=False):
         """General MODAK class."""
         logging.info("Intialising MODAK")
+
         self._driver = Driver()
         self._map = Mapper(self._driver)
         self._enf = Enforcer(self._driver)
-        self._job_link = ""
+
         self._upload = upload
         if self._upload:
             from MODAK_gcloud import TransferData
 
             self._drop = TransferData()
+
         logging.info("Successfully intialised MODAK")
 
     def optimise(self, job: Job) -> JobScripts:
@@ -155,13 +157,17 @@ class MODAK:
         decoded_opts = self._map.get_decoded_opts(job.optimisation)
         logging.info(f"Applying optimisations {decoded_opts}")
 
-        assert job.target, "Target must be defined"
-        for script in self._enf.enforce_opt(
-            self._map.app_name, job.target, decoded_opts
-        ):
-            gen_t.add_optscript(script)
+        scripts, tenv = self._enf.enforce_opt(self._map.app_name, job, decoded_opts)
+
+        for script in scripts:
+            if script.data.stage == "pre":
+                gen_t.add_optscript(script, tenv)
 
         logging.info("Adding application run")
         gen_t.add_apprun()
+
+        for script in scripts:
+            if script.data.stage == "post":
+                gen_t.add_optscript(script, tenv)
 
         return new_container

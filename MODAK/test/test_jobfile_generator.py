@@ -25,7 +25,8 @@ class test_mapper(unittest.TestCase):
                 id=uuid.uuid4(),
                 conditions={},
                 data={"stage": "pre", "raw": TEST_STRING},
-            )
+            ),
+            {},
         )
 
         # If everything worked correctly, our test line should have been

@@ -3,7 +3,7 @@ from sqlalchemy import insert
 from MODAK import db
 from MODAK.driver import Driver
 from MODAK.enforcer import Enforcer
-from MODAK.model import ScriptIn, Target
+from MODAK.model import Application, Job, ScriptIn, Target
 from MODAK.model.infrastructure import InfrastructureIn
 
 
@@ -14,9 +14,9 @@ def test_enforce_opt():
 
     driver = Driver()
     enforcer = Enforcer(driver)
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "tensorflow",
-        Target(name="test", job_scheduler_type="slurm"),
+        Job.construct(target=Target(name="test", job_scheduler_type="slurm")),
         ["version:2.1", "xla:true"],
     )
 
@@ -37,9 +37,9 @@ def test_enforce_infra_script(dbengine):
     )
     driver.update_sql(stmt)
 
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "inexistentapp",
-        Target(name="testinfra", job_scheduler_type="slurm"),
+        Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         [],
     )
 
@@ -47,9 +47,9 @@ def test_enforce_infra_script(dbengine):
     assert scripts[0].conditions.infrastructure
     assert scripts[0].conditions.infrastructure.name == "testinfra"
 
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "inexistentapp",
-        Target(name="wrongtestinfra", job_scheduler_type="slurm"),
+        Job.construct(target=Target(name="wrongtestinfra", job_scheduler_type="slurm")),
         [],
     )
 
@@ -71,18 +71,18 @@ def test_enforce_app_script(dbengine):
     stmt = insert(db.Script).values(**script.dict())
     driver.update_sql(stmt)
 
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "inexistentapp",
-        Target(name="testinfra", job_scheduler_type="slurm"),
+        Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         [],
     )
 
     assert not scripts, "scripts returned while it should not have"
 
     # despite target and myfeat, this should return the script
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "fancy",
-        Target(name="testinfra", job_scheduler_type="slurm"),
+        Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         ["myfeat:true"],
     )
 
@@ -108,9 +108,9 @@ def test_enforce_infra_storage_script(dbengine):
     stmt = insert(db.Script).values(**script.dict())
     driver.update_sql(stmt)
 
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "inexistentapp",
-        Target(name="testinfra", job_scheduler_type="slurm"),
+        Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         [],
     )
 
@@ -125,9 +125,12 @@ def test_enforce_infra_storage_script(dbengine):
     stmt = insert(db.Infrastructure).values(**infra.dict())
     driver.update_sql(stmt)
 
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "fancy",
-        Target(name="testinfra", job_scheduler_type="slurm"),
+        Job.construct(
+            target=Target(name="testinfra", job_scheduler_type="slurm"),
+            application=Application.construct(storage_class_pref=None),
+        ),
         ["myfeat:true"],
     )
 
@@ -144,9 +147,56 @@ def test_enforce_infra_storage_script(dbengine):
     stmt = insert(db.Script).values(**script.dict())
     driver.update_sql(stmt)
 
-    scripts = enforcer.enforce_opt(
+    scripts, _ = enforcer.enforce_opt(
         "testapp",
-        Target(name="testinfra", job_scheduler_type="slurm"),
+        Job.construct(
+            target=Target(name="testinfra", job_scheduler_type="slurm"),
+            application=Application.construct(storage_class_pref=None),
+        ),
         [],
     )
     assert len(scripts) == 2, "scripts not found"
+
+
+def test_enforce_infra_storage_pref(dbengine):
+    """
+    Check that Enforcer.enforce_opt returns the storage location from an infra
+    """
+
+    driver = Driver(dbengine)
+    enforcer = Enforcer(driver)
+
+    infra = InfrastructureIn(
+        name="testinfra",
+        configuration={
+            "storage": {
+                "file:///var/tmp": {"storage_class": "default-ssd"},
+                "file:///data": {"storage_class": "default-common"},
+            }
+        },
+    )
+    stmt = insert(db.Infrastructure).values(**infra.dict())
+    driver.update_sql(stmt)
+
+    _, tenv = enforcer.enforce_opt(
+        "fancy",
+        Job.construct(
+            target=Target(name="testinfra", job_scheduler_type="slurm"),
+            application=Application.construct(storage_class_pref=None),
+        ),
+        ["myfeat:true"],
+    )
+
+    # no spec will return the "slowest" (cheaptest) storage class first
+    assert tenv["preferred_storage_location"] == "file:///data"
+
+    _, tenv = enforcer.enforce_opt(
+        "fancy",
+        Job.construct(
+            target=Target(name="testinfra", job_scheduler_type="slurm"),
+            application=Application.construct(storage_class_pref="default-ssd"),
+        ),
+        ["myfeat:true"],
+    )
+
+    assert tenv["preferred_storage_location"] == "file:///var/tmp"
