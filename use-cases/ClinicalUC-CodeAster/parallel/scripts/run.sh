@@ -15,7 +15,7 @@ print_stats() {
     REGEX="${1}*/aster___*.out"
     res=(`for f in $(ls ${REGEX} 2>/dev/null); do echo $f; done`)
     if test ${#res[*]} -gt 0; then
-	echo "testtype,testalgo,mpidist,cluster,queue,timestamp,nnodes,ppn,nranks,nthreads"
+	echo "testtype,testalgo,mpidist,cluster,queue,timestamp,nnodes,ppn,nranks,nthreads,time"
         IFS=$'\n' res_sorted=($(sort -V <<<"${res[*]}")); unset IFS
 	for file in ${res_sorted[*]}; do
 	    # Collect results
@@ -117,4 +117,3 @@ cp -r ../inputs/${ASTER_DIR} ${ASTER_OUTPUT}
 export ASTER_LOG=aster"___"$LABEL"___"$timestamp.out
 
 ${SUBCMD} singularity run ${IMGNAME} ${ASTER_OUTPUT}
-
