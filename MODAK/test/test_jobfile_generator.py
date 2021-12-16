@@ -5,33 +5,59 @@ import uuid
 from MODAK import jobfile_generator
 from MODAK.model import Application, JobOptions, Script
 
-TEST_STRING = """## OPTSCRIPT here ##"""
+
+def test_add_optscript():
+    TEST_STRING = """## OPTSCRIPT here ##"""
+
+    outfile = io.StringIO()
+    jg = jobfile_generator.JobfileGenerator(
+        # construct empty invalid objects, because we know here we don't need them:
+        application=Application.construct(),
+        job_options=JobOptions.construct(),
+        batch_fhandle=outfile,
+        scheduler="torque",
+    )
+
+    jg.add_optscript(
+        Script(
+            id=uuid.uuid4(),
+            conditions={},
+            data={"stage": "pre", "raw": TEST_STRING},
+        ),
+        {},
+    )
+
+    # If everything worked correctly, our test line should have been
+    # inserted into the output file by attempting to add an option script.
+    assert TEST_STRING in outfile.getvalue()
 
 
-class test_mapper(unittest.TestCase):
-    def setUp(self):
-        self.outfile = io.StringIO()
-        self.jg = jobfile_generator.JobfileGenerator(
-            # construct empty invalid objects, because we know here we don't need them:
-            application=Application.construct(),
-            job_options=JobOptions.construct(),
-            batch_fhandle=self.outfile,
-            scheduler="torque",
-        )
+def test_add_optscript_jinja2():
+    """Verify that the jobscript generator does jinja2 replacement according to the dict"""
 
-    def test_add_optscript(self):
-        self.jg.add_optscript(
-            Script(
-                id=uuid.uuid4(),
-                conditions={},
-                data={"stage": "pre", "raw": TEST_STRING},
-            ),
-            {},
-        )
+    outfile = io.StringIO()
 
-        # If everything worked correctly, our test line should have been
-        # inserted into the output file by attempting to add an option script.
-        assert TEST_STRING in self.outfile.getvalue()
+    jg = jobfile_generator.JobfileGenerator(
+        # construct empty invalid objects, because we know here we don't need them:
+        application=Application.construct(),
+        job_options=JobOptions.construct(),
+        batch_fhandle=outfile,
+        scheduler="torque",
+    )
+
+    jg.add_optscript(
+        Script(
+            id=uuid.uuid4(),
+            conditions={},
+            data={
+                "stage": "pre",
+                "raw": "cp -R data/ {{ preferred_storage_location.replace('file://', '') }}/",
+            },
+        ),
+        {"preferred_storage_location": "/var/tmp"},
+    )
+
+    assert "cp -R data/ /var/tmp/" in outfile.getvalue()
 
 
 class test_ArgumentConverter(unittest.TestCase):
@@ -133,7 +159,3 @@ class test_ArgumentConverter(unittest.TestCase):
             self.jfg.convert_notifications(jobfile_generator.SCHEDULER_TORQUE, ""),
             "abe",
         )
-
-
-if __name__ == "__main__":
-    unittest.main()
