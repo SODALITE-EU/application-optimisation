@@ -9,12 +9,50 @@ help() {
     exit
 }
 
+print_stats() {
+    echo "show results"
+    echo
+    REGEX="${1}*/aster___*.out"
+    res=(`for f in $(ls ${REGEX} 2>/dev/null); do echo $f; done`)
+    if test ${#res[*]} -gt 0; then
+	echo "testtype,testalgo,mpidist,cluster,queue,timestamp,nnodes,ppn,nranks,nthreads"
+        IFS=$'\n' res_sorted=($(sort -V <<<"${res[*]}")); unset IFS
+	for file in ${res_sorted[*]}; do
+	    # Collect results
+	    dirn=$(dirname ${file})
+	    testtype=`echo $dirn | awk -F "___" '{print $1}'`
+	    testalgo=`echo $dirn | awk -F "___" '{print $2}'`
+	    mpidist=`echo $dirn | awk -F "___" '{print $3}'`
+	    cluster=`echo $dirn | awk -F "___" '{print $5}'`
+	    queue=`echo $dirn | awk -F "___" '{print $6}'`
+            timestamp=`echo $dirn | awk -F "___" '{print $7}'`
+
+            filename=$(basename ${file})
+	    stats=`echo $filename | awk -F "___" '{print $2}'`
+	    nnodes=`echo $stats | awk -F "_" '{print $1}' | tr -d "nodes-"`
+            ppn=`echo $stats | awk -F "_" '{print $2}' | tr -d "ppn-"`
+            nranks=`echo $stats | awk -F "_" '{print $3}' | tr -d "nranks-"`
+            nthreads=`echo $stats | awk -F "_" '{print $4}' | tr -d "nthreads-"`
+
+	    wtime=`grep -H TOTAL_JOB $file | awk -F':' '{print $6}' | awk -F'*' '{print $1}' | xargs`
+
+	    echo $testtype,$testalgo,$mpidist,$cluster,$queue,$timestamp,$nnodes,$ppn,$nranks,$nthreads,$wtime
+	done
+    else
+        echo "No results ${REGEX}!"
+    fi
+}
+
 #export ASTER_DIR=L1L2_NonLinear_prepared
 #export ASTER_INPUT="fort.1"
 export ASTER_DIR="Case_prep-3_Segments-4mm-2mm"
-export ASTER_INPUT="Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com"
+#export ASTER_INPUT="Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com"
+#export ASTER_INPUT="Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS.com"
+export ASTER_INPUT="Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com"
 
 ASTER_LABEL=${ASTER_DIR}___${ASTER_INPUT}
+
+PRINT_STATS=0
 
 while getopts "l:hcr" OPTION; do
     case $OPTION in
@@ -24,19 +62,22 @@ while getopts "l:hcr" OPTION; do
 	    ;;
 	c)
 	    echo "Clean output files."
-	    rm -rf ${ASTER_LABEL}___*
+	    rm -rf ${ASTER_LABEL}*
 	    exit
 	    ;;
 	r)
-	    echo "show results"
-	    grep -H TOTAL_JOB ${ASTER_LABEL}___*/aster___*.out | awk -F':' '{print $1":"$6}'
-	    exit
+	    PRINT_STATS=1
 	    ;;
 	*|h)
 	    help
         ;;
     esac
 done
+
+if test ${PRINT_STATS} -eq 1; then
+    print_stats "${LABEL:-$ASTER_LABEL}"
+    exit
+fi
 
 SUBCMD=${SUBCMD:-""}
 
@@ -66,7 +107,7 @@ PREFIXNAME=${PREFIXNAME:-"nodes-1_ppn-1_nranks-1_nthreads-${OMP_NUM_THREADS}"}
 # default label is the cluster name and the default queue
 LABEL=${LABEL:-`echo $HOSTNAME | sed -e "s/[0-9]//g" | cut -f 1 -d '.'`"___default"}
 LABEL=${PREFIXNAME}"___"${LABEL}
-timestamp=$(date '+%Y%m%d%H%M')
+timestamp=$(date '+%Y%m%d%H%M%S')
 
 ASTER_OUTPUT=${ASTER_LABEL}"___"${CHOICE}"___"$LABEL"___"$timestamp
 

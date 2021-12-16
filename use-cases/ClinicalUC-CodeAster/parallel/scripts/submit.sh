@@ -7,33 +7,37 @@ wtime="2:00:00"
 LABEL=${CLUSTER}
 QUEUE="default"
 
+NSHIFT=0
+
 while getopts "n:p:l:w:" OPTION; do
     case $OPTION in
 	n)
 	    NNODES=$OPTARG
-	    shift 2
+	    NSHIFT=$((NSHIFT+2))
 	    ;;
 	p)
 	    PPN=$OPTARG
-	    shift 2
+	    NSHIFT=$((NSHIFT+2))
 	    ;;
 	l)
 	    LABEL=$OPTARG
-	    shift 2
+	    NSHIFT=$((NSHIFT+2))
 	    ;;
 	q)
             QUEUE=$OPTARG
-	    shift 2
+	    NSHIFT=$((NSHIFT+2))
             ;;
 	w)
 	    wtime=$OPTARG
-	    shift 2
+	    NSHIFT=$((NSHIFT+2))
 	    ;;
 	?)
 	    exit
 	    ;;
     esac
 done
+
+shift $NSHIFT
 
 BASEDIR=$(dirname "$0")
 . ${BASEDIR}/selection.sh
@@ -73,7 +77,9 @@ case $CLUSTER in
 	export SUBCMD="mpirun -bind-to socket -map-by socket --mca oob_tcp_if_include ib0 --mca btl_tcp_if_include ib0 "
 	;;
     cloudserver) # HLRS testbed
-	export MODULES="compilers/gcc-9.2.0 mpi/mpich-3.3.1-gcc-9.2.0"
+	export MODULES="compilers/gcc-9.2.0 "
+#	MODULES+="mpi/mpich-3.3.1-gcc-9.2.0"
+	MODULES+="mpi/openmpi-3.1.3-gcc-9.2.0"
 	export SUBCMD="mpiexec "
 	;;
 esac
