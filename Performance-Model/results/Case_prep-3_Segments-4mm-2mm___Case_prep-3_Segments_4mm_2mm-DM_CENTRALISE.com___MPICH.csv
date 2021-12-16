@@ -1,0 +1,8 @@
+testtype,testalgo,mpidist,cluster,queue,timestamp,nnodes,ppn,nranks,nthreads
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com,MPICH,cloudserver,default,202112132309,1,1,1,1,1049.26
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com,MPICH,cloudserver,default,202112140737,1,2,2,1,773.33
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com,MPICH,cloudserver,default,202112140751,1,4,4,1,481.76
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com,MPICH,cloudserver,default,202112140800,1,6,6,1,454.46
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com,MPICH,cloudserver,default,202112132157,1,8,8,1,372.54
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com,MPICH,cloudserver,default,202112140819,1,10,10,1,365.38
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_CENTRALISE.com,MPICH,cloudserver,default,202112141254,1,14,14,1,295.15

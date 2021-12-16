@@ -1,0 +1,7 @@
+testtype,testalgo,mpidist,cluster,queue,timestamp,nnodes,ppn,nranks,nthreads
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,OpenMPI,cloudserver,default,20211215143811,1,1,1,1,142.44
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,OpenMPI,cloudserver,default,20211215144336,1,2,2,1,102.71
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,OpenMPI,cloudserver,default,20211215145440,1,4,4,1,84.75
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,OpenMPI,cloudserver,default,20211215150220,1,6,6,1,78.75
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,OpenMPI,cloudserver,default,20211215150842,1,10,10,1,74.75
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,OpenMPI,cloudserver,default,20211215151034,1,14,14,1,76.75

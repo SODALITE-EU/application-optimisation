@@ -1,0 +1,7 @@
+testtype,testalgo,mpidist,cluster,queue,timestamp,nnodes,ppn,nranks,nthreads
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,MPICH,cloudserver,default,202112140858,1,1,1,1,142.24
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,MPICH,cloudserver,default,202112140910,1,2,2,1,104.44
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,MPICH,cloudserver,default,202112141453,1,4,4,1,87.12
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,MPICH,cloudserver,default,202112141505,1,6,6,1,73.03
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,MPICH,cloudserver,default,20211215091823,1,10,10,1,70.59
+Case_prep-3_Segments-4mm-2mm,Case_prep-3_Segments_4mm_2mm-DM_SOUS_DOMAINE_METIS_PETSC.com,MPICH,cloudserver,default,20211215091046,1,14,14,1,69.69
