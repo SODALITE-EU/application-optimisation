@@ -1,8 +1,9 @@
 import logging
 from datetime import datetime
-from typing import Any, List, Tuple, Union
+from typing import List, Union
 
 import sqlalchemy as sa
+from sqlalchemy.engine import Row
 
 from .settings import DEFAULT_SETTINGS_DIR, Settings
 
@@ -35,7 +36,7 @@ class Driver:
 
         logging.info("Successfully initialised driver")
 
-    def select_sql(self, stmt: sa.sql.Select) -> List[Tuple[Any, ...]]:
+    def select_sql(self, stmt: sa.sql.Select) -> List[Row]:
         logging.info(f"Selecting : {stmt}")
         with sa.orm.Session(self._engine, future=True) as session:
             result = session.execute(stmt).all()

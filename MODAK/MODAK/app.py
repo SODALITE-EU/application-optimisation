@@ -87,9 +87,7 @@ async def get_build(model: JobModel):
 )
 async def modak_get_optimisation(model: JobModel):
     m = MODAK()
-    model.job.application.container_runtime, model.job.job_content = m.get_optimisation(
-        model.job
-    )
+    model.job.job_content = m.get_optimisation(model.job)
     return model
 
 

@@ -2,7 +2,7 @@ import io
 import logging
 from copy import deepcopy
 from datetime import datetime
-from typing import IO, NamedTuple, Optional, Tuple
+from typing import IO, NamedTuple, Optional
 
 import jinja2
 
@@ -124,12 +124,12 @@ class MODAK:
 
         self._get_optimisation(build_job, job_fhandle)
 
-    def get_optimisation(self, job: Job) -> Tuple[Optional[str], str]:
+    def get_optimisation(self, job: Job) -> str:
         job_file = io.StringIO()
-        new_container = self._get_optimisation(job, job_file)
-        return (new_container, job_file.getvalue())
+        self._get_optimisation(job, job_file)
+        return job_file.getvalue()
 
-    def _get_optimisation(self, job: Job, job_fhandle: IO[str]) -> Optional[str]:
+    def _get_optimisation(self, job: Job, job_fhandle: IO[str]) -> None:
 
         # if mapper finds an optimised container based on requested optimisation,
         # update the container runtime of application
@@ -169,5 +169,3 @@ class MODAK:
         for script in scripts:
             if script.data.stage == "post":
                 gen_t.add_optscript(script, tenv)
-
-        return new_container

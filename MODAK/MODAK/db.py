@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text, event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import DeclarativeMeta, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import CHAR, TypeDecorator
 
 
@@ -47,7 +47,7 @@ class GUID(TypeDecorator):
             return value
 
 
-Base: DeclarativeMeta = declarative_base()
+Base = declarative_base()
 
 
 class Optimisation(Base):
