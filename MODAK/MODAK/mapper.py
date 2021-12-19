@@ -35,11 +35,22 @@ class Mapper:
         """Get an URI for an optimal container for the given job."""
 
         logging.info("Mapping to optimal container")
-        self._opts = []
 
+        dsl_code = self.get_dsl_code(app, optimisation)
+        if not dsl_code:
+            return None
+
+        return self.get_container(dsl_code)
+
+    def get_dsl_code(
+        self, app: Application, optimisation: Optional[Optimisation] = None
+    ) -> Optional[str]:
         logging.info(str(optimisation))
+
+        self._opts = []
         dsl_code: Optional[str] = None
 
+        # try type-specific decodes first
         decoders: Sequence[Callable[..., Optional[str]]] = (
             self._decode_ai_training_opt,
             self._decode_hpc_opt,
@@ -48,14 +59,12 @@ class Mapper:
         for decoder in decoders:
             dsl_code = decoder(app.app_tag, optimisation)
             if dsl_code is not None:
+                logging.info(f"Decoded opt code: {dsl_code}")
                 break
         else:
             logging.warning("No valid DSL code found for given job")
-            return None
 
-        logging.info(f"Decoded opt code: {dsl_code}")
-
-        return self.get_container(dsl_code)
+        return dsl_code
 
     def add_optcontainer(self, map_obj):
         logging.info(f"Adding optimal container {map_obj}")

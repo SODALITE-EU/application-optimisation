@@ -5,7 +5,15 @@ from uuid import UUID
 
 from pydantic import AnyUrl
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import EmailStr, Field, PositiveInt, StrictBool, StrictInt, root_validator
+from pydantic import (
+    EmailStr,
+    Field,
+    PositiveInt,
+    StrictBool,
+    StrictInt,
+    confloat,
+    root_validator,
+)
 
 from .storage import DefaultStorageClass
 
@@ -129,16 +137,23 @@ class Application(BaseModel):
     mpi_ranks: PositiveInt = Field(
         1,  # default
         description=(
-            "Number of MPI ranks to use when running the application as part of a job."
+            "Maximum number of MPI ranks to use when running the application as part of a job."
             " Passed to mpirun or srun."
         ),
     )
     threads: PositiveInt = Field(
         1,  # default
         description=(
-            "Number of OpenMP threads to use when running the application as part of a job."
+            "Maximum number of OpenMP threads to use when running the application as part of a job."
             " Set before mpirun or srun."
         ),
+    )
+    minimal_efficiency: Optional[confloat(gt=0, le=1)] = Field(
+        description=(
+            "Automatically determine number of ranks/threads"
+            " based on this minimal (parallel) efficiency."
+            " Ignored if no scaling model registered for this application."
+        )
     )
     storage_class_pref: Optional[DefaultStorageClass] = Field(
         title="Storage class preference",

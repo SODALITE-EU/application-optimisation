@@ -11,6 +11,7 @@ from .enforcer import Enforcer
 from .jobfile_generator import JobfileGenerator
 from .mapper import Mapper
 from .model import Job
+from .scaler import Scaler
 from .settings import Settings
 
 JobScripts = NamedTuple("JobScripts", [("jobscript", str), ("buildscript", str)])
@@ -23,6 +24,7 @@ class MODAK:
 
         self._driver = Driver()
         self._map = Mapper(self._driver)
+        self._scaler = Scaler(self._driver)
         self._enf = Enforcer(self._driver)
 
         self._upload = upload
@@ -138,8 +140,9 @@ class MODAK:
             job.application.container_runtime = new_container
             logging.info("Successfully updated container runtime")
 
-        logging.info("Generating job file header")
+        self._scaler.scale(job.application, job.optimisation)
 
+        logging.info("Generating job file header")
         gen_t = JobfileGenerator(
             job.application,
             job.job_options,
