@@ -39,6 +39,9 @@ class Node(StorageMapMixin, BaseModel):
 
 class InfrastructurePartition(StorageMapMixin, BaseModel):
     nnodes: PositiveInt = Field(..., description="Number of nodes in this partition")
+    default: bool = Field(
+        False, description="True if this is the default partition on an infrastructure"
+    )
     node: Node = Field(..., description="Configuration of the nodes in the partition")
 
 
@@ -72,6 +75,7 @@ class InfrastructureConfiguration(StorageMapMixin, BaseModel):
                 "partitions": {
                     "mc": {
                         "nnodes": 100,
+                        "default": True,
                         "node": {
                             "ncpus": 2,
                             "cpu": {
@@ -105,6 +109,18 @@ class InfrastructureConfiguration(StorageMapMixin, BaseModel):
                 },
             },
         }
+
+    @root_validator
+    def partition_validator(cls, values):  # noqa: B902
+        """Ensures validity of the partitions"""
+
+        if (
+            values.get("partitions")
+            and sum(p.default for p in values["partitions"]) > 1
+        ):
+            raise ValueError("There can only be one default partition")
+
+        return values
 
 
 class InfrastructureIn(BaseModel):

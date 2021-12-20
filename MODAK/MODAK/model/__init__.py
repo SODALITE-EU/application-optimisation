@@ -27,6 +27,10 @@ class JobOptions(BaseModel):
     """Options to pass to the queueing system"""
 
     job_name: str = "job"
+    queue: Optional[str]
+    partition: Optional[str] = Field(
+        description="The partition to use when running this job. For SLURM, this is mapped to a constraint."
+    )
     wall_time_limit: Optional[timedelta]
     node_count: Optional[PositiveInt]
     request_gpus: Optional[PositiveInt]
@@ -72,6 +76,7 @@ class JobSchedulerType(str, Enum):
 
     slurm = "slurm"
     torque = "torque"
+    none = "none"
 
 
 class ApplicationAppType(str, Enum):

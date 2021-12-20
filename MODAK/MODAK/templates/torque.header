@@ -42,8 +42,8 @@
 {% if job_data.combine_stdout_stderr %}
 #PBS -j oe
 {% endif %}
-{% if job_data.architecture_constraint %}
-#PBS -l partition={{ job_data.architecture_constraint }}
+{% if job_data.partition %}
+#PBS -l partition={{ job_data.partition }}
 {% endif %}
 {% if job_data.copy_environment %}
 #PBS -V

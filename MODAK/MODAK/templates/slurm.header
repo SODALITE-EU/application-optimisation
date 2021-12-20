@@ -45,8 +45,8 @@
 {% if job_data.standard_error_file %}
 #SBATCH -error={{ job_data.standard_error_file }}
 {% endif %}
-{% if job_data.architecture_constraint %}
-#SBATCH -C {{ job_data.architecture_constraint }}
+{% if job_data.partition %}
+#SBATCH -C {{ job_data.partition }}
 {% endif %}
 {% if job_data.copy_environment %}
 #SBATCH --export=ALL
