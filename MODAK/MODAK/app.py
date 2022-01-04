@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import pathlib
-from typing import AsyncIterator, List
+from typing import AsyncGenerator, List
 from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -40,7 +40,7 @@ SessionLocal = sessionmaker(
 )
 
 
-async def get_db_session() -> AsyncIterator[AsyncSession]:
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as session:
         yield session
 
