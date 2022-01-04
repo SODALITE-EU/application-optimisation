@@ -15,6 +15,9 @@ setup(
         "requests",
         "archspec",
         "typing_extensions",
+        "httpx",
+        "aiocache",
+        "loguru",
     ],
     extras_require={
         "testing": [
