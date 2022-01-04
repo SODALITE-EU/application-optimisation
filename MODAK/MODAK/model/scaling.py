@@ -1,7 +1,8 @@
 import abc
-from typing import Literal, Optional, Union
+from typing import Optional, Union
 
 from pydantic import Field, PositiveInt
+from typing_extensions import Literal
 
 from . import Application, BaseModel
 

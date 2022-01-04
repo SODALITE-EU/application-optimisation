@@ -29,5 +29,6 @@ repos:
     additional_dependencies:
     - pydantic
     - sqlalchemy[mypy]
+    - typing_extensions
     files: ^MODAK/
     args: ['--config-file', 'MODAK/pyproject.toml']
