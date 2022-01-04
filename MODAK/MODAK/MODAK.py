@@ -216,36 +216,22 @@ class MODAK:
         dbinfra = self._driver.select_sql(
             select(db.Infrastructure).filter(db.Infrastructure.name == target.name)
         )
-        if (
-            not dbinfra
-        ):  # if there is no matching infra, there is nothing we can complete here
+        if not dbinfra:
+            # if there is no matching infra, there is nothing we can complete here
             return
 
-        iconf = Infrastructure.from_orm(dbinfra[0][0]).configuration
+        infra = Infrastructure.from_orm(dbinfra[0][0])
 
         if jobopts.partition is None:
-            # if there's only one partition in the infra we don't have much choice, otherwise use the default, if available
-            if not iconf.partitions:
-                logger.warning(
-                    f"The target infrastructure '{target.name}' has no partitions"
-                )
+            partition = infra.configuration.default_partition
+            if not partition:
                 return
-            elif len(iconf.partitions) == 1:
-                partition = next(iter(iconf.partitions.values()))
-            else:
-                try:
-                    partition = next(p for p in iconf.partitions.values() if p.default)
-                except StopIteration:
-                    logger.error(
-                        f"The target infrastructure '{target.name}' has more than one partition but no default partition"
-                    )
-                    return
         else:
             try:
-                partition = iconf.partitions[jobopts.partition]
+                partition = infra.configuration.partitions[jobopts.partition]
             except KeyError:
                 raise InvalidConfigurationError(
-                    f"Partition '{jobopts.partition}' found in infrastructure '{target.name}'"
+                    f"Partition '{jobopts.partition}' not found in infrastructure '{infra.name}'"
                 ) from None
 
         nnodes = jobopts.node_count

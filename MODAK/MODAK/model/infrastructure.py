@@ -122,6 +122,22 @@ class InfrastructureConfiguration(StorageMapMixin, BaseModel):
 
         return values
 
+    @property
+    def default_partition(self) -> Optional[InfrastructurePartition]:
+        # if there's only one partition in the infra we don't have much choice, otherwise use the default, if available
+        if not self.partitions:
+            return None
+
+        if len(self.partitions) == 1:
+            return next(iter(self.partitions.values()))
+
+        try:
+            return next(p for p in self.partitions.values() if p.default)
+        except StopIteration:
+            raise AssertionError(
+                "Multiple partitions defined but none marked as default"
+            ) from None
+
 
 class InfrastructureIn(BaseModel):
     name: str
