@@ -68,8 +68,8 @@ class ScalingModelAmdahl(ScalingModel):
         app.mpi_ranks = min(app.mpi_ranks, self._nranks(app.minimal_efficiency))
         return True
 
-    def _nranks(self, Eff: float) -> int:
-        return round((1 - Eff * self.F) / (Eff * (1 - self.F)))
+    def _nranks(self, eff: float) -> int:
+        return round((1 - eff * self.F) / (eff * (1 - self.F)))
 
     def efficiency(self, nranks):
         return 1 / (nranks * (1 - self.F) + self.F)
