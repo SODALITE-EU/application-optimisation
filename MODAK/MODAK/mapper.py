@@ -1,6 +1,6 @@
-import logging
 from typing import Any, Callable, List, Mapping, Optional, Sequence, cast
 
+from loguru import logger
 from sqlalchemy import insert, select
 
 from .db import Map
@@ -23,7 +23,7 @@ def _mapping2list(map: Mapping):
 
 class Mapper:
     def __init__(self, driver: Driver):
-        logging.info("Initialised MODAK mapper")
+        logger.info("Initialised MODAK mapper")
         self._driver = driver
         self._opts: List[str] = []
 
@@ -34,7 +34,7 @@ class Mapper:
     ) -> Optional[str]:
         """Get an URI for an optimal container for the given job."""
 
-        logging.info("Mapping to optimal container")
+        logger.info("Mapping to optimal container")
 
         dsl_code = self.get_dsl_code(app, optimisation)
         if not dsl_code:
@@ -45,7 +45,7 @@ class Mapper:
     def get_dsl_code(
         self, app: Application, optimisation: Optional[Optimisation] = None
     ) -> Optional[str]:
-        logging.info(str(optimisation))
+        logger.info(str(optimisation))
 
         self._opts = []
         dsl_code: Optional[str] = None
@@ -59,15 +59,15 @@ class Mapper:
         for decoder in decoders:
             dsl_code = decoder(app.app_tag, optimisation)
             if dsl_code is not None:
-                logging.info(f"Decoded opt code: {dsl_code}")
+                logger.info(f"Decoded opt code: {dsl_code}")
                 break
         else:
-            logging.warning("No valid DSL code found for given job")
+            logger.warning("No valid DSL code found for given job")
 
         return dsl_code
 
     def add_optcontainer(self, map_obj):
-        logging.info(f"Adding optimal container {map_obj}")
+        logger.info(f"Adding optimal container {map_obj}")
         self.add_optimisation(
             map_obj.get("name"),
             map_obj.get("app_name"),
@@ -90,7 +90,7 @@ class Mapper:
         image_type: str = "docker",
         src: str = "",
     ):
-        logging.info("Adding container to mapper ")
+        logger.info("Adding container to mapper ")
 
         stmt = insert(Map).values(
             opt_dsl_code=opt_dsl_code,
@@ -106,13 +106,13 @@ class Mapper:
     def add_optimisation(
         self, opt_dsl_code: str, app_name: str, target: Mapping, optimisation: Mapping
     ):
-        logging.info("Adding DSL code to Optimisation ")
+        logger.info("Adding DSL code to Optimisation ")
 
         target_str = ",".join(_mapping2list(target))
         opt_str = ",".join(_mapping2list(optimisation))
 
-        logging.info(f"Target string: '{target_str}'")
-        logging.info(f"Opt string: '{opt_str}'")
+        logger.info(f"Target string: '{target_str}'")
+        logger.info(f"Opt string: '{opt_str}'")
 
         stmt = insert(OptimisationDB).values(
             opt_dsl_code=opt_dsl_code,
@@ -128,7 +128,7 @@ class Mapper:
     def get_container(self, opt_dsl_code: str) -> Optional[str]:
         """Given a DSL code, return a container URI if found"""
 
-        logging.info(f"Get container for opt code: {opt_dsl_code}")
+        logger.info(f"Get container for opt code: {opt_dsl_code}")
 
         stmt = (
             select(Map.container_file, Map.image_type, Map.image_hub)
@@ -146,10 +146,10 @@ class Mapper:
             image_hub = Settings.image_hub_aliases.get(image_hub, image_hub)
 
             container_link = f"{image_hub}://{container_file}"
-            logging.info(f"Container link: {container_link}")
+            logger.info(f"Container link: {container_link}")
             return container_link
 
-        logging.warning("No optimal container found")
+        logger.warning("No optimal container found")
         return None
 
     def _decode_hpc_opt(
@@ -157,12 +157,12 @@ class Mapper:
     ) -> Optional[str]:
         """Get a DSL code for the given optimisation values for the HPC app_type"""
 
-        logging.info("Decoding HPC optimisation")
+        logger.info("Decoding HPC optimisation")
 
         if not opt or opt.app_type != "hpc":
             return None
 
-        logging.info("Decoding HPC application")
+        logger.info("Decoding HPC application")
 
         # the model ensures that for a given config/parallelisation
         # there is a parallelisation-* submodel
@@ -194,7 +194,7 @@ class Mapper:
         if not opt or opt.app_type != "ai_training":
             return None
 
-        logging.info("Decoding AI training application")
+        logger.info("Decoding AI training application")
 
         app_name = cast(AppTypeAITraining, opt.app_type_ai_training).config.ai_framework
         optimisations = getattr(opt.app_type_ai_training, f"ai_framework_{app_name}")
@@ -239,10 +239,10 @@ class Mapper:
         data = self._driver.select_sql(stmt)
         if data:
             dsl_code = data[0][0]
-            logging.info(f"Decoded DSL code: {dsl_code}")
+            logger.info(f"Decoded DSL code: {dsl_code}")
             return dsl_code
 
-        logging.warning("Failed to find a matching DSL code")
+        logger.warning("Failed to find a matching DSL code")
         return None
 
     def get_opts(self):

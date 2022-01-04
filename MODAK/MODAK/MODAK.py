@@ -1,10 +1,10 @@
 import io
-import logging
 from copy import deepcopy
 from datetime import datetime
 from typing import IO, NamedTuple, Optional
 
 import jinja2
+from loguru import logger
 from sqlalchemy import select
 
 from . import db
@@ -27,7 +27,7 @@ class InvalidConfigurationError(Exception):
 class MODAK:
     def __init__(self, upload=False):
         """General MODAK class."""
-        logging.info("Intialising MODAK")
+        logger.info("Intialising MODAK")
 
         self._driver = Driver()
         self._map = Mapper(self._driver)
@@ -40,10 +40,10 @@ class MODAK:
 
             self._drop = TransferData()
 
-        logging.info("Successfully intialised MODAK")
+        logger.info("Successfully intialised MODAK")
 
     def optimise(self, job: Job) -> JobScripts:
-        logging.info(f"Processing job data {job}")
+        logger.info(f"Processing job data {job}")
 
         job_file = (
             Settings.out_dir
@@ -76,19 +76,19 @@ class MODAK:
             job_link = job_file
             build_link = build_file
 
-        logging.info(f"Job script link: {job_link}")
-        logging.info(f"Build script link: {build_link}")
+        logger.info(f"Job script link: {job_link}")
+        logger.info(f"Build script link: {build_link}")
         return JobScripts(str(job_link), str(build_link))
 
     def get_opt_container_runtime(self, job: Job) -> Optional[str]:
-        logging.info("Mapping to optimal container for job data")
+        logger.info("Mapping to optimal container for job data")
 
         new_container = None
 
         if job.optimisation:
             new_container = self._map.map_container(job.application, job.optimisation)
 
-        logging.info(f"Optimal container found: {new_container}")
+        logger.info(f"Optimal container found: {new_container}")
         return new_container
 
     def get_buildjob(self, job: Job) -> str:
@@ -97,11 +97,11 @@ class MODAK:
         return job_fhandle.getvalue()
 
     def _get_buildjob(self, job: Job, job_fhandle: IO[str]) -> None:
-        logging.info("Creating build script for job")
-        logging.info(f"Processing build data: {job}")
+        logger.info("Creating build script for job")
+        logger.info(f"Processing build data: {job}")
 
         if not job.application.build:
-            logging.info(
+            logger.info(
                 "No job.application.build section in request, returning empty resposne"
             )
             return
@@ -145,7 +145,7 @@ class MODAK:
         new_container = self.get_opt_container_runtime(job)
         if new_container:
             job.application.container_runtime = new_container
-            logging.info("Successfully updated container runtime")
+            logger.info("Successfully updated container runtime")
 
         if job.target:
             self._target_completion(job.target)
@@ -156,7 +156,7 @@ class MODAK:
             # needs to run after the scaler since nranks/nthreads may have been updated
             self._job_completion(job.target, job.job_options, job.application)
 
-        logging.info("Generating job file header")
+        logger.info("Generating job file header")
         gen_t = JobfileGenerator(
             job.application,
             job.job_options,
@@ -164,15 +164,15 @@ class MODAK:
             scheduler=str(job.target.job_scheduler_type) if job.target else "",
         )
 
-        logging.info("Adding job header")
+        logger.info("Adding job header")
         gen_t.add_job_header()
 
         if job.optimisation and job.optimisation.enable_autotuning:
-            logging.info("Adding autotuning scripts")
+            logger.info("Adding autotuning scripts")
             gen_t.add_tuner(self._upload)
 
         decoded_opts = self._map.get_decoded_opts(job.optimisation)
-        logging.info(f"Applying optimisations {decoded_opts}")
+        logger.info(f"Applying optimisations {decoded_opts}")
 
         scripts, tenv = self._enf.enforce_opt(self._map.app_name, job, decoded_opts)
 
@@ -180,7 +180,7 @@ class MODAK:
             if script.data.stage == "pre":
                 gen_t.add_optscript(script, tenv)
 
-        logging.info("Adding application run")
+        logger.info("Adding application run")
         gen_t.add_apprun()
 
         for script in scripts:
@@ -225,13 +225,18 @@ class MODAK:
 
         if jobopts.partition is None:
             # if there's only one partition in the infra we don't have much choice, otherwise use the default, if available
-            if len(iconf.partitions) == 1:
+            if not iconf.partitions:
+                logger.warning(
+                    f"The target infrastructure '{target.name}' has no partitions"
+                )
+                return
+            elif len(iconf.partitions) == 1:
                 partition = next(iter(iconf.partitions.values()))
             else:
                 try:
                     partition = next(p for p in iconf.partitions.values() if p.default)
                 except StopIteration:
-                    logging.error(
+                    logger.error(
                         f"The target infrastructure '{target.name}' has more than one partition but no default partition"
                     )
                     return

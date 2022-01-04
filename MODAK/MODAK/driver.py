@@ -1,30 +1,19 @@
-import logging
-from datetime import datetime
 from typing import List, Union
 
 import sqlalchemy as sa
+from loguru import logger
 from sqlalchemy.engine import Row
 
-from .settings import DEFAULT_SETTINGS_DIR, Settings
+from .settings import Settings
 
 
 class Driver:
     """This is the driver program that will drive the MODAK"""
 
-    logging.basicConfig(
-        filename=DEFAULT_SETTINGS_DIR
-        / ".."
-        / "log"
-        / f"MODAK{datetime.now().strftime('%b_%d_%Y_%H_%M_%S')}.log",
-        filemode="w",
-        level=logging.DEBUG,
-    )
-    logging.getLogger("py4j").setLevel(logging.ERROR)
-
     def __init__(self, engine=None):
-        logging.info("Initialising driver")
+        logger.info("Initialising driver")
 
-        logging.info("Connecting to model repo using DB dialect: {Settings.db_dialect}")
+        logger.info("Connecting to model repo using DB dialect: {Settings.db_dialect}")
         assert Settings.db_dialect == "sqlite", "only SQLite is currently supported"
 
         if engine:
@@ -34,13 +23,13 @@ class Driver:
                 f"sqlite:///{Settings.db_path}", future=True
             )
 
-        logging.info("Successfully initialised driver")
+        logger.info("Successfully initialised driver")
 
     def select_sql(self, stmt: sa.sql.Select) -> List[Row]:
-        logging.info(f"Selecting : {stmt}")
+        logger.info(f"Selecting : {stmt}")
         with sa.orm.Session(self._engine, future=True) as session:
             result = session.execute(stmt).all()
-            logging.info("Successfully selected SQL")
+            logger.info("Successfully selected SQL")
 
         return result
 
@@ -48,4 +37,4 @@ class Driver:
         with sa.orm.Session(self._engine, future=True) as session:
             session.execute(stmt)
             session.commit()
-            logging.info("Successfully updated SQL")
+            logger.info("Successfully updated SQL")

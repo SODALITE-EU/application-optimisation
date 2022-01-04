@@ -1,11 +1,11 @@
 import configparser
-import logging
 import os
 import pathlib
 import re
 from configparser import ConfigParser
 from typing import Any, Dict, Optional
 
+from loguru import logger
 from pydantic import AnyHttpUrl, BaseSettings
 
 DEFAULT_SETTINGS_DIR = pathlib.Path(__file__).parent.resolve().parent / "conf"
@@ -16,7 +16,7 @@ def configparser_settings_source(settings: BaseSettings) -> Dict[str, Any]:
         os.environ.get("MODAK_CONFIG", DEFAULT_SETTINGS_DIR / "iac-model.ini")
     )
 
-    logging.info(f"Reading ini file : {conf_file}")
+    logger.info(f"Reading ini file : {conf_file}")
 
     try:
         config = ConfigParser()
@@ -29,7 +29,7 @@ def configparser_settings_source(settings: BaseSettings) -> Dict[str, Any]:
         data["quiet_server_logs"] = config["modak"]["quiet_server_log"] == "true"
 
         section = config[data["mode"]]
-        logging.info(f"Reading section {data['mode']} of ini file ")
+        logger.info(f"Reading section {data['mode']} of ini file ")
         data["db_uri"] = section["db_uri"]
 
         match = re.match(
@@ -59,7 +59,7 @@ def configparser_settings_source(settings: BaseSettings) -> Dict[str, Any]:
             raise AssertionError(f"Invalid dialect: {match['dialect']}")
 
         data["out_dir"] = pathlib.Path(section["out_dir"])
-        logging.info("out dir : {data['out_dir']}")
+        logger.info(f"out dir : {data['out_dir']}")
 
         if "google_credentials" in section:
             data["google_credentials"] = section["google_credentials"]
@@ -76,7 +76,7 @@ def configparser_settings_source(settings: BaseSettings) -> Dict[str, Any]:
         )
 
     except configparser.Error as exc:
-        logging.exception(exc)
+        logger.exception(exc)
         raise
 
     return data

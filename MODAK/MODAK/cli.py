@@ -2,11 +2,11 @@ import argparse
 import ast
 import asyncio
 import json
-import logging
 import sys
 from typing import Any, Dict
 
 from fastapi.openapi.utils import get_openapi
+from loguru import logger
 from pydantic import ValidationError
 from rich import print
 from sqlalchemy.dialects import sqlite
@@ -151,12 +151,13 @@ def modak():
     )
     args = parser.parse_args()
 
-    loglevel = logging.WARNING
+    logger.remove()
     if args.loglevel >= 2:
-        loglevel = logging.DEBUG
+        logger.add(sys.stderr, level="DEBUG")
     elif args.loglevel > 1:
-        loglevel = logging.INFO
-    logging.basicConfig(level=loglevel, force=True)
+        logger.add(sys.stderr, level="INFO")
+    else:
+        logger.add(sys.stderr, level="WARNING")
 
     print(f"Input file: '{args.ifile.name}'", file=sys.stderr)
     print(f"Output file: '{args.ofile.name}'", file=sys.stderr)
@@ -232,12 +233,14 @@ def import_script():
     )
 
     args = parser.parse_args()
-    loglevel = logging.WARNING
+
+    logger.remove()
     if args.loglevel >= 2:
-        loglevel = logging.DEBUG
+        logger.add(sys.stderr, level="DEBUG")
     elif args.loglevel > 1:
-        loglevel = logging.INFO
-    logging.basicConfig(level=loglevel, force=True)
+        logger.add(sys.stderr, level="INFO")
+    else:
+        logger.add(sys.stderr, level="WARNING")
 
     conditions = ScriptConditions()
 

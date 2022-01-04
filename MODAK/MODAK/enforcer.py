@@ -1,6 +1,6 @@
-import logging
 from typing import Any, Dict, List, Tuple
 
+from loguru import logger
 from sqlalchemy import JSON, select
 from sqlalchemy.sql.expression import Select
 
@@ -13,7 +13,7 @@ from .model.storage import DefaultStorageClass
 
 class Enforcer:
     def __init__(self, driver: Driver):
-        logging.info("Initialised MODAK enforcer")
+        logger.info("Initialised MODAK enforcer")
         self._driver = driver
 
     @staticmethod
@@ -22,7 +22,7 @@ class Enforcer:
 
         for opt in opts:
             if "version" in opt:
-                logging.info("Ignore version as a optimisation")
+                logger.info("Ignore version as a optimisation")
                 continue
 
             opt_key, opt_value = opt.split(":")
@@ -100,7 +100,7 @@ class Enforcer:
             return basestmts
 
         # now extract the available storage class definitions and build other queries matching them
-        storage_classes = [config["storage_class"] for _, config in istorage.items()]
+        storage_classes = [config["storage_class"] for _, config in istorage]
 
         basestmts.append(
             basestmt.filter(
@@ -137,7 +137,7 @@ class Enforcer:
     def enforce_opt(
         self, app_name: str, job: Job, opts: List[str]
     ) -> Tuple[List[Script], Dict[str, Any]]:
-        logging.info(f"Enforcing opts {opts}")
+        logger.info(f"Enforcing opts {opts}")
 
         assert job.target, "Target must be defined"
 
@@ -154,7 +154,7 @@ class Enforcer:
                 )[0][0]
             )
         except IndexError:
-            logging.warning(
+            logger.warning(
                 f"Specified infrastructure {job.target.name} not found, preferred_storage_location will be undefined"
             )
         else:
@@ -166,7 +166,7 @@ class Enforcer:
                         if v.storage_class == job.application.storage_class_pref
                     )
                 except StopIteration:
-                    logging.info(
+                    logger.info(
                         f"Specified storage_class {job.application.storage_class_pref}"
                         f" does not exist on infrafstructure {job.target.name}, ignoring..."
                     )
@@ -181,7 +181,7 @@ class Enforcer:
                         )
                     )
                 except StopIteration:
-                    logging.info(
+                    logger.info(
                         f"No preferred storage location found for infrastructure {job.target.name}..."
                     )
 

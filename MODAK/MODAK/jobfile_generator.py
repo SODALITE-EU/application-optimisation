@@ -1,8 +1,8 @@
-import logging
 import pathlib
 from typing import IO, Any, Dict, List
 
 from jinja2 import Environment, FileSystemLoader, Template
+from loguru import logger
 
 from .model import Application, ApplicationBuild, JobOptions, Optimisation, Script
 from .tuner import Tuner
@@ -117,7 +117,7 @@ class JobfileGenerator:
         scheduler: str,
     ):
         """Generates the job files, e.g. PBS and SLURM."""
-        logging.info("Initialising job file generator")
+        logger.info("Initialising job file generator")
         self._batch_fhandle = batch_fhandle
         self._job_options = job_options
         self._application = application
@@ -141,7 +141,7 @@ class JobfileGenerator:
     # Based on https://kb.northwestern.edu/page.php?id=89454
 
     def _generate_torque_header(self):
-        logging.info("Generating torque header")
+        logger.info("Generating torque header")
         template = self._env.get_template("torque.header")
         self._batch_fhandle.write(template.render(job_data=self._job_options))
 
@@ -149,7 +149,7 @@ class JobfileGenerator:
             self._singularity_args.append("--nv")
 
     def _generate_slurm_header(self):
-        logging.info("Generating slurm header")
+        logger.info("Generating slurm header")
         template = self._env.get_template("slurm.header")
         self._batch_fhandle.write(template.render(job_data=self._job_options))
 
@@ -157,7 +157,7 @@ class JobfileGenerator:
             self._singularity_args.append("--nv")
 
     def _generate_bash_header(self):
-        logging.info("Generating bash header")
+        logger.info("Generating bash header")
         self._batch_fhandle.write("#!/bin/bash\n\n")
 
     def add_job_header(self):
@@ -177,10 +177,10 @@ class JobfileGenerator:
         tuner = Tuner(upload)
         res = tuner.encode_tune(optimisation, self._batch_fhandle)
         if not res:
-            logging.warning("Tuning not enabled or Encoding tuner failed")
+            logger.warning("Tuning not enabled or Encoding tuner failed")
             return
 
-        logging.info("Adding tuner" + str(tuner))
+        logger.info("Adding tuner" + str(tuner))
         self._batch_fhandle.write(
             f"""
 ## START OF TUNER ##
@@ -200,10 +200,10 @@ chmod 755 '{tuner.get_tune_filename()}'
         else:
             self._batch_fhandle.write(f"source '{tuner.get_tune_filename()}'\n")
         self._batch_fhandle.write("## END OF TUNER ##\n")
-        logging.info("Successfully added tuner")
+        logger.info("Successfully added tuner")
 
     def add_optscript(self, script: Script, tenv: Dict[str, Any]):
-        logging.info(f"Adding optimisation script: {script.id} ({script.description})")
+        logger.info(f"Adding optimisation script: {script.id} ({script.description})")
         if script.data.raw:
             self._batch_fhandle.write(f"# MODAK: Start Script<id={script.id}>\n")
             template = Template(script.data.raw)
@@ -213,7 +213,7 @@ chmod 755 '{tuner.get_tune_filename()}'
             raise AssertionError(
                 f"No data found in script {script.id} and no other methods implemented"
             )
-        logging.info("Successfully added optimisation")
+        logger.info("Successfully added optimisation")
 
     @staticmethod
     def _write_apprun_build(
@@ -236,7 +236,7 @@ chmod 755 '{tuner.get_tune_filename()}'
             fhandle.write(f"mpirun -np {mpi_ranks} {container_exec_cmd} {exe}\n")
 
     def add_apprun(self):
-        logging.info("Adding app run")
+        logger.info("Adding app run")
 
         exe = self._application.executable
         cont = self._application.container_runtime
@@ -267,7 +267,7 @@ chmod 755 '{tuner.get_tune_filename()}'
         else:  # other app types, e.g. python
             self._batch_fhandle.write(f"{cont_exec_command} {exe}\n")
 
-        logging.info("Successfully added app run")
+        logger.info("Successfully added app run")
 
     def get_sif_filename(self, container: str):
         words = container.split("/")
