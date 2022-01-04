@@ -18,7 +18,7 @@ INSERT INTO `mapper` VALUES
 
 INSERT INTO infrastructure VALUES
   ('504f14b523a3405c911f50c8a9c31c0d', 'egi', NULL, 'HLRS Testbed', '{}'),
-  ('bdf713bbe3024f2cb63a3771c28d254f', 'hlrs-testbed', NULL, 'HLRS Testbed Infrastructure', '{"scheduler": "torque", "storage": []}');
+  ('bdf713bbe3024f2cb63a3771c28d254f', 'hlrs-testbed', NULL, 'HLRS Testbed Infrastructure', '{"scheduler": "torque", "storage": {}}');
 
 INSERT INTO script VALUES
   ('80593ce7fc404e1d988d84c38930f8e5', NULL, '{"application": {"name": "openmpi", "feature": {}}, "infrastructure": {"name": "egi"}}', '{"stage": "pre", "raw": "module load mpi/openmpi-x86_64"}'),
