@@ -40,9 +40,9 @@ SessionLocal = sessionmaker(
 )
 
 
-async def get_db_session() -> AsyncGenerator[AsyncSession, None]:  # NOSONAR
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as session:
-        yield session
+        yield session  # NOSONAR
 
 
 @app.on_event("shutdown")
