@@ -13,3 +13,4 @@ typing_extensions==4.0.1
 httpx==0.21.1
 loguru==0.5.3
 aiocache==0.11.1
+python-jose[cryptography]==3.3.0

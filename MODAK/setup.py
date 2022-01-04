@@ -17,6 +17,7 @@ setup(
         "typing_extensions",
         "httpx",
         "aiocache",
+        "python-jose[cryptography]",
         "loguru",
     ],
     extras_require={
