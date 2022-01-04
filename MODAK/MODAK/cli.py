@@ -318,7 +318,7 @@ def dbshell():
     from IPython import embed
 
     engine = create_async_engine(f"sqlite+aiosqlite:///{Settings.db_path}", future=True)
-    session_local = sessionmaker(  # noqa: F841
+    session_local = sessionmaker(  # noqa: F841 NOSONAR
         engine,
         class_=AsyncSession,
         autocommit=False,
