@@ -14,6 +14,7 @@ setup(
         "rich",
         "requests",
         "archspec",
+        "typing_extensions",
     ],
     extras_require={
         "testing": [
