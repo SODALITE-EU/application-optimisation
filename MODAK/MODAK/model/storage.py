@@ -11,7 +11,8 @@ ALLOWED_DEFAULT_SUFFIXES = ("common", "high", "ssd", "ultra_high")
 class DefaultStorageClass(str, Enum):
     """Allowed default storage class values"""
 
-    _ignore_ = "suffix prefix"
+    # the following "type: ignore" fixes a regression in mypy 0.930
+    _ignore_ = "suffix prefix"  # type: ignore
 
     prefix = "default"
     for suffix in ALLOWED_DEFAULT_SUFFIXES:

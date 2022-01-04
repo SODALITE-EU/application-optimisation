@@ -6,12 +6,12 @@ from uuid import UUID
 from pydantic import AnyUrl
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import (
+    ConstrainedFloat,
     EmailStr,
     Field,
     PositiveInt,
     StrictBool,
     StrictInt,
-    confloat,
     root_validator,
 )
 
@@ -128,6 +128,11 @@ class ApplicationBuild(BaseModel):
     )
 
 
+class UnitInterval(ConstrainedFloat):
+    gt = 0.0
+    le = 1.0
+
+
 class Application(BaseModel):
     app_tag: Optional[str]
     app_type: Optional[ApplicationAppType] = Field(description="this applications type")
@@ -153,7 +158,7 @@ class Application(BaseModel):
             " Set before mpirun or srun."
         ),
     )
-    minimal_efficiency: Optional[confloat(gt=0, le=1)] = Field(
+    minimal_efficiency: Optional[UnitInterval] = Field(
         description=(
             "Automatically determine number of ranks/threads"
             " based on this minimal (parallel) efficiency."

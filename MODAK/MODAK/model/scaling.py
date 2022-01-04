@@ -9,8 +9,6 @@ from . import Application, BaseModel
 class ScalingModel(BaseModel, abc.ABC):
     """Supported scaling models"""
 
-    name: Literal["model"]
-
     @abc.abstractmethod
     def scale(self, app: Application) -> bool:
         """Apply scaling to application"""

@@ -2,10 +2,11 @@ __all__ = ["Optimisation", "Map", "Infrastructure", "Script"]
 
 import uuid
 
-from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text, event
+from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.engine import Engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.event import listens_for
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.types import CHAR, TypeDecorator
 
 
@@ -166,7 +167,7 @@ class Script(Base):
     data = Column(JSON, nullable=False, server_default="{}")
 
 
-@event.listens_for(Engine, "connect")
+@listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     """Always enable foreign key support on SQLite
     see https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#sqlite-foreign-keys"""

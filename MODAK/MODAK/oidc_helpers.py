@@ -71,7 +71,7 @@ class ExtendedOpenIdConnect(OpenIdConnect):
 
         self.api_key = api_key
 
-    async def __call__(
+    async def __call__(  # type: ignore
         self,
         request: Request,
         security_scopes: SecurityScopes,
