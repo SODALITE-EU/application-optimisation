@@ -6,7 +6,7 @@ from MODAK import db
 from MODAK.driver import Driver
 from MODAK.model import Application
 from MODAK.model.scaling import (
-    ApplicationScalingModel,
+    ApplicationScalingModelIn,
     ScalingModelAmdahl,
     ScalingModelNoop,
 )
@@ -16,12 +16,12 @@ from MODAK.scaler import Scaler
 def test_dispatch():
     """Test that the pydantic dispatch based on the name works"""
 
-    appmodel_amdahl = ApplicationScalingModel(
+    appmodel_amdahl = ApplicationScalingModelIn(
         opt_dsl_code="", model={"name": "amdahl", "F": 0.5}
     )
     assert isinstance(appmodel_amdahl.model, ScalingModelAmdahl)
 
-    appmodel_noop = ApplicationScalingModel(opt_dsl_code="", model={"name": "noop"})
+    appmodel_noop = ApplicationScalingModelIn(opt_dsl_code="", model={"name": "noop"})
     assert isinstance(appmodel_noop.model, ScalingModelNoop)
 
 
@@ -29,19 +29,19 @@ def test_invalid_input():
     """Test that the pydantic parameter validation works"""
 
     with pytest.raises(ValidationError):
-        ApplicationScalingModel(opt_dsl_code="", model={"name": "amdahl", "G": 0.5})
+        ApplicationScalingModelIn(opt_dsl_code="", model={"name": "amdahl", "G": 0.5})
 
     with pytest.raises(ValidationError):
-        ApplicationScalingModel(opt_dsl_code="", model={"name": "amdahl"})
+        ApplicationScalingModelIn(opt_dsl_code="", model={"name": "amdahl"})
 
     with pytest.raises(ValidationError):
-        ApplicationScalingModel(opt_dsl_code="", model={"name": "noop", "F": 0.5})
+        ApplicationScalingModelIn(opt_dsl_code="", model={"name": "noop", "F": 0.5})
 
 
 def test_noop():
     """Test that the noop model always returns false"""
 
-    appmodel_noop = ApplicationScalingModel(opt_dsl_code="", model={"name": "noop"})
+    appmodel_noop = ApplicationScalingModelIn(opt_dsl_code="", model={"name": "noop"})
     assert not appmodel_noop.model.scale(Application.construct())
 
 

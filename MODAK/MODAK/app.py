@@ -15,6 +15,7 @@ from MODAK import db
 from MODAK.MODAK import MODAK
 from MODAK.model import JobModel, Script, ScriptIn
 from MODAK.model.infrastructure import Infrastructure, InfrastructureIn
+from MODAK.model.scaling import ApplicationScalingModel, ApplicationScalingModelIn
 from MODAK.settings import Settings
 
 from . import modeldb, oidc_helpers
@@ -181,6 +182,59 @@ async def create_infrastructure(
     """Add a new infrastructure"""
 
     dbobj = db.Infrastructure(**infrastructure_in.dict())
+
+    async with session.begin():
+        session.add(dbobj)
+    return dbobj
+
+
+@app.get(
+    "/scaling_models",
+    response_model=List[ApplicationScalingModelIn],
+    response_model_exclude_none=True,
+)
+async def list_scaling_models(
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """List all registered scaling models"""
+    result = await session.execute(select(db.ScalingModel))
+    return result.scalars().all()
+
+
+@app.get(
+    "/scaling_models/{scaling_model_id}",
+    response_model=ApplicationScalingModelIn,
+    response_model_exclude_none=True,
+)
+async def get_scaling_model(
+    scaling_model_id: UUID,
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """Get scaling model details"""
+    result = await session.execute(
+        select(db.ScalingModel).where(db.ScalingModel.id == scaling_model_id)
+    )
+
+    try:
+        return result.scalars().one()
+    except NoResultFound:
+        raise HTTPException(404) from None
+
+
+@app.post(
+    "/scaling_models",
+    response_model=ApplicationScalingModel,
+    status_code=201,
+    response_model_exclude_none=True,
+    dependencies=[Depends(authentication_token)],
+)
+async def create_scaling_model(
+    scaling_model_in: ApplicationScalingModelIn,
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """Add a new scaling model"""
+
+    dbobj = db.ScalingModel(**scaling_model_in.dict())
 
     async with session.begin():
         session.add(dbobj)

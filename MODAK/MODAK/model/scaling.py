@@ -1,5 +1,6 @@
 import abc
 from typing import Optional, Union
+from uuid import UUID
 
 from pydantic import Field, PositiveInt
 from typing_extensions import Literal
@@ -75,13 +76,19 @@ class ScalingModelAmdahl(ScalingModel):
         return 1 / (nranks * (1 - self.F) + self.F)
 
 
-class ApplicationScalingModel(BaseModel):
-    """A scaling model for a given application, resp. container, defined by name and parameters."""
+class ApplicationScalingModelIn(BaseModel):
+    """An scaling model for a given application, resp. container, defined by name and parameters."""
 
     opt_dsl_code: str = Field(
         ..., description="The DSL code of the container for which this model holds"
     )
     model: Union[ScalingModelNoop, ScalingModelMax, ScalingModelAmdahl]
+
+
+class ApplicationScalingModel(ApplicationScalingModelIn):
+    """An scaling model for a given application, resp. container, defined by name and parameters."""
+
+    id: UUID
 
     class Config:
         orm_mode = True

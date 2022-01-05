@@ -4,13 +4,15 @@ from typing import AsyncIterator
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+from MODAK import db
 from MODAK.app import app, authentication_token, get_db_session
-from MODAK.db import Base
 from MODAK.model import Script, ScriptIn
 from MODAK.model.infrastructure import InfrastructureIn
+from MODAK.model.scaling import ApplicationScalingModelIn
 
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
 
@@ -37,7 +39,7 @@ app.dependency_overrides[get_db_session] = override_get_db_session
 async def startup_event():
     """Create the database structure in the empty test database"""
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(db.Base.metadata.create_all)
 
 
 @pytest.fixture
@@ -177,6 +179,27 @@ def test_create_script_valid_storage(client):
     response = client.post(
         "/scripts",
         json=script.dict(),
+        headers={"Authorization": f"Bearer {authentication_token.api_key}"},
+    )
+    assert response.status_code == 201
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_create_scaling_model(client):
+    async with engine.begin() as conn:
+        await conn.execute(
+            insert(db.Optimisation).values(
+                opt_dsl_code="test-code-01", app_name="test-app-01"
+            )
+        )
+
+    smodel = ApplicationScalingModelIn(
+        opt_dsl_code="test-code-01", model={"name": "noop"}
+    )
+    response = client.post(
+        "/scaling_models",
+        json=smodel.dict(),
         headers={"Authorization": f"Bearer {authentication_token.api_key}"},
     )
     assert response.status_code == 201

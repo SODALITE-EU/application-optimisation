@@ -79,7 +79,7 @@ class Map(Base):
 class ScalingModel(Base):
     __tablename__ = "scaling_model"
 
-    model_id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
     opt_dsl_code = Column(
         String(255),
         ForeignKey("optimisation.opt_dsl_code", ondelete="CASCADE", onupdate="CASCADE"),
