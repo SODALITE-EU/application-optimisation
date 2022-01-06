@@ -151,13 +151,12 @@ pipeline {
                     """
             }
         }
-        stage('Push modak to sodalite-private-registry') {
-            // Push during staging and production
+        stage('Push modak to DockerHub for staging') {
             when {
                 allOf {
                     expression{tag "*"}
                     expression{
-                        TAG_STAGING == 'true' || TAG_PRODUCTION == 'true'
+                        TAG_STAGING == 'true'
                     }
                 }
             }
@@ -166,7 +165,7 @@ pipeline {
                     sh  """#!/bin/bash
                         set -x
                         git status
-                        ./make_docker.sh push modak-api staging
+                        ./make_docker.sh push modak-api sodaliteh2020 staging
                         """
                 }
             }
@@ -184,7 +183,7 @@ pipeline {
             steps {
                 withDockerRegistry(credentialsId: 'jenkins-sodalite.docker_token', url: '') {
                     sh  """#!/bin/bash
-                            ./make_docker.sh push modak-api production
+                            ./make_docker.sh push modak-api sodaliteh2020 production
                         """
                 }
             }
