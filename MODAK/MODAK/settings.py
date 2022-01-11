@@ -105,6 +105,7 @@ class SettingsBase(BaseSettings):
 
     class Config:
         env_file_encoding = "utf-8"
+        env_prefix = "MODAK_"
 
         @classmethod
         def customise_sources(
@@ -115,8 +116,8 @@ class SettingsBase(BaseSettings):
         ):
             return (
                 init_settings,
-                configparser_settings_source,
                 env_settings,
+                configparser_settings_source,
                 file_secret_settings,
             )
 

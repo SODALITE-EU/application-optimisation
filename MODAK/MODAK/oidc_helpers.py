@@ -68,6 +68,10 @@ class ExtendedOpenIdConnect(OpenIdConnect):
         if api_key == "":
             api_key = uuid4().hex
             logger.info(f"Generated API Key: {api_key}")
+        elif api_key is None and not base_authorization_server_url:
+            logger.warning(
+                "No API key set or generated and authorization server URL not set, no writeable access to the API"
+            )
 
         self.api_key = api_key
 
