@@ -1,0 +1,9 @@
+*~
+*.simg
+*.tic
+*.img*
+*.tar.bz2
+*.sum
+*.o*
+*.sif
+build-temp-*/
