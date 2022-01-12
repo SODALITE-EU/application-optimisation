@@ -7,3 +7,4 @@
 *.o*
 *.sif
 build-temp-*/
+cp2k_rpa__*

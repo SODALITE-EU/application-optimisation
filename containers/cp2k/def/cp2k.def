@@ -51,11 +51,8 @@ EOF
         echo "Provide a cp2k input! Opening a shell for the moment..."
         bash -norc
     else
-        export CP2K_LOG=${ASTER_LOG:-"cp2k.out"}
-        export CP2K_INPUT=${ASTER_INPUT:-""}
 	export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
-
-	/usr/local/workdir/cp2k/exe/local_cuda-sm60/cp2k.psmp -i $CP2K_INPUT -o ${CP2K_LOG}
+	${CP2K_ROOT}/exe/local_cuda-sm60/cp2k.psmp $@
     fi
 
 %post -c /bin/bash -e
@@ -68,7 +65,7 @@ EOF
                        build-essential wget less gfortran procps \
 		       libopenblas-dev locales ca-certificates \
 		       python3 python3-dev python3-numpy vim ssh git \
-		       zlib1g-dev file xterm tk bison flex
+		       zlib1g-dev file xterm tk bison flex pkg-config
     apt-get clean && rm -rf /var/lib/apt/lists/* # do not forget to clean!
 
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
@@ -169,26 +166,39 @@ EOF
     make -j$(getconf _NPROCESSORS_ONLN) install
     cd .. && rm -rf libxc-${libxc_ver}
 
+    # COSMA
+    cosma_ver=2.5.1
+    wget https://github.com/eth-cscs/COSMA/releases/download/v${cosma_ver}/COSMA-v${cosma_ver}.tar.gz
+    tar xf COSMA-v${cosma_ver}.tar.gz && rm COSMA-v${cosma_ver}.tar.gz
+    cd COSMA-v${cosma_ver}
+    COSMA_TYPE=cuda
+    mkdir build-${COSMA_TYPE} && cd build-${COSMA_TYPE}
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCOSMA_BLAS=CUDA -DCOSMA_SCALAPACK=CUSTOM -DCOSMA_WITH_TESTS=NO -DCOSMA_WITH_BENCHMARKS=NO -DCOSMA_WITH_APPS=YES -DCOSMA_WITH_PROFILING=ON ..
+    make && make install
+    cp -r miniapp /usr/local/bin/cosma-miniapp
+    cd ../../ && rm -rf COSMA-v${cosma_ver}
+
     # CP2K
     cd /usr/local/workdir
     git clone --recursive https://github.com/cp2k/cp2k.git
     cd cp2k
     cat << 'EOF' > arch/local_cuda-sm60.psmp
-CC          = gcc
-CXX         = g++
+CC          = mpicc
+CXX         = mpicxx
 AR          = ar -r
 FC          = mpif90
 LD          = mpif90
 #
-DFLAGS      = -D__GRID_CUDA -D__parallel -D__FFTW3 -D__LIBINT -D__LIBXC -D__SCALAPACK
-#-D__COSMA
+DFLAGS      = -D__GRID_CUDA -D__parallel -D__FFTW3 -D__LIBINT -D__LIBXC -D__SCALAPACK -D__COSMA
 #
-FCDEBFLAGS  = -fbacktrace -ffree-form -fimplicit-none -std=f2008
+FCDEBFLAGS  = -ffree-form -fimplicit-none -std=f2008
 CFLAGS      = -fno-omit-frame-pointer -fopenmp -O3 -funroll-loops $(DFLAGS) -I/usr/local/cuda/include
 FCFLAGS     = -fno-omit-frame-pointer -fopenmp -O3 -funroll-loops $(DFLAGS) $(FCDEBFLAGS) -I/usr/local/include
 CXXFLAGS    = -O2 -fPIC -fno-omit-frame-pointer --std=c++11 $(DFLAGS)
 LDFLAGS     =  $(FCFLAGS)
-LIBS        = -L/usr/local/cuda/lib64 -lscalapack -ldl -lpthread -lxcf03 -lxc -lint2 -lfftw3_mpi -lfftw3 -lfftw3_omp -lmpifort -lmpicxx -lmpi -lopenblas -lstdc++ -lstdc++ -lcudart -lnvrtc -lcuda -lcublas -lrt
+LIBS        = -lcosma_prefixed_pxgemm -lcosma -lcosta -lTiled-MM
+LIBS       += -lsemiprof
+LIBS       += -L/usr/local/cuda/lib64 -lscalapack -ldl -lpthread -lxcf03 -lxc -lint2 -lfftw3_mpi -lfftw3 -lfftw3_omp -lmpifort -lmpicxx -lmpi -lopenblas -lstdc++ -lstdc++ -lcudart -lnvrtc -lcuda -lcublas -lrt
 OFFLOAD_CC    = nvcc
 OFFLOAD_FLAGS = -g -arch sm_60 -O3 -Xcompiler='-fopenmp' --std=c++11  $(DFLAGS) 
 OFFLOAD_TARGET = cuda

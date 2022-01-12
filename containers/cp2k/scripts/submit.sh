@@ -6,10 +6,11 @@ PPN=1
 wtime="2:00:00"
 LABEL=${CLUSTER}
 QUEUE="default"
+MAXTHREADS=${PPN}
 
 NSHIFT=0
 
-while getopts "n:p:l:w:" OPTION; do
+while getopts "n:p:t:l:w:" OPTION; do
     case $OPTION in
 	n)
 	    NNODES=$OPTARG
@@ -17,6 +18,10 @@ while getopts "n:p:l:w:" OPTION; do
 	    ;;
 	p)
 	    PPN=$OPTARG
+	    NSHIFT=$((NSHIFT+2))
+	    ;;
+	t)
+	    MAXTHREADS=$OPTARG
 	    NSHIFT=$((NSHIFT+2))
 	    ;;
 	l)
@@ -78,23 +83,28 @@ case $CLUSTER in
 	;;
     cloudserver) # HLRS testbed
 	export MODULES="compilers/gcc-9.2.0 "
-#	MODULES+="mpi/mpich-3.3.1-gcc-9.2.0"
-	MODULES+="mpi/openmpi-3.1.3-gcc-9.2.0"
+	MODULES+="mpi/mpich-3.3.1-gcc-9.2.0 "
+	MODULES+="cuda/cuda-10.2 "
+#	MODULES+="mpi/openmpi-3.1.3-gcc-9.2.0"
 	export SUBCMD="mpiexec "
 	;;
 esac
 
-NAMEOUT_PREFIX=code_aster
+NAMEOUT_PREFIX=cp2k_rpa
 
 for inode in $NNODES; do
     for ippn in $PPN; do
-	PREFIXNAME="nodes-${inode}_ppn-${ippn}_nranks-$(( inode * ippn ))_nthreads-1"
+	export OMP_NUM_THREADS=`expr $MAXTHREADS / $ippn`
+	if [ $OMP_NUM_THREADS -lt 1 ]; then
+	    export OMP_NUM_THREADS=1
+	fi
+	PREFIXNAME="nodes-${inode}_ppn-${ippn}_nranks-$(( inode * ippn ))_nthreads-${OMP_NUM_THREADS}"
 	echo $PREFIXNAME
 
 	BATCH_CMD=${BATCH_CMD_PREFIX}
 	case $WLM in
 	    pbs)
-		BATCH_CMD+="-lnodes=${inode}:ppn=${ippn} "
+		BATCH_CMD+="-lnodes=${inode}:ppn=${ippn}:gpus=1 "
 		BATCH_CMD+="-N ${NAMEOUT_PREFIX}_${PREFIXNAME}_${LABEL}_${QUEUE} "
 		;;
 	    slurm)
@@ -124,7 +134,13 @@ cd $PWD
 
 export IMGBASENAME=${IMGBASENAME}
 export CHOICE=${CHOICE}
-PREFIXNAME="${PREFIXNAME}" SUBCMD="${SUBCMD[@]}" $PWD/scripts/run.sh -l ${LABEL}___${QUEUE}
+
+# enable MPS
+${SUBCMD[0]} -n ${inode} nvidia-cuda-mps-control -d &
+
+PREFIXNAME="${PREFIXNAME}" SUBCMD="${SUBCMD[@]}" $PWD/scripts/run.sh -l ${LABEL}___${QUEUE} -t ${OMP_NUM_THREADS}
+
+echo quit | ${SUBCMD[0]} -n ${inode} nvidia-cuda-mps-control
 
 EOF
 
