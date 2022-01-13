@@ -54,8 +54,6 @@ topology_template:
     docker-registry-cert-files-prefix:
       type: string
       default: ""
-    mariadb_env:
-      type: map
     xopera_env:
       type: map
     modak_env:
@@ -63,8 +61,6 @@ topology_template:
     ssh_config:
       type: map
     username:
-      type: string
-    modak_db_pass:
       type: string
 #    identity_file:
 #      type: string
@@ -156,37 +152,6 @@ topology_template:
         - host: sodalite-vm
         - dependency: tls-certs
       
-    dbsource:
-      type: sodalite.nodes.util.ModakDBDump
-      properties: 
-        path: /usr/local/modak/modak-db/modakdb.sql
-        alias: modak-mariadb
-      requirements:
-        - host: sodalite-vm
-
-    mariadb:
-      type: sodalite.nodes.DockerizedComponent
-      properties:
-        image_name: library/mariadb:10.6
-        volumes:
-          - "/usr/local/modak/modak-db/modakdb.sql:/docker-entrypoint-initdb.d/modakdb.sql"
-        alias: modak-mariadb
-        env: { get_input: mariadb_env }
-        docker_network_name:  { get_property: [ SELF, network, name ] }
-
-      requirements:
-        - host:  docker-host
-        - network: docker-network
-        - registry: docker-public-registry 
-    
-    configsrc:
-      type: sodalite.nodes.util.ModakConfig
-      properties:
-        db_host: modak-mariadb
-        db_pass: { get_input: modak_db_pass }
-      requirements:
-        - host: docker-host
-
     api:
       type: sodalite.nodes.DockerizedComponent
       properties:
@@ -213,7 +178,6 @@ topology_template:
         - registry: docker-public-registry
         - network: docker-network
         - dependency: openstack-keys
-        - dependency: mariadb
 
     proxy:
       type: sodalite.nodes.DockerizedComponent
