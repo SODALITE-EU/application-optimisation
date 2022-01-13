@@ -86,6 +86,35 @@ def test_get_optimise(client):
     assert response.json()["job"]["job_content"]
 
 
+def test_create_infrastructure_example(client):
+    """Test that the infrastructure example we give can be added, but not a 2nd time"""
+
+    response = client.post(
+        "/infrastructures",
+        json=InfrastructureIn.schema()["example"],
+        headers={"Authorization": f"Bearer {authentication_token.api_key}"},
+    )
+    assert response.status_code == 201
+
+    response = client.post(
+        "/infrastructures",
+        json=InfrastructureIn.schema()["example"],
+        headers={"Authorization": f"Bearer {authentication_token.api_key}"},
+    )
+    assert response.status_code == 409
+
+
+def test_create_script_example(client):
+    """Test that the script example we give can be added. Relies on the previous test to run."""
+
+    response = client.post(
+        "/scripts",
+        json=ScriptIn.schema()["example"],
+        headers={"Authorization": f"Bearer {authentication_token.api_key}"},
+    )
+    assert response.status_code == 201
+
+
 def test_create_and_get_script_roundtrip(client):
     desc = "test"
     script = ScriptIn(description=desc, conditions={}, data={"stage": "pre"})
@@ -200,6 +229,28 @@ async def test_create_scaling_model(client):
     response = client.post(
         "/scaling_models",
         json=smodel.dict(),
+        headers={"Authorization": f"Bearer {authentication_token.api_key}"},
+    )
+    assert response.status_code == 201
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_create_scaling_model_example(client):
+    """Verify that the model example can be added"""
+
+    model_json = ApplicationScalingModelIn.schema()["example"]
+
+    async with engine.begin() as conn:
+        await conn.execute(
+            insert(db.Optimisation).values(
+                opt_dsl_code=model_json["opt_dsl_code"], app_name="test-app-01"
+            )
+        )
+
+    response = client.post(
+        "/scaling_models",
+        json=model_json,
         headers={"Authorization": f"Bearer {authentication_token.api_key}"},
     )
     assert response.status_code == 201

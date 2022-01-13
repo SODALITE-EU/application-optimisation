@@ -426,9 +426,26 @@ class ScriptIn(BaseModel):
     conditions: ScriptConditions
     data: ScriptData
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "description": "enable Cray Program Environment for GNU for all apps running on site 'example-site'",
+                "conditions": {"infrastructure": {"name": "example-site"}},
+                "data": {"stage": "pre", "raw": "module load cpeGNU"},
+            }
+        }
+
 
 class Script(ScriptIn):
     id: UUID
 
     class Config:
         orm_mode = True
+        schema_extra = {
+            "example": {
+                "id": "b762d7c8-5a34-45b9-8ce3-369e2bcae75b",
+                "description": "enable Cray Program Environment for GNU for all apps running on site 'example-site'",
+                "conditions": {"infrastructure": {"name": "example-site"}},
+                "data": {"stage": "pre", "raw": "module load cpeGNU"},
+            }
+        }

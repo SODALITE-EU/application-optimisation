@@ -84,7 +84,6 @@ class InfrastructureConfiguration(StorageMapMixin, BaseModel):
                                 "ncores": 64,
                                 "nthreads": 2,
                             },
-                            "naccel": 0,
                             "memory": "512GiB",
                         },
                     },
@@ -116,7 +115,7 @@ class InfrastructureConfiguration(StorageMapMixin, BaseModel):
 
         if (
             values.get("partitions")
-            and sum(p.default for p in values["partitions"]) > 1
+            and sum(p.default for p in values["partitions"].values()) > 1
         ):
             raise ValueError("There can only be one default partition")
 
@@ -150,9 +149,29 @@ class InfrastructureIn(BaseModel):
     description: Optional[str]
     configuration: InfrastructureConfiguration
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "example-site",
+                "description": "possibly named after a mountain",
+                "disabled": None,
+                "configuration": InfrastructureConfiguration.schema()["example"],
+            },
+        }
+
 
 class Infrastructure(InfrastructureIn):
     id: UUID
 
     class Config:
         orm_mode = True
+
+        schema_extra = {
+            "example": {
+                "uuid": "77167E08-15E6-4259-8540-EDFB51EA0BF9",
+                "name": "example-site",
+                "description": "possibly named after a mountain",
+                "disabled": None,
+                "configuration": InfrastructureConfiguration.schema()["example"],
+            },
+        }

@@ -7,6 +7,7 @@ from uuid import UUID
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
@@ -183,8 +184,12 @@ async def create_infrastructure(
 
     dbobj = db.Infrastructure(**infrastructure_in.dict())
 
-    async with session.begin():
-        session.add(dbobj)
+    try:
+        async with session.begin():
+            session.add(dbobj)
+    except IntegrityError:
+        raise HTTPException(409) from None
+
     return dbobj
 
 
@@ -236,6 +241,10 @@ async def create_scaling_model(
 
     dbobj = db.ScalingModel(**scaling_model_in.dict())
 
-    async with session.begin():
-        session.add(dbobj)
+    try:
+        async with session.begin():
+            session.add(dbobj)
+    except IntegrityError:
+        raise HTTPException(409) from None
+
     return dbobj

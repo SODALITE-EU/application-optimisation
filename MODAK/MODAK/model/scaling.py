@@ -84,6 +84,17 @@ class ApplicationScalingModelIn(BaseModel):
     )
     model: Union[ScalingModelNoop, ScalingModelMax, ScalingModelAmdahl]
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "opt_dsl_code": "some-hpc-code-v1",
+                "model": {
+                    "name": "amdahl",
+                    "F": 0.8,
+                },
+            }
+        }
+
 
 class ApplicationScalingModel(ApplicationScalingModelIn):
     """An scaling model for a given application, resp. container, defined by name and parameters."""
