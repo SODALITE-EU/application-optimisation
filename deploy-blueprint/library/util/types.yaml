@@ -28,34 +28,6 @@ node_types:
             implementation:
               primary: playbooks/delete.yml
 
-  sodalite.nodes.util.ModakDBDump:
-    derived_from: tosca.nodes.SoftwareComponent
-    properties:
-      path:
-        description: Destination for file
-        type: string
-      alias:
-        description: Alias for the modak database docker container
-        type: string
-
-    interfaces:
-      Standard:
-        type: tosca.interfaces.node.lifecycle.Standard
-        operations:
-          create:
-            inputs:
-              path: { type: string, default: { get_property: [ SELF, path ] } }
-              alias: { type: string, default: { get_property: [ SELF, alias ] } }
-            implementation:
-              primary: playbooks/modakdb.yml
-              dependencies:
-                - artifacts/modakdb.sql
-          delete:
-            inputs:
-              path: { type: string, default: { get_property: [ SELF, path ] } }
-            implementation:
-              primary: playbooks/delete.yml
-
   sodalite.nodes.util.ModakConfig:
     derived_from: tosca.nodes.SoftwareComponent
     properties:
