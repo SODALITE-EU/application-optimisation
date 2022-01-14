@@ -1,3 +1,3 @@
 [submodule "deploy-blueprint/modules"]
 	path = deploy-blueprint/modules
-	url = https://github.com/SODALITE-EU/iac-modules.git
+	url = https://github.com/dev-zero/iac-modules.git
