@@ -4,9 +4,9 @@ INSERT INTO `optimisation` VALUES
   ('code-aster-14.4-mpich-avx2','code-aster','enable_opt_build:false|cpu_type:x86|acc_type:none|','version:3.3.1|library:mpich','3.3.1'),
   ('code-aster-14.4-openmpi-avx2','code-aster','enable_opt_build:false|cpu_type:x86|acc_type:none|','version:3.1.3|library:openmpi','3.1.3'),
   ('modak-tensorflow-2.2.1-gpu-py3','tensorflow','enable_opt_build:true|cpu_type:x86|acc_type:nvidia|','xla:true|version:2.2.1|','2.2.1'),
-  ('ethcscs_openmpi_3.1.3','openmpi','enable_opt_build:true,cpu_type:x86,acc_type:nvidia,','version:3.1.3,mpicc:true,mpic++:true,mpifort:true,','3.1.3'),
-  ('mpich_ub1804_cuda101_mpi314_gnugprof','mpich','enable_opt_build:true,cpu_type:x86,acc_type:nvidia,','version:3.1.4,mpic++:true,mpicc:true,','3.1.4'),
-  ('TF_PIP_XLA','tensorflow','cpu_type:x86,acc_type:nvidia,','xla:true,version:1.1,','');
+  ('ethcscs_openmpi_3.1.3','openmpi','enable_opt_build:true|cpu_type:x86|acc_type:nvidia|','version:3.1.3|mpicc:true|mpic++:true|mpifort:true|','3.1.3'),
+  ('mpich_ub1804_cuda101_mpi314_gnugprof','mpich','enable_opt_build:true|cpu_type:x86|acc_type:nvidia|','version:3.1.4|mpic++:true|mpicc:true|','3.1.4'),
+  ('TF_PIP_XLA','tensorflow','cpu_type:x86|acc_type:nvidia|','xla:true|version:1.1|','');
 
 INSERT INTO `mapper` VALUES
   (11,'modak-tensorflow-2.1-gpu-src','modakopt/modak:tensorflow-2.1-gpu-src','docker','docker','none'),

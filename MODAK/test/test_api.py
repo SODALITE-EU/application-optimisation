@@ -254,3 +254,25 @@ async def test_create_scaling_model_example(client):
         headers={"Authorization": f"Bearer {authentication_token.api_key}"},
     )
     assert response.status_code == 201
+
+
+@pytest.mark.skip(reason="the API app and Driver() use a different DB driver")
+def test_create_mapping(client):
+    mapping = {
+        "opt_dsl_code": "modak-tensorflow-2.2.1-gpu-py3-TEST",
+        "app_name": "tensorflow",
+        "version": "2.2.1",
+        "enable_opt_build": True,
+        "target": {"cpu_type": "x86", "acc_type": "nvidia"},
+        "selectors": {"xla": True, "version": "2.2.1"},
+        "container_name": "tensorflow_2.2.1-gpu-py3",
+        "container_type": "shub",
+        "container_registry": "library",
+    }
+
+    response = client.post(
+        "/container_mappings",
+        json=mapping,
+        headers={"Authorization": f"Bearer {authentication_token.api_key}"},
+    )
+    response.raise_for_status()

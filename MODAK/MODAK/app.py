@@ -13,8 +13,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 from MODAK import db
+from MODAK.driver import Driver
+from MODAK.mapper import Mapper
 from MODAK.MODAK import MODAK
-from MODAK.model import JobModel, Script, ScriptIn
+from MODAK.model import ContainerMapping, JobModel, Script, ScriptIn
 from MODAK.model.infrastructure import Infrastructure, InfrastructureIn
 from MODAK.model.scaling import ApplicationScalingModel, ApplicationScalingModelIn
 from MODAK.settings import Settings
@@ -248,3 +250,76 @@ async def create_scaling_model(
         raise HTTPException(409) from None
 
     return dbobj
+
+
+@app.get(
+    "/container_mappings",
+    response_model=List[ContainerMapping],
+    response_model_exclude_none=True,
+)
+async def list_container_mappings(
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """List all registered container mappings"""
+    result = await session.execute(select(db.Optimisation, db.Map).join(db.Map))
+    return [
+        modeldb.container_mapping_from_db(opt, mapping) for opt, mapping in result.all()
+    ]
+
+
+@app.get(
+    "/container_mappings/{opt_dsl_code}",
+    response_model=ContainerMapping,
+    response_model_exclude_none=True,
+)
+async def get_container_mapping(
+    opt_dsl_code: str,
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """Get container mapping details"""
+
+    result = await session.execute(
+        select(db.Optimisation, db.Map)
+        .join(db.Map)
+        .where(db.Optimisation.opt_dsl_code == opt_dsl_code)
+    )
+    try:
+        return modeldb.container_mapping_from_db(*result.one())
+    except NoResultFound:
+        raise HTTPException(404) from None
+
+
+@app.post(
+    "/container_mappings",
+    response_model=ContainerMapping,
+    status_code=201,
+    response_model_exclude_none=True,
+    dependencies=[Depends(authentication_token)],
+)
+async def create_container_mapping(
+    container_mapping: ContainerMapping,
+    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+):
+    """Add a new infrastructure"""
+
+    # The following uses a different driver as the app itself.
+    # Meaning that this query goes to the real DB and ignores the
+    # temporary test db for the API when testing.
+    driver = Driver()
+    mapper = Mapper(driver)
+
+    mapper.add_optcontainer(
+        {
+            "name": container_mapping.opt_dsl_code,
+            "app_name": container_mapping.app_name,
+            "build": {
+                "enable_opt_build": container_mapping.enable_opt_build,
+                **container_mapping.target.dict(),
+            },
+            "optimisation": container_mapping.selectors,
+            "container_file": container_mapping.container_name,
+            "image_type": container_mapping.container_type,
+            "image_hub": container_mapping.container_registry,
+        }
+    )
+    return container_mapping

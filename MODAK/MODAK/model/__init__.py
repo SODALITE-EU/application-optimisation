@@ -449,3 +449,29 @@ class Script(ScriptIn):
                 "data": {"stage": "pre", "raw": "module load cpeGNU"},
             }
         }
+
+
+class ContainerType(str, Enum):
+    """Supported types of container registry."""
+
+    docker = "docker"
+    shub = "shub"
+
+
+class ContainerMapping(BaseModel):
+    opt_dsl_code: str = Field(
+        ..., description="A unique descriptor for this container mapping"
+    )
+    app_name: str = Field(..., description="Name of the application")
+    version: str = Field(..., description="Version description of the application")
+    enable_opt_build: bool = Field(
+        False,
+        description="Enable if this container/application can be rebuilt on the target",
+    )
+    target: OptimisationBuild
+    selectors: Dict[str, Any]
+    container_name: str
+    container_type: ContainerType = Field("docker")
+    container_registry: Optional[str] = Field(
+        description="The protocol part in the full container name"
+    )

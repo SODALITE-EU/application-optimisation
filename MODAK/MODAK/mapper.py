@@ -108,8 +108,8 @@ class Mapper:
     ):
         logger.info("Adding DSL code to Optimisation ")
 
-        target_str = ",".join(_mapping2list(target))
-        opt_str = ",".join(_mapping2list(optimisation))
+        target_str = "|".join(_mapping2list(target))
+        opt_str = "|".join(_mapping2list(optimisation))
 
         logger.info(f"Target string: '{target_str}'")
         logger.info(f"Opt string: '{opt_str}'")
