@@ -42,7 +42,7 @@ class MODAK:
 
         logger.info("Successfully intialised MODAK")
 
-    def optimise(self, job: Job) -> JobScripts:
+    async def optimise(self, job: Job) -> JobScripts:
         logger.info(f"Processing job data {job}")
 
         job_file = (
@@ -50,14 +50,14 @@ class MODAK:
             / f"{job.job_options.job_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.sh"
         )
         with job_file.open("w") as job_fhandle:
-            self._get_optimisation(job, job_fhandle)
+            await self._get_optimisation(job, job_fhandle)
 
         build_file = (
             Settings.out_dir
             / f"{job.job_options.job_name}_build_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
         with build_file.open("w") as fhandle:
-            self._get_buildjob(job, fhandle)
+            await self._get_buildjob(job, fhandle)
 
         if self._upload:
             file_to = (
@@ -80,23 +80,25 @@ class MODAK:
         logger.info(f"Build script link: {build_link}")
         return JobScripts(str(job_link), str(build_link))
 
-    def get_opt_container_runtime(self, job: Job) -> Optional[str]:
+    async def get_opt_container_runtime(self, job: Job) -> Optional[str]:
         logger.info("Mapping to optimal container for job data")
 
         new_container = None
 
         if job.optimisation:
-            new_container = self._map.map_container(job.application, job.optimisation)
+            new_container = await self._map.map_container(
+                job.application, job.optimisation
+            )
 
         logger.info(f"Optimal container found: {new_container}")
         return new_container
 
-    def get_buildjob(self, job: Job) -> str:
+    async def get_buildjob(self, job: Job) -> str:
         job_fhandle = io.StringIO()
-        self._get_buildjob(job, job_fhandle)
+        await self._get_buildjob(job, job_fhandle)
         return job_fhandle.getvalue()
 
-    def _get_buildjob(self, job: Job, job_fhandle: IO[str]) -> None:
+    async def _get_buildjob(self, job: Job, job_fhandle: IO[str]) -> None:
         logger.info("Creating build script for job")
         logger.info(f"Processing build data: {job}")
 
@@ -131,30 +133,30 @@ class MODAK:
         )
         build_job.application.executable = final_build
 
-        self._get_optimisation(build_job, job_fhandle)
+        await self._get_optimisation(build_job, job_fhandle)
 
-    def get_optimisation(self, job: Job) -> str:
+    async def get_optimisation(self, job: Job) -> str:
         job_file = io.StringIO()
-        self._get_optimisation(job, job_file)
+        await self._get_optimisation(job, job_file)
         return job_file.getvalue()
 
-    def _get_optimisation(self, job: Job, job_fhandle: IO[str]) -> None:
+    async def _get_optimisation(self, job: Job, job_fhandle: IO[str]) -> None:
 
         # if mapper finds an optimised container based on requested optimisation,
         # update the container runtime of application
-        new_container = self.get_opt_container_runtime(job)
+        new_container = await self.get_opt_container_runtime(job)
         if new_container:
             job.application.container_runtime = new_container
             logger.info("Successfully updated container runtime")
 
         if job.target:
-            self._target_completion(job.target)
+            await self._target_completion(job.target)
 
-        self._scaler.scale(job.application, job.optimisation)
+        await self._scaler.scale(job.application, job.optimisation)
 
         if job.target:
             # needs to run after the scaler since nranks/nthreads may have been updated
-            self._job_completion(job.target, job.job_options, job.application)
+            await self._job_completion(job.target, job.job_options, job.application)
 
         logger.info("Generating job file header")
         gen_t = JobfileGenerator(
@@ -174,7 +176,9 @@ class MODAK:
         decoded_opts = self._map.get_decoded_opts(job.optimisation)
         logger.info(f"Applying optimisations {decoded_opts}")
 
-        scripts, tenv = self._enf.enforce_opt(self._map.app_name, job, decoded_opts)
+        scripts, tenv = await self._enf.enforce_opt(
+            self._map.app_name, job, decoded_opts
+        )
 
         for script in scripts:
             if script.data.stage == "pre":
@@ -187,13 +191,13 @@ class MODAK:
             if script.data.stage == "post":
                 gen_t.add_optscript(script, tenv)
 
-    def _target_completion(self, target: Target) -> None:
+    async def _target_completion(self, target: Target) -> None:
         """Verify that all required attributes in a given Target are filled"""
 
         if target.job_scheduler_type:
             return
 
-        dbinfra = self._driver.select_sql(
+        dbinfra = await self._driver.select_sql(
             select(db.Infrastructure).filter(db.Infrastructure.name == target.name)
         )
         if not dbinfra:
@@ -204,7 +208,7 @@ class MODAK:
         iconf = Infrastructure.from_orm(dbinfra[0][0]).configuration
         target.job_scheduler_type = iconf.scheduler
 
-    def _job_completion(
+    async def _job_completion(
         self, target: Target, jobopts: JobOptions, app: Application
     ) -> None:
         """Fill in job/scheduler attributes based on the given infrastructure"""
@@ -213,7 +217,7 @@ class MODAK:
             # Without a scheduler we don't have to complete job options
             return
 
-        dbinfra = self._driver.select_sql(
+        dbinfra = await self._driver.select_sql(
             select(db.Infrastructure).filter(db.Infrastructure.name == target.name)
         )
         if not dbinfra:

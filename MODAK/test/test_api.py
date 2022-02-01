@@ -9,7 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from MODAK import db
-from MODAK.app import app, authentication_token, get_db_session
+from MODAK.app import app, authentication_token, get_db_session, get_driver
+from MODAK.driver import Driver
 from MODAK.model import Script, ScriptIn
 from MODAK.model.infrastructure import InfrastructureIn
 from MODAK.model.scaling import ApplicationScalingModelIn
@@ -32,7 +33,12 @@ async def override_get_db_session() -> AsyncIterator[AsyncSession]:
         yield session
 
 
+def override_get_driver() -> Driver:
+    return Driver(engine)
+
+
 app.dependency_overrides[get_db_session] = override_get_db_session
+app.dependency_overrides[get_driver] = override_get_driver
 
 
 @app.on_event("startup")
@@ -256,10 +262,12 @@ async def test_create_scaling_model_example(client):
     assert response.status_code == 201
 
 
-@pytest.mark.skip(reason="the API app and Driver() use a different DB driver")
-def test_create_mapping(client):
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_create_mapping(client):
+    opt_dsl_code = "modak-tensorflow-2.2.1-gpu-py3-TEST"
     mapping = {
-        "opt_dsl_code": "modak-tensorflow-2.2.1-gpu-py3-TEST",
+        "opt_dsl_code": opt_dsl_code,
         "app_name": "tensorflow",
         "version": "2.2.1",
         "enable_opt_build": True,
@@ -274,5 +282,19 @@ def test_create_mapping(client):
         "/container_mappings",
         json=mapping,
         headers={"Authorization": f"Bearer {authentication_token.api_key}"},
+    )
+    response.raise_for_status()
+    resp_json = response.json()
+
+    assert resp_json["opt_dsl_code"] == opt_dsl_code
+
+    response = client.get(
+        "/container_mappings",
+    )
+    response.raise_for_status()
+    assert response.json()[0]["opt_dsl_code"] == opt_dsl_code
+
+    response = client.get(
+        f"/container_mappings/{opt_dsl_code}",
     )
     response.raise_for_status()

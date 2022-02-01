@@ -3,6 +3,8 @@ from typing import List, Union
 import sqlalchemy as sa
 from loguru import logger
 from sqlalchemy.engine import Row
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from .settings import Settings
 
@@ -13,28 +15,44 @@ class Driver:
     def __init__(self, engine=None):
         logger.info("Initialising driver")
 
-        logger.info("Connecting to model repo using DB dialect: {Settings.db_dialect}")
-        assert Settings.db_dialect == "sqlite", "only SQLite is currently supported"
-
         if engine:
             self._engine = engine
         else:
-            self._engine = sa.create_engine(
-                f"sqlite:///{Settings.db_path}", future=True
+            logger.info(
+                "Connecting to model repo using DB dialect: {Settings.db_dialect}"
             )
+            assert Settings.db_dialect == "sqlite", "only SQLite is currently supported"
+
+            self._engine = create_async_engine(
+                f"sqlite+aiosqlite:///{Settings.db_path}", future=True
+            )
+
+        self._session = sessionmaker(
+            self._engine,
+            class_=AsyncSession,
+            autocommit=False,
+            autoflush=False,
+            expire_on_commit=False,
+        )
 
         logger.info("Successfully initialised driver")
 
-    def select_sql(self, stmt: sa.sql.Select) -> List[Row]:
+    async def select_sql(self, stmt: sa.sql.Select) -> List[Row]:
         logger.info(f"Selecting : {stmt}")
-        with sa.orm.Session(self._engine, future=True) as session:
-            result = session.execute(stmt).all()
+        async with self._session() as session:
+            result = await session.execute(stmt)
             logger.info("Successfully selected SQL")
 
-        return result
+        return result.all()
 
-    def update_sql(self, stmt: Union[sa.sql.Delete, sa.sql.Update, sa.sql.Insert]):
-        with sa.orm.Session(self._engine, future=True) as session:
-            session.execute(stmt)
-            session.commit()
+    async def update_sql(
+        self, stmt: Union[sa.sql.Delete, sa.sql.Update, sa.sql.Insert]
+    ):
+        async with self._session() as session:
+            await session.execute(stmt)
+            await session.commit()
             logger.info("Successfully updated SQL")
+
+    @property
+    def session(self):
+        return self._session

@@ -69,7 +69,7 @@ class Enforcer:
 
         return stmts
 
-    def _target2stmts(self, basestmt: Select, target: Target) -> List[Select]:
+    async def _target2stmts(self, basestmt: Select, target: Target) -> List[Select]:
         """Return a list of selection statements for the different infrastructure queries."""
 
         basestmts: List[Select] = []
@@ -91,10 +91,12 @@ class Enforcer:
         # Now we need a lookup for the given infrastructure.
         # If not found or no storage spec (atm still possible unfortunately), we're done
         try:
-            istorage = self._driver.select_sql(
-                select(db.Infrastructure.configuration)
-                .filter(db.Infrastructure.name == target.name)
-                .filter(db.Infrastructure.configuration["storage"].isnot({}))
+            istorage = (
+                await self._driver.select_sql(
+                    select(db.Infrastructure.configuration)
+                    .filter(db.Infrastructure.name == target.name)
+                    .filter(db.Infrastructure.configuration["storage"].isnot({}))
+                )
             )[0][0]["storage"]
         except (KeyError, IndexError):
             return basestmts
@@ -134,7 +136,7 @@ class Enforcer:
 
         return basestmts
 
-    def enforce_opt(
+    async def enforce_opt(
         self, app_name: str, job: Job, opts: List[str]
     ) -> Tuple[List[Script], Dict[str, Any]]:
         logger.info(f"Enforcing opts {opts}")
@@ -147,9 +149,11 @@ class Enforcer:
 
         try:
             iconf = InfrastructureConfiguration(
-                **self._driver.select_sql(
-                    select(db.Infrastructure.configuration).filter(
-                        db.Infrastructure.name == job.target.name
+                **(
+                    await self._driver.select_sql(
+                        select(db.Infrastructure.configuration).filter(
+                            db.Infrastructure.name == job.target.name
+                        )
                     )
                 )[0][0]
             )
@@ -189,7 +193,7 @@ class Enforcer:
 
         basestmt = select(db.Script)
 
-        infrastmts = self._target2stmts(basestmt, job.target)
+        infrastmts = await self._target2stmts(basestmt, job.target)
 
         # 1. look for pure-infra scripts (e.g. conditions matching the infra but NO specific application)
         stmts += [
@@ -233,7 +237,7 @@ class Enforcer:
         scripts = {
             script[0].id: Script.from_orm(script[0])
             for stmt in stmts
-            for script in self._driver.select_sql(stmt)
+            for script in (await self._driver.select_sql(stmt))
         }
 
         return list(scripts.values()), tenv

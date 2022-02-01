@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Mapping, Optional, Sequence, cast
+from typing import Any, Awaitable, Callable, List, Mapping, Optional, Sequence, cast
 
 from loguru import logger
 from sqlalchemy import insert, select
@@ -27,7 +27,7 @@ class Mapper:
         self._driver = driver
         self._opts: List[str] = []
 
-    def map_container(
+    async def map_container(
         self,
         app: Application,
         optimisation: Optional[Optimisation] = None,
@@ -36,13 +36,13 @@ class Mapper:
 
         logger.info("Mapping to optimal container")
 
-        dsl_code = self.get_dsl_code(app, optimisation)
+        dsl_code = await self.get_dsl_code(app, optimisation)
         if not dsl_code:
             return None
 
-        return self.get_container(dsl_code)
+        return await self.get_container(dsl_code)
 
-    def get_dsl_code(
+    async def get_dsl_code(
         self, app: Application, optimisation: Optional[Optimisation] = None
     ) -> Optional[str]:
         logger.info(str(optimisation))
@@ -51,13 +51,13 @@ class Mapper:
         dsl_code: Optional[str] = None
 
         # try type-specific decodes first
-        decoders: Sequence[Callable[..., Optional[str]]] = (
+        decoders: Sequence[Callable[..., Awaitable[Optional[str]]]] = (
             self._decode_ai_training_opt,
             self._decode_hpc_opt,
             self._decode_opts,
         )
         for decoder in decoders:
-            dsl_code = decoder(app.app_tag, optimisation)
+            dsl_code = await decoder(app.app_tag, optimisation)
             if dsl_code is not None:
                 logger.info(f"Decoded opt code: {dsl_code}")
                 break
@@ -66,15 +66,15 @@ class Mapper:
 
         return dsl_code
 
-    def add_optcontainer(self, map_obj):
+    async def add_optcontainer(self, map_obj):
         logger.info(f"Adding optimal container {map_obj}")
-        self.add_optimisation(
+        await self.add_optimisation(
             map_obj.get("name"),
             map_obj.get("app_name"),
             map_obj.get("build"),
             map_obj.get("optimisation"),
         )
-        self.add_container(
+        await self.add_container(
             map_obj.get("name"),
             map_obj.get("container_file"),
             map_obj.get("image_hub"),
@@ -82,7 +82,7 @@ class Mapper:
             map_obj.get("src"),
         )
 
-    def add_container(
+    async def add_container(
         self,
         opt_dsl_code: str,
         container_file: str,
@@ -99,11 +99,11 @@ class Mapper:
             image_hub=image_hub,
             src=src,
         )
-        self._driver.update_sql(stmt)
+        await self._driver.update_sql(stmt)
 
         return True
 
-    def add_optimisation(
+    async def add_optimisation(
         self, opt_dsl_code: str, app_name: str, target: Mapping, optimisation: Mapping
     ):
         logger.info("Adding DSL code to Optimisation ")
@@ -122,10 +122,10 @@ class Mapper:
             version="",
         )
 
-        self._driver.update_sql(stmt)
+        await self._driver.update_sql(stmt)
         return True
 
-    def get_container(self, opt_dsl_code: str) -> Optional[str]:
+    async def get_container(self, opt_dsl_code: str) -> Optional[str]:
         """Given a DSL code, return a container URI if found"""
 
         logger.info(f"Get container for opt code: {opt_dsl_code}")
@@ -136,7 +136,7 @@ class Mapper:
             .order_by(Map.map_id.desc())
             .limit(1)
         )
-        data = self._driver.select_sql(stmt)
+        data = await self._driver.select_sql(stmt)
 
         if data:
             container_file = data[0][0]
@@ -152,7 +152,7 @@ class Mapper:
         logger.warning("No optimal container found")
         return None
 
-    def _decode_hpc_opt(
+    async def _decode_hpc_opt(
         self, app_name: Optional[str], opt: Optional[Optimisation] = None
     ) -> Optional[str]:
         """Get a DSL code for the given optimisation values for the HPC app_type"""
@@ -184,9 +184,9 @@ class Mapper:
             # are baked into the specific runtime library container.
             opt_dict = {k: v for k, v in optimisations.dict().items() if k != "library"}
 
-        return self._decode_opts(app_name, opt, opt_dict)
+        return await self._decode_opts(app_name, opt, opt_dict)
 
-    def _decode_ai_training_opt(
+    async def _decode_ai_training_opt(
         self, _: Optional[str], opt: Optional[Optimisation] = None
     ) -> Optional[str]:
         """Get a DSL code for the given optimisation values for the ai_training app_type"""
@@ -198,9 +198,9 @@ class Mapper:
 
         app_name = cast(AppTypeAITraining, opt.app_type_ai_training).config.ai_framework
         optimisations = getattr(opt.app_type_ai_training, f"ai_framework_{app_name}")
-        return self._decode_opts(app_name, opt, optimisations.dict())
+        return await self._decode_opts(app_name, opt, optimisations.dict())
 
-    def _decode_opts(
+    async def _decode_opts(
         self,
         app_name: Optional[str],
         opt: Optional[Optimisation] = None,
@@ -236,7 +236,7 @@ class Mapper:
             # treat a missing Optimisation as an implicit enable_opt_build=False
             stmt = stmt.where(OptimisationDB.target.like("%enable_opt_build:false%"))
 
-        data = self._driver.select_sql(stmt)
+        data = await self._driver.select_sql(stmt)
         if data:
             dsl_code = data[0][0]
             logger.info(f"Decoded DSL code: {dsl_code}")

@@ -3,7 +3,6 @@ from pydantic import ValidationError
 from sqlalchemy import insert
 
 from MODAK import db
-from MODAK.driver import Driver
 from MODAK.model import Application
 from MODAK.model.scaling import (
     ApplicationScalingModelIn,
@@ -87,38 +86,39 @@ def test_amdahl_correctness():
     assert amdahl.efficiency(app.mpi_ranks) == pytest.approx(0.5, 1e-6)
 
 
-def test_scaler_no_dsl_code(dbengine):
-    driver = Driver(dbengine)
-
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_scaler_no_dsl_code(driver):
     scaler = Scaler(driver)
     app = Application.construct(app_tag="testapp", mpi_ranks=256)
-    assert not scaler.scale(app)
+    assert not await scaler.scale(app)
 
 
-def test_scaler_no_model(dbengine):
-    driver = Driver(dbengine)
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_scaler_no_model(driver):
 
     stmt = insert(db.Optimisation).values(
         opt_dsl_code="test01",
         app_name="testapp",
         target="enable_opt_build:false",
     )
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
     scaler = Scaler(driver)
     app = Application.construct(app_tag="testapp", mpi_ranks=256)
-    assert not scaler.scale(app)
+    assert not await scaler.scale(app)
 
 
-def test_scaler_max(dbengine):
-    driver = Driver(dbengine)
-
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_scaler_max(driver):
     stmt = insert(db.Optimisation).values(
         opt_dsl_code="test01",
         app_name="testapp",
         target="enable_opt_build:false",
     )
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
     MAX_NRANKS = 16
     MAX_NTHREADS = 4
@@ -127,10 +127,10 @@ def test_scaler_max(dbengine):
         opt_dsl_code="test01",
         model={"name": "max", "max_nranks": MAX_NRANKS, "max_nthreads": MAX_NTHREADS},
     )
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
     scaler = Scaler(driver)
     app = Application.construct(app_tag="testapp", mpi_ranks=256, threads=8)
-    assert scaler.scale(app)  # the scaling should run
+    assert await scaler.scale(app)  # the scaling should run
     assert app.mpi_ranks == MAX_NRANKS
     assert app.threads == MAX_NTHREADS

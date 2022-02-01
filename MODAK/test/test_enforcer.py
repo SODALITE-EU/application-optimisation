@@ -1,3 +1,4 @@
+import pytest
 from sqlalchemy import insert
 
 from MODAK import db
@@ -7,14 +8,16 @@ from MODAK.model import Application, Job, ScriptIn, Target
 from MODAK.model.infrastructure import InfrastructureIn
 
 
-def test_enforce_opt():
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_enforce_opt():
     """
     Check that Enforcer.enforce_opt returns a non-empty set of and location for a DB entry
     """
 
     driver = Driver()
     enforcer = Enforcer(driver)
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "tensorflow",
         Job.construct(target=Target(name="test", job_scheduler_type="slurm")),
         ["version:2.1", "xla:true"],
@@ -23,21 +26,22 @@ def test_enforce_opt():
     assert scripts, "empty set returned"
 
 
-def test_enforce_infra_script(dbengine):
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_enforce_infra_script(driver):
     """
     Check that Enforcer.enforce_opt returns an infra-conditioned script
     """
 
-    driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
     stmt = insert(db.Script).values(
         conditions={"infrastructure": {"name": "testinfra"}},
         data={"stage": "pre", "raw": "echo hello"},
     )
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "inexistentapp",
         Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         [],
@@ -47,7 +51,7 @@ def test_enforce_infra_script(dbengine):
     assert scripts[0].conditions.infrastructure
     assert scripts[0].conditions.infrastructure.name == "testinfra"
 
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "inexistentapp",
         Job.construct(target=Target(name="wrongtestinfra", job_scheduler_type="slurm")),
         [],
@@ -56,12 +60,13 @@ def test_enforce_infra_script(dbengine):
     assert not scripts, "scripts returned while it should not have"
 
 
-def test_enforce_app_script(dbengine):
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_enforce_app_script(driver):
     """
     Check that Enforcer.enforce_opt returns an app-conditioned script
     """
 
-    driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
     script = ScriptIn(
@@ -69,9 +74,9 @@ def test_enforce_app_script(dbengine):
         data={"stage": "pre", "raw": "echo hello"},
     )
     stmt = insert(db.Script).values(**script.dict())
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "inexistentapp",
         Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         [],
@@ -80,7 +85,7 @@ def test_enforce_app_script(dbengine):
     assert not scripts, "scripts returned while it should not have"
 
     # despite target and myfeat, this should return the script
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "fancy",
         Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         ["myfeat:true"],
@@ -89,12 +94,13 @@ def test_enforce_app_script(dbengine):
     assert scripts, "scripts not found"
 
 
-def test_enforce_infra_storage_script(dbengine):
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_enforce_infra_storage_script(driver):
     """
     Check that Enforcer.enforce_opt returns an infra- & storage-conditioned script
     """
 
-    driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
     # insert a script which should be enabled if the chosen infra provides this storage_class
@@ -106,9 +112,9 @@ def test_enforce_infra_storage_script(dbengine):
         data={"stage": "pre", "raw": "echo 'hello any storage'"},
     )
     stmt = insert(db.Script).values(**script.dict())
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "inexistentapp",
         Job.construct(target=Target(name="testinfra", job_scheduler_type="slurm")),
         [],
@@ -123,9 +129,9 @@ def test_enforce_infra_storage_script(dbengine):
         },
     )
     stmt = insert(db.Infrastructure).values(**infra.dict())
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "fancy",
         Job.construct(
             target=Target(name="testinfra", job_scheduler_type="slurm"),
@@ -145,9 +151,9 @@ def test_enforce_infra_storage_script(dbengine):
         data={"stage": "pre", "raw": "echo 'hello ssd-only'"},
     )
     stmt = insert(db.Script).values(**script.dict())
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
-    scripts, _ = enforcer.enforce_opt(
+    scripts, _ = await enforcer.enforce_opt(
         "testapp",
         Job.construct(
             target=Target(name="testinfra", job_scheduler_type="slurm"),
@@ -158,12 +164,13 @@ def test_enforce_infra_storage_script(dbengine):
     assert len(scripts) == 2, "scripts not found"
 
 
-def test_enforce_infra_storage_pref(dbengine):
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_enforce_infra_storage_pref(driver):
     """
     Check that Enforcer.enforce_opt returns the storage location from an infra
     """
 
-    driver = Driver(dbengine)
     enforcer = Enforcer(driver)
 
     infra = InfrastructureIn(
@@ -176,9 +183,9 @@ def test_enforce_infra_storage_pref(dbengine):
         },
     )
     stmt = insert(db.Infrastructure).values(**infra.dict())
-    driver.update_sql(stmt)
+    await driver.update_sql(stmt)
 
-    _, tenv = enforcer.enforce_opt(
+    _, tenv = await enforcer.enforce_opt(
         "fancy",
         Job.construct(
             target=Target(name="testinfra", job_scheduler_type="slurm"),
@@ -190,7 +197,7 @@ def test_enforce_infra_storage_pref(dbengine):
     # no spec will return the "slowest" (cheaptest) storage class first
     assert tenv["preferred_storage_location"] == "file:///data"
 
-    _, tenv = enforcer.enforce_opt(
+    _, tenv = await enforcer.enforce_opt(
         "fancy",
         Job.construct(
             target=Target(name="testinfra", job_scheduler_type="slurm"),

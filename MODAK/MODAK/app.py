@@ -9,7 +9,6 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 from MODAK import db
@@ -35,17 +34,14 @@ authentication_token = oidc_helpers.ExtendedOpenIdConnect(
 )
 
 engine = create_async_engine(f"sqlite+aiosqlite:///{Settings.db_path}", future=True)
-SessionLocal = sessionmaker(
-    engine,
-    class_=AsyncSession,
-    autocommit=False,
-    autoflush=False,
-    expire_on_commit=False,
-)
+
+
+def get_driver() -> Driver:
+    return Driver(engine)
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionLocal() as session:
+    async with Driver(engine).session() as session:
         yield session  # NOSONAR
 
 
@@ -67,14 +63,14 @@ async def index(request: Request):
 @app.post("/optimise", response_model=JobModel, response_model_exclude_none=True)
 async def optimise(model: JobModel):
     m = MODAK()
-    model.job.job_script, model.job.build_script = m.optimise(model.job)
+    model.job.job_script, model.job.build_script = await m.optimise(model.job)
     return model
 
 
 @app.post("/get_image", response_model=JobModel, response_model_exclude_none=True)
 async def get_image(model: JobModel):
     m = MODAK()
-    container_runtime = m.get_opt_container_runtime(model.job)
+    container_runtime = await m.get_opt_container_runtime(model.job)
     model.job.application.container_runtime = container_runtime
     return model
 
@@ -82,7 +78,7 @@ async def get_image(model: JobModel):
 @app.post("/get_build", response_model=JobModel, response_model_exclude_none=True)
 async def get_build(model: JobModel):
     m = MODAK()
-    model.job.build_script = m.get_buildjob(model.job)
+    model.job.build_script = await m.get_buildjob(model.job)
     return model
 
 
@@ -91,7 +87,7 @@ async def get_build(model: JobModel):
 )
 async def modak_get_optimisation(model: JobModel):
     m = MODAK()
-    model.job.job_content = m.get_optimisation(model.job)
+    model.job.job_content = await m.get_optimisation(model.job)
     return model
 
 
@@ -298,17 +294,16 @@ async def get_container_mapping(
 )
 async def create_container_mapping(
     container_mapping: ContainerMapping,
-    session: AsyncSession = Depends(get_db_session),  # noqa: B008
+    driver: Driver = Depends(get_driver),  # noqa: B008
 ):
     """Add a new infrastructure"""
 
     # The following uses a different driver as the app itself.
     # Meaning that this query goes to the real DB and ignores the
     # temporary test db for the API when testing.
-    driver = Driver()
     mapper = Mapper(driver)
 
-    mapper.add_optcontainer(
+    await mapper.add_optcontainer(
         {
             "name": container_mapping.opt_dsl_code,
             "app_name": container_mapping.app_name,

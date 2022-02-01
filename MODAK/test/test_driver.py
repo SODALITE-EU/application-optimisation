@@ -1,22 +1,23 @@
-import unittest
-
+import pytest
 from sqlalchemy import select
 
 from MODAK.db import Optimisation
 from MODAK.driver import Driver
 
 
-class test_driver(unittest.TestCase):
-    def setUp(self):
-        self.driver = Driver()
+@pytest.fixture
+def driver():
+    """Create a driver with the test DB"""
+    driver = Driver()
+    yield driver
 
-    def tearDown(self):
-        pass
 
-    def test_driver(self):
-        data = self.driver.select_sql(
-            select(Optimisation.opt_dsl_code, Optimisation.app_name).where(
-                Optimisation.app_name == "pytorch"
-            )
+@pytest.mark.anyio
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+async def test_driver(driver):
+    data = await driver.select_sql(
+        select(Optimisation.opt_dsl_code, Optimisation.app_name).where(
+            Optimisation.app_name == "pytorch"
         )
-        self.assertEqual(data[0][1], "pytorch")
+    )
+    assert data[0][1] == "pytorch"

@@ -1,10 +1,10 @@
 import argparse
 import ast
-import asyncio
 import json
 import sys
 from typing import Any, Dict
 
+from anyio import run
 from fastapi.openapi.utils import get_openapi
 from loguru import logger
 from pydantic import ValidationError
@@ -162,31 +162,34 @@ def modak():
     print(f"Input file: '{args.ifile.name}'", file=sys.stderr)
     print(f"Output file: '{args.ofile.name}'", file=sys.stderr)
 
-    m = MODAK()
+    async def modak_async(dsl, ofile, with_jobscript=False):
+        m = MODAK()
 
-    model = JobModel.parse_raw(args.ifile.read())
+        model = JobModel.parse_raw(dsl)
 
-    link = m.optimise(model.job)
+        link = await m.optimise(model.job)
 
-    json_dump_opts: Dict[str, Any] = {}
-    if args.ofile == sys.stdout:
-        json_dump_opts["indent"] = 2
+        json_dump_opts: Dict[str, Any] = {}
+        if ofile == sys.stdout:
+            json_dump_opts["indent"] = 2
 
-    print(f"Job script location: {link.jobscript}", file=sys.stderr)
-    print(f"Job script location: {link.buildscript}", file=sys.stderr)
-    model.job.job_script = link.jobscript
-    model.job.build_script = link.buildscript
+        print(f"Job script location: {link.jobscript}", file=sys.stderr)
+        print(f"Job script location: {link.buildscript}", file=sys.stderr)
+        model.job.job_script = link.jobscript
+        model.job.build_script = link.buildscript
 
-    args.ofile.write(model.json(**json_dump_opts))
+        ofile.write(model.json(**json_dump_opts))
 
-    if args.ofile == sys.stdout:
-        args.ofile.write("\n")
+        if ofile == sys.stdout:
+            ofile.write("\n")
 
-    if args.jobscript:
-        args.ofile.write("\n")
-        with open(link.jobscript) as fhandle:
-            args.ofile.write(fhandle.read())
-        args.ofile.write("\n")
+        if with_jobscript:
+            ofile.write("\n")
+            with open(link.jobscript) as fhandle:
+                ofile.write(fhandle.read())
+            ofile.write("\n")
+
+    run(modak_async, args.ifile.read(), args.ofile, args.jobscript)
 
 
 def import_script():
@@ -311,7 +314,7 @@ def import_script():
         print(script.data.raw, end="")
         print("  <==")
 
-    asyncio.run(create_async(script))
+    run(create_async, script)
 
 
 def dbshell():

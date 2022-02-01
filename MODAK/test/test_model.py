@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from MODAK.model.cpu import CPU
-from MODAK.model.storage import StorageMapMixin
+from MODAK.model.storage import DefaultStorageClass, StorageMapMixin
 
 
 def test_cpu():
@@ -29,3 +29,10 @@ def test_storage_map():
     with pytest.raises(ValidationError) as exc:
         StorageMapMixin(storage={"foo": {"storage_class": "default-ssd"}})
         assert "not an URL" in str(exc)
+
+
+def test_default_storage_ordering():
+    assert DefaultStorageClass("default-high") >= DefaultStorageClass("default-common")
+    assert DefaultStorageClass("default-high") > DefaultStorageClass("default-common")
+    assert DefaultStorageClass("default-high") <= DefaultStorageClass("default-high")
+    assert DefaultStorageClass("default-high") < DefaultStorageClass("default-ssd")
