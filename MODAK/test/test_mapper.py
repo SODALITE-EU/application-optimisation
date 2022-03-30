@@ -71,7 +71,7 @@ async def test_add_container(driver_mapper):
 @pytest.mark.anyio
 @pytest.mark.parametrize("anyio_backend", ["asyncio"])
 async def test_map_container_ai(driver_mapper):
-    driver, mapper = driver_mapper
+    _, mapper = driver_mapper
 
     dsl_file = SCRIPT_DIR / "input" / "tf_snow.json"
 
@@ -79,13 +79,13 @@ async def test_map_container_ai(driver_mapper):
     new_container = await mapper.map_container(
         model.job.application, model.job.optimisation
     )
-    assert new_container == "docker.io://modakopt/modak:tensorflow-2.1-gpu-src"
+    assert new_container == "docker://modakopt/modak:tensorflow-2.1-gpu-src"
 
 
 @pytest.mark.anyio
 @pytest.mark.parametrize("anyio_backend", ["asyncio"])
 async def test_map_container_hpc(driver_mapper):
-    driver, mapper = driver_mapper
+    _, mapper = driver_mapper
 
     model = JobModel.parse_raw(SCRIPT_DIR.joinpath("input/mpi_solver.json").read_text())
     assert model.job.optimisation
