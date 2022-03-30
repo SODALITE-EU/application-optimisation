@@ -147,7 +147,7 @@ pipeline {
             steps {
                 sh """#!/bin/bash
                     cd MODAK
-                    ../make_docker.sh build modak
+                    ../make_docker.sh build modak-api
                     """
             }
         }
