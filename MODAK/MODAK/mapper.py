@@ -26,6 +26,7 @@ class Mapper:
         logger.info("Initialised MODAK mapper")
         self._driver = driver
         self._opts: List[str] = []
+        self._app_name: str = ""
 
     async def map_container(
         self,

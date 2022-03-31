@@ -31,7 +31,7 @@ class MODAK:
 
         self._driver = Driver()
         self._map = Mapper(self._driver)
-        self._scaler = Scaler(self._driver)
+        self._scaler = Scaler(self._driver, self._map)
         self._enf = Enforcer(self._driver)
 
         self._upload = upload

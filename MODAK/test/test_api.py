@@ -92,6 +92,15 @@ def test_get_optimise(client):
     assert response.json()["job"]["job_content"]
 
 
+def test_get_optimise_non_existent(client):
+    req_content = json.loads(
+        SCRIPT_DIR.joinpath("input/get_optimisation_non_existent.json").read_text()
+    )
+    response = client.post("/get_optimisation", json=req_content)
+    assert response.status_code == 200
+    assert response.json()["job"]["job_content"]
+
+
 def test_create_infrastructure_example(client):
     """Test that the infrastructure example we give can be added, but not a 2nd time"""
 

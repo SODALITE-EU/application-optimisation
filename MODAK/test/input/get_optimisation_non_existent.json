@@ -1,0 +1,29 @@
+{
+  "job": {
+    "application": {
+      "app_tag": "no-opt-skyline-extraction-training",
+      "app_type": "python",
+      "executable": "python3 resnet/resnet_imagenet_main.py",
+      "arguments": "--data_dir=/mnt/nfs/home/karthee/AI/data/tf_records/train/ -batch_size=96 --train_epochs=3 --train_steps=10 --use_synthetic_data=false",
+      "container_runtime": "docker://some-container"
+    },
+    "target": {
+      "job_scheduler_type": "torque",
+      "name": "hlrs-testbed"
+    },
+    "job_options": {
+      "job_name": "no-opt-skyline-extraction-training",
+      "wall_time_limit": "12:00:00",
+      "node_count": 1,
+      "core_count": 40,
+      "request_gpus": 1,
+      "queue": "ssd",
+      "standard_output_file": "skyline-extraction-training.out",
+      "standard_error_file": "skyline-extraction-training.err",
+      "combine_stdout_stderr": true,
+      "copy_environment": true,
+      "request_event_notification": "abe",
+      "email_address": "some@email.com"
+    }
+  }
+}

@@ -10,20 +10,15 @@ from .model.scaling import ApplicationScalingModel
 
 
 class Scaler:
-    def __init__(self, driver: Driver):
+    def __init__(self, driver: Driver, mapper: Mapper):
         self._driver = driver
+        self._mapper = mapper
 
     async def scale(
         self, app: Application, optimisation: Optional[Optimisation] = None
     ):
 
-        # TODO: here we dupliate the Mapper object and obtain the DSL code again
-        #       to be able to lookup any model specs. The proper way would probably
-        #       be for Mapper to return an object right from the start, rather than
-        #       this duplicated/convoluted effort. Duplicating the mapper since
-        #       get_dsl_code() changes the class' state.
-        mapper = Mapper(self._driver)
-        dsl_code = await mapper.get_dsl_code(app, optimisation)
+        dsl_code = await self._mapper.get_dsl_code(app, optimisation)
 
         if dsl_code is None:
             return None

@@ -3,6 +3,7 @@ from pydantic import ValidationError
 from sqlalchemy import insert
 
 from MODAK import db
+from MODAK.mapper import Mapper
 from MODAK.model import Application
 from MODAK.model.scaling import (
     ApplicationScalingModelIn,
@@ -89,7 +90,7 @@ def test_amdahl_correctness():
 @pytest.mark.anyio
 @pytest.mark.parametrize("anyio_backend", ["asyncio"])
 async def test_scaler_no_dsl_code(driver):
-    scaler = Scaler(driver)
+    scaler = Scaler(driver, Mapper(driver))
     app = Application.construct(app_tag="testapp", mpi_ranks=256)
     assert not await scaler.scale(app)
 
@@ -105,7 +106,7 @@ async def test_scaler_no_model(driver):
     )
     await driver.update_sql(stmt)
 
-    scaler = Scaler(driver)
+    scaler = Scaler(driver, Mapper(driver))
     app = Application.construct(app_tag="testapp", mpi_ranks=256)
     assert not await scaler.scale(app)
 
@@ -129,7 +130,7 @@ async def test_scaler_max(driver):
     )
     await driver.update_sql(stmt)
 
-    scaler = Scaler(driver)
+    scaler = Scaler(driver, Mapper(driver))
     app = Application.construct(app_tag="testapp", mpi_ranks=256, threads=8)
     assert await scaler.scale(app)  # the scaling should run
     assert app.mpi_ranks == MAX_NRANKS
