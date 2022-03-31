@@ -344,6 +344,10 @@ class Optimisation(BaseModel):
 
     @root_validator
     def check_app_type(cls, values):  # noqa: B902
+        # skip checks if the mandatory app_type is not present, pydantic checks for that afterwards
+        if "app_type" not in values:
+            return values
+
         app_type_attr = f"app_type-{values['app_type']}"
         if not values.get(app_type_attr.replace("-", "_")):
             raise ValueError(
