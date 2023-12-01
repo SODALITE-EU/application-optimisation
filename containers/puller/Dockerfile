@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:1.21.4-alpine3.18
 
 LABEL version = "0.1" \
       author = "Kamil Tokmakov" \
