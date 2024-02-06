@@ -1,6 +1,6 @@
 Jinja2==3.0.3
 pydantic[email]==1.9.0
-fastapi==0.71.0
+fastapi==0.109.1
 sqlalchemy[asyncio,aiosqlite]==1.4.29
 rich==10.16.2
 pytest==6.2.5
